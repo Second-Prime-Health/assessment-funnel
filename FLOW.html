@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<title>Assessment Funnel Flow | Second Prime</title>
+<style>
+  :root { --ink:#1F1F27; --gray:#686877; --teal:#458D93; --teal-b:#65C8D0; --sand:#F7F4F0; --red:#C4584D; --gold:#C9A85C; }
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: -apple-system, "Satoshi", sans-serif; background: var(--sand); color: var(--ink); padding: 40px 16px 80px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1 { font-family: Georgia, serif; font-weight: 400; font-size: 34px; margin-bottom: 6px; }
+  .sub { color: var(--gray); font-size: 15px; margin-bottom: 36px; max-width: 62ch; line-height: 1.55; }
+  .lane { position: relative; padding-left: 26px; border-left: 3px solid #DAD5CD; margin-left: 8px; }
+  .node { position: relative; background: #fff; border: 1px solid #E5E3E0; border-radius: 12px; padding: 16px 20px; margin-bottom: 14px; }
+  .node::before { content: ""; position: absolute; left: -33px; top: 22px; width: 13px; height: 13px; border-radius: 50%; background: var(--teal); border: 3px solid var(--sand); }
+  .node h3 { font-size: 15.5px; margin-bottom: 3px; }
+  .node p { font-size: 13.5px; color: var(--gray); line-height: 1.5; }
+  .node .opts { font-size: 12.5px; color: var(--gray); margin-top: 6px; line-height: 1.6; }
+  .node .opts b { color: var(--ink); font-weight: 600; }
+  .q .tagchip { background: rgba(69,141,147,0.1); color: var(--teal); }
+  .int { background: #14323A; border-color: #14323A; color: #F2F7F7; }
+  .int h3 { color: #fff; }
+  .int p { color: rgba(226,240,241,0.8); }
+  .int::before { background: var(--teal-b); }
+  .tagchip { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; padding: 3px 10px; border-radius: 100px; margin-bottom: 8px; }
+  .int .tagchip { background: var(--teal-b); color: #10262B; }
+  .branch { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 4px 0 14px; }
+  .branch .node { margin-bottom: 0; }
+  .branch .node::before { display: none; }
+  .cond { border-left: 4px solid var(--gold); }
+  .cond3 { grid-template-columns: 1fr 1fr 1fr; }
+  .arrow-label { font-size: 11.5px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--gray); margin: 2px 0 8px 2px; }
+  .end { border-left: 4px solid var(--teal); }
+  .end-dq { border-left: 4px solid var(--red); }
+  .sectionhead { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: var(--teal); margin: 26px 0 12px 2px; }
+  .legend { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 30px; font-size: 12.5px; color: var(--gray); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+  .dot { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+  @media (max-width: 700px) { .branch, .cond3 { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Assessment funnel flow</h1>
+  <p class="sub">Positioned as step 1 of the program: the assessment arms the call, the call delivers the answers. Every step in order, top to bottom. White cards are questions. Dark cards are the trust interstitials, and each one is dynamic: it reads the answers just given and shows the matching proof. Gold-edged cards only appear on certain paths.</p>
+  <div class="legend">
+    <span><span class="dot" style="background:#fff;border:1px solid #ccc"></span>Question</span>
+    <span><span class="dot" style="background:#14323A"></span>Trust interstitial (dynamic)</span>
+    <span><span class="dot" style="background:#C9A85C"></span>Conditional: only some paths see it</span>
+    <span><span class="dot" style="background:#458D93"></span>Destination</span>
+  </div>
+
+  <div class="lane">
+    <div class="sectionhead">Open: who they are, what they want</div>
+    <div class="node q"><span class="tagchip">Q1</span><h3>What do you want most from the next 10 years?</h3><p>Risk / Performance / Strong years with the people I love / All of it. Sets what the report leads with.</p></div>
+    <div class="node q"><span class="tagchip">Q2</span><h3>How old are you? (slider)</h3></div>
+    <div class="node q"><span class="tagchip">Q3</span><h3>Which best describes you?</h3><p>Owner / Executive / Other. Decides which money question shows up later.</p></div>
+
+    <div class="node int"><span class="tagchip">Interstitial 1 &middot; reacts to Q3</span><h3>&ldquo;You&rsquo;re in the right place&rdquo; proof</h3>
+      <p><b>Owner:</b> &ldquo;You carry the company. Your biology carries you&rdquo; + 500+ founders line.<br />
+      <b>Executive:</b> operator version of the same.<br />
+      <b>Other:</b> high-performer version. No health stats yet; this one only says &ldquo;we know your seat.&rdquo;</p></div>
+
+    <div class="sectionhead">Performance section</div>
+    <div class="node q"><span class="tagchip">Q4</span><h3>Energy through a workday</h3><div class="opts">Strong all day &middot; Fading after lunch &middot; <b>3pm crash runs my calendar</b> &middot; <b>Coffee and willpower</b></div></div>
+    <div class="node q"><span class="tagchip">Q5</span><h3>Mental sharpness</h3><div class="opts">Sharp as ever &middot; A step slower &middot; <b>Foggy, words go missing</b></div></div>
+    <div class="node q"><span class="tagchip">Q6</span><h3>How do you wake up?</h3><div class="opts">Rested &middot; <b>7&ndash;8 hours, still tired</b> &middot; <b>Broken sleep</b></div></div>
+    <div class="node q"><span class="tagchip">Q7</span><h3>Drive and libido vs 10 years ago</h3><div class="opts">Where they&rsquo;ve always been &middot; <b>Noticeably lower</b> &middot; <b>A fraction</b></div></div>
+
+    <div class="node int"><span class="tagchip">Interstitial 2 &middot; reacts to worst of Q4&ndash;Q7</span><h3>Proof matched to their weakest answer</h3>
+      <p><b>Drive worst:</b> testosterone falls ~1%/year math + J.M. &ldquo;testosterone doubled&rdquo; quote.<br />
+      <b>Energy or sleep worst:</b> &ldquo;the 3pm fog has a chemistry&rdquo; (coffee at 11, 1, and 3, the car nap) + D.R. brain-fog quote.<br />
+      <b>All strong:</b> &ldquo;you&rsquo;re holding the line better than most&rdquo; + R.S. skeptic quote, sets up hidden-drift angle.</p></div>
+
+    <div class="sectionhead">Risk section</div>
+    <div class="node q"><span class="tagchip">Q8</span><h3>How do you feel about your weight?</h3><div class="opts">Good where I am &middot; Lose 5&ndash;25 lbs &middot; <b>Lose 25&ndash;50 lbs</b> &middot; <b>Lose 50+ lbs</b> &middot; Need to gain</div></div>
+    <div class="node q"><span class="tagchip">Q9</span><h3>Select any chronic diseases that run in your family</h3><div class="opts">Multi-select: <b>heart disease</b> &middot; <b>type 2 diabetes</b> &middot; <b>stroke</b> &middot; <b>cancer</b> &middot; <b>dementia</b> &middot; <b>high blood pressure</b> &middot; none. The specific diseases go to the team for call prep.</div></div>
+    <div class="node q"><span class="tagchip">Q10</span><h3>Last testing beyond a standard physical</h3><div class="opts">Deep panel &lt;12 mo &middot; <b>Standard physical only</b> &middot; <b>Been years</b></div></div>
+
+    <div class="node int"><span class="tagchip">Interstitial 3 &middot; reacts to Q9 + Q10</span><h3>Risk proof + Dustin case card</h3>
+      <p><b>Family history flagged:</b> &ldquo;family history is the strongest reason to look early&rdquo; + AHA 2009 normal-cholesterol stat.<br />
+      <b>Shallow testing:</b> &ldquo;a physical checks a few dozen markers, we measure 1,000+&rdquo; + insulin-before-glucose line.<br />
+      <b>Tests deep already:</b> &ldquo;the data is only half, the read is the other half.&rdquo;<br />
+      All three variants show the normal-vs-optimal range bars (Free T, fasting insulin, ApoB: gray = lab &ldquo;normal,&rdquo; teal = optimal, red dot = told-you&rsquo;re-fine) and end on the Dustin case: doctor said fine, labs said diabetes, -47 lbs, triglycerides 693 &rarr; 167.</p></div>
+
+    <div class="sectionhead">Trigger + fit</div>
+    <div class="node q"><span class="tagchip">Q11</span><h3>What&rsquo;s your motivation for prioritizing your health right now?</h3><p>Trigger-event answer goes to Mike before triage; trigger buyers close at a far higher rate.</p></div>
+    <div class="node q"><span class="tagchip">Q12</span><h3>What have you already tried?</h3><p>Multi-select: doctor/concierge, TRT clinic, functional medicine, trainers, self-directed, nothing serious yet. Positions Second Prime above what burned them and arms the call with switcher context.</p></div>
+
+    <div class="node int"><span class="tagchip">Interstitial 5 &middot; reacts to Q12 selections</span><h3>&ldquo;Here&rsquo;s why none of it stuck&rdquo;</h3>
+      <p>One hole-poke line per thing they selected (up to 3): <b>TRT clinic</b> &rarr; just enough labs to prescribe, never chased the why &middot; <b>functional doc</b> &rarr; labs + a bag of supplements + hope &middot; <b>doctor</b> &rarr; 40 markers, 8 minutes, &ldquo;normal&rdquo; &middot; <b>coaches</b> &rarr; effort without ever seeing blood &middot; <b>self-directed</b> &rarr; synthesizing the wearable became a second job. Closes on the one-team promise. <b>Nothing tried:</b> &ldquo;you get to skip the expensive detours.&rdquo;</p></div>
+
+    <p class="arrow-label">Branch on Q3</p>
+    <div class="branch">
+      <div class="node q cond"><span class="tagchip">Q12 &middot; owners</span><h3>Annual business revenue</h3><div class="opts">$0&ndash;500K &middot; $500K&ndash;$1M &middot; $1M&ndash;$3M &middot; $3M&ndash;$10M &middot; $10M&ndash;$25M &middot; $25M+</div></div>
+      <div class="node q cond"><span class="tagchip">Q12 &middot; everyone else</span><h3>Annual income</h3><div class="opts">$0&ndash;200K &middot; $200K&ndash;400K &middot; $400K&ndash;$1M &middot; $1M+</div></div>
+    </div>
+
+    <p class="arrow-label">Only if owner under $500K revenue, or non-owner under $200K income</p>
+    <div class="node q cond"><span class="tagchip">Q12b &middot; conditional</span><h3>Ready to invest at least $10K this year?</h3><div class="opts">Yes &middot; Could make it happen &middot; <b>More than I can invest right now</b></div></div>
+
+    <div class="node q"><span class="tagchip">Q13</span><h3>If it&rsquo;s worth acting on, when would you start?</h3><div class="opts">Within 30 days &middot; Within 90 days &middot; Just exploring</div></div>
+
+    <div class="node int"><span class="tagchip">Interstitial 4 &middot; static</span><h3>&ldquo;Your assessment is almost in&rdquo;</h3><p>R.S. skeptic quote + sets the expectation: details next, then pick a call time. &ldquo;We review everything you just told us before we get on.&rdquo;</p></div>
+
+    <div class="sectionhead">Contact and routing</div>
+    <div class="node q"><span class="tagchip">Contact</span><h3>Last step. Who is this assessment for?</h3><p>Name, email, phone. Submit fires the GHL webhook for everyone (statuses, all answers, internal score for triage) and the pixel event. GHL sends the assessment summary email from this data.</p></div>
+
+    <p class="arrow-label">Routing after &ldquo;logging your assessment&hellip;&rdquo;</p>
+    <div class="branch">
+      <div class="node end"><span class="tagchip" style="background:rgba(69,141,147,0.12);color:var(--teal)">Qualified</span><h3>&rarr; Booking page, immediately (step 2 of 2)</h3><p>Headline: &ldquo;Your assessment is in. Pick your time.&rdquo; Above the calendar: up to 3 plain-language flags from their answers (&ldquo;the afternoon energy crash,&rdquo; &ldquo;family health history&rdquo;), no score. The pitch: we review your assessment before the call, so it&rsquo;s about you from minute one. Written summary by email.</p></div>
+      <div class="node end-dq"><span class="tagchip" style="background:rgba(196,88,77,0.12);color:var(--red)">Disqualified (below threshold + can&rsquo;t invest)</span><h3>&rarr; Assessment summary page, soft path</h3><p>Full Risk and Performance summary as the free value: their answers mirrored back with what each usually means. Honest &ldquo;wrong fit&rdquo; message, no booking CTAs, door stays open.</p></div>
+    </div>
+
+    <div class="node end"><span class="tagchip" style="background:rgba(69,141,147,0.12);color:var(--teal)">After booking</span><h3>Thank-you page</h3><p>Show-rate homework (accept invite, labs handy, know your one thing) + &ldquo;see your assessment summary&rdquo; button. Curiosity gets satisfied after the booking, never instead of it.</p></div>
+  </div>
+</div>
+</body>
+</html>

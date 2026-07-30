@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Book Your Call | Second Prime</title>
+  <meta name="description" content="Your application is in. Book your 15-minute call." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png" />
+  <meta name="theme-color" content="#F7F4F0" />
+  <script>document.documentElement.classList.add("js");</script>
+  <link rel="stylesheet" href="css/styles.css?v=1" />
+  <link rel="stylesheet" href="css/funnel.css?v=11" />
+  <link rel="stylesheet" href="css/assess.css?v=30" />
+  <!-- Meta pixel (Amartinco LLC's Pixel). Neutral event names only, per Meta health-advertiser rules. -->
+  <script>
+  (function () {
+    if (/^(localhost|127\.0\.0\.1|tests\.secondprime\.io)$|github\.io$/.test(location.hostname)) return; // no pixel on local/test previews
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '500535282073021');
+    fbq('track', 'PageView');
+  })();
+  </script>
+</head>
+<body class="ap-page">
+
+  <header class="nav ap-nav" id="nav">
+    <div class="nav-inner">
+      <span class="nav-logo" role="img" aria-label="Second Prime"></span>
+      <nav class="nav-links"></nav>
+      <div class="nav-actions"></div>
+    </div>
+  </header>
+
+  <main class="ap bk-main">
+    <div class="ap-head">
+      <span class="eyebrow">Step 2 of 2 &middot; Assessment Received</span>
+      <h1 id="bkHeadline">Your assessment is in.<br />Pick your time.</h1>
+      <p class="ap-sub">A free 15-minute call. We review your assessment before we get on, so it&rsquo;s about you from the first minute.<span id="emailNote"></span></p>
+    </div>
+
+    <div class="bk-teaser" id="bkTeaser" style="display:none">
+      <div class="bk-t-txt" style="text-align:center; max-width:none"><b>Your assessment flagged</b>
+        <span class="bk-flags" id="bkFlags"></span>
+        <span id="bkTease" style="display:block; margin-top:8px"></span>
+      </div>
+    </div>
+
+    <section class="book-wrap">
+      <div class="container">
+        <div class="book-shell">
+          <!-- Step 1: Day strip + times, one screen. Starts today, no month
+               navigation, first open day preselected. -->
+          <div id="spb-step-calendar">
+            <div class="spb__head">
+              <div>
+                <p class="spb__eyebrow">Pick a day</p>
+                <p class="spb__month" id="spb-month">Next 14 days</p>
+              </div>
+              <button class="spb__more" id="spb-more" type="button" style="display:none">More dates</button>
+            </div>
+            <div class="spb__dow"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+            <div class="spb__strip" id="spb-days"></div>
+            <div class="spb__loading" id="spb-loading" style="display:none;"><div class="spb__spinner"></div>Loading available times&hellip;</div>
+            <div class="spb__times" id="spb-step-times" style="display:none;">
+              <p class="spb__eyebrow spb__times-head">Times on <span id="spb-date-label"></span></p>
+              <div class="spb__slots" id="spb-slots"></div>
+              <p class="spb__tz" id="spb-tz"></p>
+            </div>
+          </div>
+
+          <!-- Step 2: Details -->
+          <div id="spb-step-form" style="display:none;">
+            <button class="spb__back" id="spb-back-times"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>Pick a different time</button>
+            <p class="spb__eyebrow">Your details</p>
+            <p class="spb__confirm-line" id="spb-confirm-dt"></p>
+            <form id="spb-form">
+              <div class="spb__field"><label for="spb-name">Full name</label><input type="text" id="spb-name" name="name" required autocomplete="name" /></div>
+              <div class="spb__field"><label for="spb-email">Email</label><input type="email" id="spb-email" name="email" required autocomplete="email" /></div>
+              <div class="spb__field"><label for="spb-phone">Phone</label><input type="tel" id="spb-phone" name="phone" required autocomplete="tel" /></div>
+              <button type="submit" class="btn btn-teal spb__submit" id="spb-submit">Confirm booking</button>
+              <div class="spb__error" id="spb-error"></div>
+            </form>
+          </div>
+
+          <!-- Step 4: Confirmed -->
+          <div id="spb-step-confirmed" style="display:none;">
+            <div class="spb__confirmed">
+              <div class="spb__check"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg></div>
+              <h3>You&rsquo;re booked.</h3>
+              <p id="spb-confirmed-details"></p>
+              <p style="margin-top:12px;">A confirmation is on its way to your inbox. Accept the calendar invite so the time is locked in.</p>
+              <p style="margin-top:22px;"><a class="btn btn-teal" href="thank-you.html" id="spb-finish">What happens next &rarr;</a></p>
+            </div>
+          </div>
+
+          <!-- Fallback: GHL widget when /api isn't deployed (static hosting) -->
+          <div class="spb__fallback" id="spb-fallback">
+            <iframe id="bookingWidget"
+              src="https://link.secondprime.io/widget/booking/q2ivh7vI9bOR6uWq5rxb"
+              scrolling="no"
+              title="Book Your Second Prime Call"></iframe>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <p class="bk-vidlink"><a href="#bookingVideo">Not sure yet? Watch the 60-second video first &darr;</a></p>
+
+    <div class="bk-who">
+      <img src="assets/cases/mike-head.jpg" alt="Mike Tulimiero" loading="lazy" />
+      <div><b>You&rsquo;ll talk with Mike</b><span>He reads your assessment before the call.</span></div>
+    </div>
+
+    <div class="ap-process" style="margin-top:28px">
+      <div class="ap-p"><b>01</b><div>We do the homework</div><span>Your assessment gets reviewed before the call, every answer</span></div>
+      <div class="ap-p"><b>02</b><div>Can we help?</div><span>A straight answer on whether we&rsquo;re the right fit</span></div>
+      <div class="ap-p"><b>03</b><div>The plan</div><span>What the process looks like, timeline, how to start</span></div>
+    </div>
+
+    <!-- ============ BOOKING VIDEO (Vimeo) ============ -->
+    <div class="bk-vidhead">
+      <span class="eyebrow">60 Seconds, No Pitch</span>
+      <h2>Watch what happens on the call.</h2>
+      <p>How we prep from your assessment, what you walk away with, and why there&rsquo;s nothing to sit through at the end.</p>
+    </div>
+    <div class="as-video" id="bookingVideo" style="margin-top:0">
+      <div style="padding:56.25% 0 0 0;position:relative;border-radius:16px;overflow:hidden;"><iframe src="https://player.vimeo.com/video/1179952534?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Second Prime"></iframe></div>
+    </div>
+    <script src="https://player.vimeo.com/api/player.js"></script>
+
+    <figure class="ap-quote">
+      <span class="ap-qmark" aria-hidden="true">&ldquo;</span>
+      <p>I came in skeptical. I&rsquo;d done bloodwork a dozen times. Andrew found things in week one nobody had flagged. Three months later the numbers tell a completely different story.</p>
+      <figcaption class="ap-who">
+        <span class="ap-ava" aria-hidden="true">RS</span>
+        <span class="ap-name"><b>R. S.</b><span>Founder, Tech &middot; 44</span></span>
+      </figcaption>
+    </figure>
+
+    <figure class="ap-quote" style="margin-top: 40px">
+      <span class="ap-qmark" aria-hidden="true">&ldquo;</span>
+      <p>This call is a diagnostic conversation, and there&rsquo;s no pitch at the end. Come ready to be honest about where you are and what you want.</p>
+      <figcaption class="ap-who">
+        <span class="ap-ava" aria-hidden="true">AM</span>
+        <span class="ap-name"><b>Andrew Martin</b><span>Founder &amp; Biologist, Second Prime</span></span>
+      </figcaption>
+    </figure>
+  </main>
+
+  <footer class="apply-footer">
+    <div class="f-logo" role="img" aria-label="Second Prime"></div>
+    <p class="tagline">Health &middot; Performance &middot; Longevity</p>
+    <p class="copy">&copy; 2026 Second Prime. All rights reserved.</p>
+  </footer>
+
+  <script src="https://link.secondprime.io/js/form_embed.js" type="text/javascript"></script>
+  <script>
+    (function () {
+      var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+      var userTz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      var windowWeeks = 2;          // current week + next, Monday-start
+      var MAX_WEEKS = 4;            // what "More dates" expands to
+      var availableSlots = {};
+      var selectedDate = '';
+      var selectedSlot = '';
+      var apiDead = false;
+      /* Demo mode: on localhost with no /api deployed, render the custom
+         calendar with sample availability so the design can be reviewed.
+         In production the same failure falls back to the GHL widget. */
+      var demoMode = false;
+      var isLocal = /^(localhost|127\.0\.0\.1|tests\.secondprime\.io)$|github\.io$/.test(location.hostname);
+      function demoSlots() {
+        var out = {};
+        var d = new Date();
+        for (var i = 1; i <= MAX_WEEKS * 7; i++) {
+          var day = new Date(d.getFullYear(), d.getMonth(), d.getDate() + i);
+          var dow = day.getDay();
+          if (dow === 0 || dow === 6) continue;
+          if ((day.getDate() + dow) % 3 === 0) continue;
+          var key = day.getFullYear() + '-' + String(day.getMonth() + 1).padStart(2, '0') + '-' + String(day.getDate()).padStart(2, '0');
+          out[key] = [9, 10, 11, 13, 14, 15].map(function (h) {
+            return new Date(day.getFullYear(), day.getMonth(), day.getDate(), h, 0, 0).toISOString();
+          });
+        }
+        return out;
+      }
+
+      var $ = function (id) { return document.getElementById(id); };
+      var rangeLabel = $('spb-month'), daysEl = $('spb-days'), loadingEl = $('spb-loading'), moreBtn = $('spb-more');
+      var stepCal = $('spb-step-calendar'), stepTimes = $('spb-step-times'), stepForm = $('spb-step-form'), stepDone = $('spb-step-confirmed');
+      var slotsEl = $('spb-slots'), dateLabel = $('spb-date-label'), confirmDt = $('spb-confirm-dt'), confirmedDetails = $('spb-confirmed-details');
+      var bookForm = $('spb-form'), bookError = $('spb-error');
+
+      // Prefill from the application handoff (query string or saved application).
+      var params = new URLSearchParams(window.location.search);
+      var pre = { name: '', email: '', phone: '' };
+      try {
+        var app = JSON.parse(localStorage.getItem('sp_application') || '{}');
+        pre.name = ((params.get('first_name') || app.firstName || '') + ' ' + (params.get('last_name') || app.lastName || '')).trim();
+        pre.email = params.get('email') || app.email || '';
+        pre.phone = params.get('phone') || app.phone || '';
+      } catch (_) {}
+      if (pre.name) $('spb-name').value = pre.name;
+      if (pre.email) $('spb-email').value = pre.email;
+      if (pre.phone) $('spb-phone').value = pre.phone;
+      var finish = $('spb-finish');
+      var firstName = params.get('first_name') || '';
+      if (params.get('tier') === 'lower') finish.href = 'thank-you.html?tier=lower';
+      if (firstName) {
+        finish.href = 'thank-you.html?first_name=' + encodeURIComponent(firstName) +
+          (params.get('tier') === 'lower' ? '&tier=lower' : '');
+        var head = document.getElementById('bkHeadline');
+        head.innerHTML = firstName.replace(/[<>&"]/g, '') + ', your assessment is in.<br />Pick your time.';
+      }
+
+      /* Assessment-flags teaser: plain-language flags from their answers, ranked
+         by severity. No score shown; the read itself belongs to the call. */
+      try {
+        var res = JSON.parse(localStorage.getItem('sp_assessment') || 'null');
+        // ?demo=1 previews the teaser strip without stored assessment data.
+        if (params.get('demo') && !(res && res.data)) {
+          res = { data: { energy: 'The 3pm crash runs my calendar', family: 'Heart disease', labs: 'Standard annual physical only', bodycomp: 'I need to lose 25 to 50 lbs' } };
+        }
+        var FLAGS = [
+          { f: 'energy',   match: /crash|coffee/i,            label: 'The afternoon energy crash', w: 5 },
+          { f: 'drive',    match: /lower|fraction/i,          label: 'Drive and libido decline', w: 5 },
+          { f: 'bodycomp', match: /lose 50\+/i,               label: '50+ lbs to lose', w: 5 },
+          { f: 'bodycomp', match: /lose 25 to 50/i,           label: '25+ lbs to lose', w: 4 },
+          { f: 'bodycomp', match: /gain weight/i,             label: 'Trouble holding weight on', w: 3 },
+          { f: 'family',   match: /heart|diabetes|stroke|cancer|dementia|blood pressure/i, label: 'Family history of chronic disease', w: 4 },
+          { f: 'labs',     match: /physical only|been years/i, label: 'No deep bloodwork on record', w: 4 },
+          { f: 'sleep',    match: /still wake up tired|broken/i, label: 'Waking up tired after full nights', w: 3 },
+          { f: 'focus',    match: /foggy/i,                   label: 'Brain fog most days', w: 3 },
+          { f: 'energy',   match: /fading after lunch/i,      label: 'Afternoon energy fade', w: 2 },
+          { f: 'focus',    match: /step slower/i,             label: 'Sharpness a step slower', w: 2 },
+          { f: 'bodycomp', match: /lose 5 to 25/i,            label: 'Weight above where you want it', w: 2 }
+        ];
+        if (res && res.data) {
+          var seen = {}, hits = [];
+          FLAGS.forEach(function (fl) {
+            var ans = res.data[fl.f] || '';
+            if (!seen[fl.f] && fl.match.test(ans)) { seen[fl.f] = true; hits.push(fl); }
+          });
+          hits.sort(function (a, b) { return b.w - a.w; });
+          var top = hits.slice(0, 3);
+          if (top.length) {
+            document.getElementById('bkFlags').innerHTML = top.map(function (fl) {
+              return '<i class="bk-flag">' + fl.label + '</i>';
+            }).join('');
+            document.getElementById('bkTease').textContent = 'On the call: what’s likely behind ' + (top.length > 1 ? 'these' : 'this') + ', and what we’d test first.';
+            document.getElementById('bkTeaser').style.display = '';
+          }
+        }
+      } catch (_) {}
+
+      /* Lower-tier path (?tier=lower): same custom calendar, different GHL
+         calendar behind it (30 minutes instead of 15). The tier rides along to
+         /api/slots and /api/book, which map it to a calendar id server-side.
+         Only the widget fallback needs the raw URL. */
+      var LOWER_CAL = 'https://link.secondprime.io/widget/booking/85vCxdmO6uvmsJmx97Rp';
+      var isLower = params.get('tier') === 'lower';
+      var callMins = isLower ? '30 minutes' : '15 minutes';
+      if (isLower) {
+        document.getElementById('bookingWidget').src = LOWER_CAL;
+        document.querySelector('.ap-sub').innerHTML =
+          'A free 30-minute call. We review your assessment before we get on, so it\u2019s about you from the first minute.<span id="emailNote"></span>';
+      }
+
+      /* If /api/slots isn't deployed (plain static hosting), fall back to the
+         embedded GHL booking widget so the page always works. */
+      function fallbackToWidget() {
+        apiDead = true;
+        stepCal.style.display = 'none';
+        stepForm.style.display = 'none';
+        var qs = new URLSearchParams();
+        ['first_name', 'last_name', 'email', 'phone'].forEach(function (k) { if (params.get(k)) qs.set(k, params.get(k)); });
+        var frame = $('bookingWidget');
+        if ([].slice.call(qs.keys()).length && frame.src.indexOf('?') === -1) frame.src += '?' + qs.toString();
+        $('spb-fallback').style.display = 'block';
+      }
+
+      $('spb-back-times').addEventListener('click', function () { stepForm.style.display = 'none'; stepCal.style.display = 'block'; });
+      moreBtn.addEventListener('click', function () {
+        windowWeeks = MAX_WEEKS;
+        moreBtn.style.display = 'none';
+        renderStrip();
+      });
+
+      function key(d) {
+        return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+      }
+      function addDays(n) {
+        var t = new Date();
+        return new Date(t.getFullYear(), t.getMonth(), t.getDate() + n);
+      }
+      // Monday of the current week, so the grid always reads as calendar weeks.
+      function weekStart() {
+        var t = new Date();
+        var back = (t.getDay() + 6) % 7;
+        return new Date(t.getFullYear(), t.getMonth(), t.getDate() - back);
+      }
+
+      /* Full weeks, Monday to Sunday: this week on top, next week below. Days
+         already gone and days with no availability stay in place but dimmed,
+         so the shape of the week never moves. */
+      function renderStrip() {
+        var mon = weekStart(), todayKey = key(addDays(0));
+        var html = '', firstOpen = '', total = windowWeeks * 7;
+        for (var i = 0; i < total; i++) {
+          var d = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + i);
+          var k = key(d);
+          var past = k < todayKey;
+          var open = !past && availableSlots[k] && availableSlots[k].length > 0;
+          if (open && !firstOpen) firstOpen = k;
+          var cls = 'spb__d' + (past ? ' is-past' : (open ? ' is-open' : ' is-closed')) +
+                    (k === todayKey ? ' is-today' : '') + (k === selectedDate ? ' is-sel' : '');
+          html += '<button type="button" class="' + cls + '" data-date="' + k + '"' + (open ? '' : ' disabled') + '>' +
+                  '<span class="spb__d-num">' + d.getDate() + '</span>' +
+                  '<span class="spb__d-mon">' + (k === todayKey ? 'Today' : MON[d.getMonth()]) + '</span></button>';
+        }
+        daysEl.innerHTML = html;
+        daysEl.querySelectorAll('.spb__d.is-open').forEach(function (btn) {
+          btn.addEventListener('click', function () { showTimes(btn.dataset.date); });
+        });
+
+        var last = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + total - 1);
+        rangeLabel.textContent = MON[mon.getMonth()] + ' ' + mon.getDate() + ' – ' + MON[last.getMonth()] + ' ' + last.getDate();
+        moreBtn.style.display = windowWeeks < MAX_WEEKS ? '' : 'none';
+
+        if (!firstOpen) {
+          stepTimes.style.display = 'none';
+          if (windowWeeks >= MAX_WEEKS && !document.querySelector('.spb__none-wk')) {
+            daysEl.insertAdjacentHTML('afterend', '<p class="spb__none spb__none-wk">Nothing open in the next ' + MAX_WEEKS + ' weeks. Email hello@secondprime.io and we’ll find a time.</p>');
+          }
+          return;
+        }
+        // Preselect the first day that has times so nobody hunts for one.
+        showTimes(availableSlots[selectedDate] && availableSlots[selectedDate].length ? selectedDate : firstOpen);
+      }
+
+      async function fetchSlots() {
+        if (apiDead || demoMode) return;
+        loadingEl.style.display = 'block';
+        var startDate = key(addDays(0));
+        var endDate = key(addDays(MAX_WEEKS * 7));
+        try {
+          var res = await fetch('/api/slots?startDate=' + startDate + '&endDate=' + endDate +
+                                '&timezone=' + encodeURIComponent(userTz) + (isLower ? '&tier=lower' : ''));
+          if (!res.ok) throw new Error('api unavailable');
+          var data = await res.json();
+          availableSlots = {};
+          if (data && typeof data === 'object' && !data.error && !data.message) {
+            var slotsData = data.slots || data;
+            for (var dateKey in slotsData) {
+              var value = slotsData[dateKey];
+              if (Array.isArray(value)) availableSlots[dateKey] = value.map(function (s) { return typeof s === 'string' ? s : (s.slot || s.startTime); });
+              else if (value && typeof value === 'object' && value.slots) availableSlots[dateKey] = value.slots.map(function (s) { return typeof s === 'string' ? s : (s.slot || s.startTime); });
+            }
+          }
+          loadingEl.style.display = 'none';
+          renderStrip();
+        } catch (err) {
+          loadingEl.style.display = 'none';
+          if (isLocal) {
+            demoMode = true;
+            availableSlots = demoSlots();
+            renderStrip();
+          } else {
+            fallbackToWidget();
+          }
+        }
+      }
+
+      function showTimes(dateStr) {
+        selectedDate = dateStr;
+        daysEl.querySelectorAll('.spb__d').forEach(function (b) {
+          b.classList.toggle('is-sel', b.dataset.date === dateStr);
+        });
+        var slots = availableSlots[dateStr] || [];
+        var date = new Date(dateStr + 'T12:00:00');
+        dateLabel.textContent = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+        if (!slots.length) {
+          slotsEl.innerHTML = '<p class="spb__none">No times left on this day.</p>';
+        } else {
+          slotsEl.innerHTML = slots.map(function (slot) {
+            var t = new Date(slot);
+            var label = t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            return '<button type="button" class="spb__slot" data-slot="' + slot + '">' + label + '</button>';
+          }).join('');
+        }
+        slotsEl.querySelectorAll('.spb__slot').forEach(function (btn) {
+          btn.addEventListener('click', function () { selectedSlot = btn.dataset.slot; showForm(); });
+        });
+        $('spb-tz').textContent = 'Times shown in ' + userTz.replace(/_/g, ' ') + '. The call is ' + callMins + ', on Zoom.';
+        stepTimes.style.display = 'block';
+      }
+
+      function showForm() {
+        var t = new Date(selectedSlot);
+        var ds = t.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+        var ts = t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        confirmDt.textContent = ds + ' at ' + ts;
+        stepTimes.style.display = 'none';
+        stepForm.style.display = 'block';
+      }
+
+      bookForm.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        var submitBtn = $('spb-submit');
+        if (!bookForm.checkValidity()) { bookForm.reportValidity(); return; }
+        submitBtn.disabled = true; submitBtn.textContent = 'Booking…';
+        bookError.style.display = 'none';
+        var payload = { name: $('spb-name').value.trim(), email: $('spb-email').value.trim(), phone: $('spb-phone').value.trim(), slot: selectedSlot, tier: isLower ? 'lower' : 'core' };
+        if (demoMode) {
+          var td = new Date(selectedSlot);
+          confirmedDetails.textContent = td.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + ' at ' + td.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) + ' (demo — no real booking made)';
+          stepForm.style.display = 'none';
+          stepDone.style.display = 'block';
+          return;
+        }
+        try {
+          var res = await fetch('/api/book', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+          var data = await res.json();
+          if (res.ok && data.success) {
+            var t = new Date(selectedSlot);
+            confirmedDetails.textContent = t.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + ' at ' + t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            stepForm.style.display = 'none';
+            stepDone.style.display = 'block';
+          } else { throw new Error('book failed'); }
+        } catch (err) {
+          submitBtn.disabled = false; submitBtn.textContent = 'Confirm booking';
+          bookError.textContent = 'Something went wrong booking that time. Please try again or pick another slot.';
+          bookError.style.display = 'block';
+        }
+      });
+
+      renderStrip();
+      fetchSlots();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Executive Longevity Assessment | Second Prime</title>
+  <meta name="description" content="Step 1 of 2: a 2-3 minute assessment that maps your risk and performance gaps before your call." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="assets/favicon-16.png" />
+  <meta name="theme-color" content="#F7F4F0" />
+  <script>document.documentElement.classList.add("js");</script>
+  <link rel="stylesheet" href="css/styles.css?v=1" />
+  <link rel="stylesheet" href="css/funnel.css?v=11" />
+  <link rel="stylesheet" href="css/assess.css?v=30" />
+  <!-- Meta pixel (Amartinco LLC's Pixel). Neutral event names only, per Meta health-advertiser rules. -->
+  <script>
+  (function () {
+    if (/^(localhost|127\.0\.0\.1|tests\.secondprime\.io)$|github\.io$/.test(location.hostname)) return; // no pixel on local/test previews
+    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '500535282073021');
+    fbq('track', 'PageView');
+  })();
+  </script>
+  <style>
+    /* Age slider (dark jewel card variant) */
+    .age-read { text-align: center; margin: 10px 0 6px; }
+    .age-read b { font-family: var(--font-serif, Zodiak, Georgia, serif); font-weight: 400; font-size: 72px; color: #FDFBF8; letter-spacing: -0.02em; }
+    .age-read span { display: block; font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(225,242,243,0.6); margin-top: 2px; }
+    input[type="range"].age { -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 4px;
+      background: linear-gradient(to right, #65C8D0 0%, #65C8D0 var(--fill, 40%), rgba(255,255,255,0.16) var(--fill, 40%), rgba(255,255,255,0.16) 100%);
+      outline: none; margin: 18px 0 6px; }
+    input[type="range"].age::-webkit-slider-thumb { -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%;
+      background: #fff; border: 2px solid #65C8D0; box-shadow: 0 2px 8px rgba(31,31,39,0.18); cursor: grab; }
+    input[type="range"].age::-moz-range-thumb { width: 24px; height: 24px; border-radius: 50%;
+      background: #fff; border: 2px solid #65C8D0; box-shadow: 0 2px 8px rgba(31,31,39,0.18); cursor: grab; }
+    .age-ends { display: flex; justify-content: space-between; font-size: 12px; color: rgba(225,242,243,0.55); margin-bottom: 8px; }
+  </style>
+</head>
+<body class="ap-page">
+
+  <header class="nav ap-nav" id="nav">
+    <div class="nav-inner">
+      <span class="nav-logo" role="img" aria-label="Second Prime"></span>
+      <nav class="nav-links"></nav>
+      <div class="nav-actions"></div>
+    </div>
+  </header>
+
+  <main class="ap" id="assessment">
+    <div class="ap-head">
+      <span class="eyebrow">Executive Longevity Assessment &middot; Step 1 of 2</span>
+      <h1>Let&rsquo;s get your background.</h1>
+      <p class="ap-sub">14 questions, 2-3 minutes. Answer honestly.</p>
+    </div>
+
+    <div class="ap-card">
+      <div class="ap-shell">
+        <span class="qghost" id="qghost" aria-hidden="true">01</span>
+        <div class="ap-progress" aria-hidden="true">
+          <div class="ap-bar"><i id="qbar"></i></div>
+          <span class="ap-count" id="qcount">1 of 14</span>
+        </div>
+
+        <form id="qform" novalidate>
+
+          <!-- ============ OPEN: OUTCOME, AGE, SEAT ============ -->
+
+          <section class="qstep on" data-q="outcome" data-kind="q">
+            <h2>What do you want most from the next 10 years?</h2>
+            <p class="qsub">This decides what we dig into first.</p>
+            <label class="opt"><input type="radio" name="outcome" value="Lower my risk (heart disease, diabetes, decline)" /><span class="key">A</span><span class="txt">Lower my risk (heart disease, diabetes, decline)</span></label>
+            <label class="opt"><input type="radio" name="outcome" value="Perform like I used to (energy, focus, body)" /><span class="key">B</span><span class="txt">Perform like I used to (energy, focus, body)</span></label>
+            <label class="opt"><input type="radio" name="outcome" value="More strong years with the people I love" /><span class="key">C</span><span class="txt">More strong years with the people I love</span></label>
+            <label class="opt"><input type="radio" name="outcome" value="All of it" /><span class="key">D</span><span class="txt">All of it</span></label>
+          </section>
+
+          <section class="qstep" data-q="age" data-kind="q">
+            <h2>How old are you?</h2>
+            <p class="qsub">Drag the slider.</p>
+            <div class="age-read"><b id="ageval">48</b><span>years old</span></div>
+            <input type="range" class="age" id="ageslider" min="28" max="75" step="1" value="48" aria-label="Your age" />
+            <div class="age-ends"><span>28</span><span>75+</span></div>
+            <div class="qnav">
+              <button type="button" class="qback" data-back>&larr; Back</button>
+              <button type="button" class="btn btn-teal qnext" data-next>Continue</button>
+            </div>
+          </section>
+
+          <section class="qstep" data-q="role" data-kind="q">
+            <h2>Which best describes you?</h2>
+            <p class="qsub">Carrying a company is its own category.</p>
+            <label class="opt"><input type="radio" name="role" value="I own or co-own a business" /><span class="key">A</span><span class="txt">I own or co-own a business</span></label>
+            <label class="opt"><input type="radio" name="role" value="Executive or senior leader" /><span class="key">B</span><span class="txt">Executive or senior leader</span></label>
+            <label class="opt"><input type="radio" name="role" value="Other" /><span class="key">C</span><span class="txt">Other</span></label>
+          </section>
+
+          <!-- INTERSTITIAL 1: responds to the role they just picked -->
+          <section class="qstep as-int" data-q="int1" data-kind="int">
+            <span class="as-int-tag" id="int1Tag">Built for owners</span>
+            <h2 class="as-int-h" id="int1H">You carry the company. Your biology carries you.</h2>
+            <p class="as-int-p" id="int1P"></p>
+            <p class="as-int-p as-int-pstat" id="int1Stat"></p>
+            <div class="qnav qnav-center">
+              <button type="button" class="btn btn-teal qnext" data-next>Keep going</button>
+            </div>
+          </section>
+
+          <!-- ============ PERFORMANCE: ENERGY, FOCUS, SLEEP, DRIVE ============ -->
+
+          <section class="qstep" data-q="energy" data-kind="q">
+            <span class="as-sec">Performance &middot; 1 of 4</span>
+            <h2>How&rsquo;s your energy through a workday?</h2>
+            <label class="opt"><input type="radio" name="energy" value="Strong from morning to evening" data-bucket="perf" data-pts="0" /><span class="key">A</span><span class="txt">Strong from morning to evening</span></label>
+            <label class="opt"><input type="radio" name="energy" value="Good mornings, fading after lunch" data-bucket="perf" data-pts="2" /><span class="key">B</span><span class="txt">Good mornings, fading after lunch</span></label>
+            <label class="opt"><input type="radio" name="energy" value="The 3pm crash runs my calendar" data-bucket="perf" data-pts="4" /><span class="key">C</span><span class="txt">The 3pm crash runs my calendar</span></label>
+            <label class="opt"><input type="radio" name="energy" value="I'm running on coffee and willpower" data-bucket="perf" data-pts="5" /><span class="key">D</span><span class="txt">I&rsquo;m running on coffee and willpower</span></label>
+          </section>
+
+          <section class="qstep" data-q="focus" data-kind="q">
+            <span class="as-sec">Performance &middot; 2 of 4</span>
+            <h2>And your mental sharpness?</h2>
+            <p class="qsub">Decision speed, word recall, holding focus in long meetings.</p>
+            <label class="opt"><input type="radio" name="focus" value="As sharp as I've ever been" data-bucket="perf" data-pts="0" /><span class="key">A</span><span class="txt">As sharp as I&rsquo;ve ever been</span></label>
+            <label class="opt"><input type="radio" name="focus" value="A step slower than I was" data-bucket="perf" data-pts="2" /><span class="key">B</span><span class="txt">A step slower than I was</span></label>
+            <label class="opt"><input type="radio" name="focus" value="Foggy. Words go missing, focus drifts, most days" data-bucket="perf" data-pts="4" /><span class="key">C</span><span class="txt">Foggy. Words go missing, focus drifts, most days</span></label>
+          </section>
+
+          <section class="qstep" data-q="sleep" data-kind="q">
+            <span class="as-sec">Performance &middot; 3 of 4</span>
+            <h2>How do you wake up most mornings?</h2>
+            <label class="opt"><input type="radio" name="sleep" value="Rested and ready" data-bucket="perf" data-pts="0" /><span class="key">A</span><span class="txt">Rested and ready</span></label>
+            <label class="opt"><input type="radio" name="sleep" value="I sleep 7-8 hours and still wake up tired" data-bucket="perf" data-pts="3" /><span class="key">B</span><span class="txt">I sleep 7&ndash;8 hours and still wake up tired</span></label>
+            <label class="opt"><input type="radio" name="sleep" value="Broken sleep, most nights" data-bucket="perf" data-pts="4" /><span class="key">C</span><span class="txt">Broken sleep, most nights</span></label>
+          </section>
+
+          <section class="qstep" data-q="drive" data-kind="q">
+            <span class="as-sec">Performance &middot; 4 of 4</span>
+            <h2>Drive and libido. Where are they versus 10 years ago?</h2>
+            <p class="qsub">A hormone question. Stays private.</p>
+            <label class="opt"><input type="radio" name="drive" value="Where they've always been" data-bucket="perf" data-pts="0" /><span class="key">A</span><span class="txt">Where they&rsquo;ve always been</span></label>
+            <label class="opt"><input type="radio" name="drive" value="Noticeably lower" data-bucket="perf" data-pts="3" /><span class="key">B</span><span class="txt">Noticeably lower</span></label>
+            <label class="opt"><input type="radio" name="drive" value="A fraction of what they were" data-bucket="perf" data-pts="5" /><span class="key">C</span><span class="txt">A fraction of what they were</span></label>
+          </section>
+
+          <!-- INTERSTITIAL 2: responds to their worst performance answer -->
+          <section class="qstep as-int" data-q="int2" data-kind="int">
+            <span class="as-int-tag" id="int2Tag">You just described a pattern we test for</span>
+            <h2 class="as-int-h" id="int2H">The 3pm fog has a chemistry.</h2>
+            <p class="as-int-p" id="int2P"></p>
+            <div class="as-stat" id="int2Stat"><b></b><span></span></div>
+            <div class="as-int-quote">
+              <span class="as-q-label">Client testimonial</span>
+              <div class="as-q-head">
+                <img class="as-q-ava" id="int2QImg" src="assets/cases/rob-head.jpg" alt="" style="display:none" />
+                <div class="as-q-id"><b id="int2QW"></b><span id="int2QS"></span></div>
+                <div class="f-stars" aria-hidden="true">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+              </div>
+              <p id="int2Q"></p>
+            </div>
+            <div class="qnav qnav-center">
+              <button type="button" class="btn btn-teal qnext" data-next>Continue</button>
+            </div>
+          </section>
+
+          <!-- ============ RISK: BODY, FAMILY, TESTING ============ -->
+
+          <section class="qstep" data-q="bodycomp" data-kind="q">
+            <span class="as-sec">Risk &middot; 1 of 3</span>
+            <h2>How do you feel about your weight?</h2>
+            <p class="qsub">No judgment. It tells us where to look.</p>
+            <label class="opt"><input type="radio" name="bodycomp" value="I feel good where I am" data-bucket="risk" data-pts="0" /><span class="key">A</span><span class="txt">I feel good where I am</span></label>
+            <label class="opt"><input type="radio" name="bodycomp" value="I need to lose 5 to 25 lbs" data-bucket="risk" data-pts="2" /><span class="key">B</span><span class="txt">I need to lose 5 to 25 lbs</span></label>
+            <label class="opt"><input type="radio" name="bodycomp" value="I need to lose 25 to 50 lbs" data-bucket="risk" data-pts="4" /><span class="key">C</span><span class="txt">I need to lose 25 to 50 lbs</span></label>
+            <label class="opt"><input type="radio" name="bodycomp" value="I need to lose 50+ lbs" data-bucket="risk" data-pts="5" /><span class="key">D</span><span class="txt">I need to lose 50+ lbs</span></label>
+            <label class="opt"><input type="radio" name="bodycomp" value="I need to gain weight" data-bucket="risk" data-pts="2" /><span class="key">E</span><span class="txt">I need to gain weight</span></label>
+          </section>
+
+          <section class="qstep" data-q="family" data-kind="q">
+            <span class="as-sec">Risk &middot; 2 of 3</span>
+            <h2>Select any chronic diseases that run in your family.</h2>
+            <p class="qsub">Parents, siblings, grandparents. Select all that apply.</p>
+            <label class="opt"><input type="checkbox" name="familyHistory" value="Heart disease" /><span class="key">A</span><span class="txt">Heart disease</span></label>
+            <label class="opt"><input type="checkbox" name="familyHistory" value="Type 2 diabetes" /><span class="key">B</span><span class="txt">Type 2 diabetes</span></label>
+            <label class="opt"><input type="checkbox" name="familyHistory" value="Stroke" /><span class="key">C</span><span class="txt">Stroke</span></label>
+            <label class="opt"><input type="checkbox" name="familyHistory" value="Cancer" /><span class="key">D</span><span class="txt">Cancer</span></label>
+            <label class="opt"><input type="checkbox" name="familyHistory" value="Dementia or Alzheimer's" /><span class="key">E</span><span class="txt">Dementia or Alzheimer&rsquo;s</span></label>
+            <label class="opt"><input type="checkbox" name="familyHistory" value="High blood pressure" /><span class="key">F</span><span class="txt">High blood pressure</span></label>
+            <label class="opt"><input type="checkbox" name="familyHistory" value="None of these" /><span class="key">G</span><span class="txt">None of these</span></label>
+            <div class="qnav">
+              <button type="button" class="qback" data-back>&larr; Back</button>
+              <button type="button" class="btn btn-teal qnext" data-next>Continue</button>
+            </div>
+          </section>
+
+          <section class="qstep" data-q="labs" data-kind="q">
+            <span class="as-sec">Risk &middot; 3 of 3</span>
+            <h2>When were you last tested beyond a standard physical?</h2>
+            <p class="qsub">Think full hormone panel, ApoB, fasting insulin, inflammation markers.</p>
+            <label class="opt"><input type="radio" name="labs" value="Deep panel in the last 12 months" data-bucket="risk" data-pts="0" /><span class="key">A</span><span class="txt">Deep panel in the last 12 months</span></label>
+            <label class="opt"><input type="radio" name="labs" value="Standard annual physical only" data-bucket="risk" data-pts="3" /><span class="key">B</span><span class="txt">Standard annual physical only</span></label>
+            <label class="opt"><input type="radio" name="labs" value="It's been years since any real bloodwork" data-bucket="risk" data-pts="5" /><span class="key">C</span><span class="txt">It&rsquo;s been years since any real bloodwork</span></label>
+          </section>
+
+          <!-- INTERSTITIAL 3: responds to their risk answers -->
+          <section class="qstep as-int" data-q="int3" data-kind="int">
+            <span class="as-int-tag" id="int3Tag">Case file</span>
+            <h2 class="as-int-h" id="int3H"></h2>
+            <div class="as-stat as-stat-cite" id="int3Stat"><b></b><span></span></div>
+            <div class="as-ranges" aria-hidden="true">
+              <p class="as-ranges-head">3 markers that come back &ldquo;normal&rdquo; and still cost you</p>
+              <div class="as-range">
+                <span class="as-r-name">Free Testosterone <em>drive &middot; muscle &middot; recovery</em></span>
+                <div class="as-r-bar">
+                  <i class="as-r-out cap-l" style="left:0;width:9%"></i>
+                  <i class="as-r-norm" style="left:9%;width:82%">normal</i>
+                  <i class="as-r-out cap-r" style="left:91%;width:9%"></i>
+                  <i class="as-r-opt" style="left:63%;width:28%">optimal</i>
+                  <b class="as-r-you" style="left:26%"></b>
+                </div>
+                <div class="as-r-gapline"><span style="left:28%;width:35%">the gap between normal and optimal</span></div>
+              </div>
+              <div class="as-range">
+                <span class="as-r-name">Fasting Insulin <em>the earliest metabolic warning</em></span>
+                <div class="as-r-bar">
+                  <i class="as-r-norm lbl-right cap-l" style="left:0;width:88%">normal</i>
+                  <i class="as-r-out cap-r" style="left:88%;width:12%"></i>
+                  <i class="as-r-opt cap-l" style="left:0;width:26%">optimal</i>
+                  <b class="as-r-you" style="left:66%"></b>
+                </div>
+              </div>
+              <div class="as-range">
+                <span class="as-r-name">ApoB <em>predicts heart disease better than cholesterol</em></span>
+                <div class="as-r-bar">
+                  <i class="as-r-norm lbl-right cap-l" style="left:0;width:86%">normal</i>
+                  <i class="as-r-out cap-r" style="left:86%;width:14%"></i>
+                  <i class="as-r-opt cap-l" style="left:0;width:28%">optimal</i>
+                  <b class="as-r-you" style="left:58%"></b>
+                </div>
+              </div>
+              <p class="as-r-key"><i class="k-out"></i>out of range<i class="k-norm"></i>lab &ldquo;normal&rdquo;<i class="k-opt"></i>optimal<b class="k-you"></b>you</p>
+            </div>
+            <div class="qnav qnav-center">
+              <button type="button" class="btn btn-teal qnext" data-next>Continue</button>
+            </div>
+          </section>
+
+          <!-- ============ TRIGGER + FIT ============ -->
+
+          <section class="qstep" data-q="trigger" data-kind="q">
+            <h2>What&rsquo;s your motivation for prioritizing your health right now?</h2>
+            <p class="qsub">The honest answer shapes what we look at first.</p>
+            <label class="opt"><input type="radio" name="triggerEvent" value="A lab result or scan that got my attention" /><span class="key">A</span><span class="txt">A lab result or scan that got my attention</span></label>
+            <label class="opt"><input type="radio" name="triggerEvent" value="Family health history I don't want to repeat" /><span class="key">B</span><span class="txt">Family health history I don&rsquo;t want to repeat</span></label>
+            <label class="opt"><input type="radio" name="triggerEvent" value="Energy and performance aren't what they were" /><span class="key">C</span><span class="txt">Energy and performance aren&rsquo;t what they were</span></label>
+            <label class="opt"><input type="radio" name="triggerEvent" value="A big transition (sale, exit, new kid, milestone birthday)" /><span class="key">D</span><span class="txt">A big transition (sale, exit, new kid, milestone birthday)</span></label>
+            <label class="opt"><input type="radio" name="triggerEvent" value="Nothing specific, staying ahead of it" /><span class="key">E</span><span class="txt">Nothing specific, staying ahead of it</span></label>
+          </section>
+
+          <section class="qstep" data-q="tried" data-kind="q">
+            <h2>What have you already tried?</h2>
+            <p class="qsub">Select all that apply.</p>
+            <label class="opt"><input type="checkbox" name="alreadyTried" value="Regular doctor or concierge medicine" /><span class="key">A</span><span class="txt">Regular doctor or concierge medicine</span></label>
+            <label class="opt"><input type="checkbox" name="alreadyTried" value="TRT or hormone clinic" /><span class="key">B</span><span class="txt">TRT or hormone clinic</span></label>
+            <label class="opt"><input type="checkbox" name="alreadyTried" value="Functional medicine practitioner" /><span class="key">C</span><span class="txt">Functional medicine practitioner</span></label>
+            <label class="opt"><input type="checkbox" name="alreadyTried" value="Trainers, nutritionists, or coaches" /><span class="key">D</span><span class="txt">Trainers, nutritionists, or coaches</span></label>
+            <label class="opt"><input type="checkbox" name="alreadyTried" value="Self-directed (wearables, supplements, research)" /><span class="key">E</span><span class="txt">Self-directed (wearables, supplements, research)</span></label>
+            <label class="opt"><input type="checkbox" name="alreadyTried" value="Nothing serious yet" /><span class="key">F</span><span class="txt">Nothing serious yet</span></label>
+            <div class="qnav">
+              <button type="button" class="qback" data-back>&larr; Back</button>
+              <button type="button" class="btn btn-teal qnext" data-next>Continue</button>
+            </div>
+          </section>
+
+          <!-- INTERSTITIAL 5: pokes holes in what they've already tried -->
+          <section class="qstep as-int" data-q="int5t" data-kind="int">
+            <span class="as-int-tag" id="int5tTag">About what you&rsquo;ve tried</span>
+            <h2 class="as-int-h" id="int5tH">Here&rsquo;s why none of it stuck.</h2>
+            <div class="as-holes" id="int5tList"></div>
+            <p class="as-int-p" id="int5tP">Each was one piece, with nobody accountable for the whole. That&rsquo;s the job we take.</p>
+            <div class="qnav qnav-center">
+              <button type="button" class="btn btn-teal qnext" data-next>Continue</button>
+            </div>
+          </section>
+
+          <section class="qstep" data-q="revenue" data-kind="q">
+            <span class="as-sec">Fit</span>
+            <h2>What&rsquo;s your annual business revenue?</h2>
+            <p class="qsub">A ballpark, and it stays private. It confirms we fit before we ask for your time.</p>
+            <label class="opt"><input type="radio" name="businessRevenue" value="$0 – $500K" /><span class="key">A</span><span class="txt">$0 &ndash; $500K</span></label>
+            <label class="opt"><input type="radio" name="businessRevenue" value="$500K – $1M" /><span class="key">B</span><span class="txt">$500K &ndash; $1M</span></label>
+            <label class="opt"><input type="radio" name="businessRevenue" value="$1M – $3M" /><span class="key">C</span><span class="txt">$1M &ndash; $3M</span></label>
+            <label class="opt"><input type="radio" name="businessRevenue" value="$3M – $10M" /><span class="key">D</span><span class="txt">$3M &ndash; $10M</span></label>
+            <label class="opt"><input type="radio" name="businessRevenue" value="$10M – $25M" /><span class="key">E</span><span class="txt">$10M &ndash; $25M</span></label>
+            <label class="opt"><input type="radio" name="businessRevenue" value="$25M+" /><span class="key">F</span><span class="txt">$25M+</span></label>
+          </section>
+
+          <section class="qstep" data-q="income" data-kind="q">
+            <span class="as-sec">Fit</span>
+            <h2>What&rsquo;s your annual income?</h2>
+            <p class="qsub">A ballpark, and it stays private. It confirms we fit before we ask for your time.</p>
+            <label class="opt"><input type="radio" name="annualIncome" value="$0 – $149K" /><span class="key">A</span><span class="txt">$0 &ndash; $149K</span></label>
+            <label class="opt"><input type="radio" name="annualIncome" value="$150K – $299K" /><span class="key">B</span><span class="txt">$150K &ndash; $299K</span></label>
+            <label class="opt"><input type="radio" name="annualIncome" value="$300K+" /><span class="key">C</span><span class="txt">$300K+</span></label>
+          </section>
+
+          <section class="qstep" data-q="invest" data-kind="q">
+            <span class="as-sec">Fit</span>
+            <h2>Are you ready to invest in your health and longevity?</h2>
+            <p class="qsub">We&rsquo;re a premium service. Knowing where you stand tells us if we can help.</p>
+            <label class="opt"><input type="radio" name="investReady" value="Yes, I'm comfortable investing $10K+ in my health this year" /><span class="key">A</span><span class="txt">Yes, I&rsquo;m comfortable investing $10K+ in my health this year</span></label>
+            <label class="opt"><input type="radio" name="investReady" value="Yes, I'm able to invest $2,500-$10K in my health this year" /><span class="key">B</span><span class="txt">Yes, I&rsquo;m able to invest $2,500&ndash;$10K in my health this year</span></label>
+            <label class="opt"><input type="radio" name="investReady" value="No, I am not in a position to invest in my health" /><span class="key">C</span><span class="txt">No, I am not in a position to invest in my health</span></label>
+          </section>
+
+          <section class="qstep" data-q="timeline" data-kind="q">
+            <span class="as-sec">Fit</span>
+            <h2>If your results say something worth acting on, when would you want to start?</h2>
+            <p class="qsub">Honest answer. It only changes how we follow up.</p>
+            <label class="opt"><input type="radio" name="timeline" value="Now. Within 30 days" /><span class="key">A</span><span class="txt">Now. Within 30 days</span></label>
+            <label class="opt"><input type="radio" name="timeline" value="Within 90 days" /><span class="key">B</span><span class="txt">Within 90 days</span></label>
+            <label class="opt"><input type="radio" name="timeline" value="Just exploring for now" /><span class="key">C</span><span class="txt">Just exploring for now</span></label>
+          </section>
+
+
+          <!-- ============ CONTACT ============ -->
+
+          <section class="qstep" data-q="contact" data-kind="contact">
+            <h2>Last step. Who is this assessment for?</h2>
+            <p class="qsub">Your summary goes here. Call time is next.</p>
+            <div class="fld-row">
+              <label class="fld"><span class="fld__k">First name</span><input type="text" name="firstName" autocomplete="given-name" /></label>
+              <label class="fld"><span class="fld__k">Last name</span><input type="text" name="lastName" autocomplete="family-name" /></label>
+            </div>
+            <div class="fld-row">
+              <label class="fld"><span class="fld__k">Email</span><input type="email" name="email" autocomplete="email" /></label>
+              <label class="fld"><span class="fld__k">Phone</span><input type="tel" name="phone" autocomplete="tel" /></label>
+            </div>
+            <label class="fld as-context"><span class="fld__k">Anything we should know before your call? (optional)</span>
+              <textarea name="context" rows="3" placeholder="A diagnosis, a symptom that worries you, a goal, a question for Andrew. Your words go straight into your call notes."></textarea>
+            </label>
+            <div class="qnav">
+              <button type="button" class="qback" data-back>&larr; Back</button>
+              <button type="submit" class="btn btn-teal qnext" id="qsubmit">Complete my assessment</button>
+            </div>
+            <p class="qfine">Free. Your answers stay private, and are never sold or shared.</p>
+          </section>
+
+          <div class="qerr" id="qerr" role="status" aria-live="polite"></div>
+
+          <!-- Floating Continue for phones: shows only while the in-card button
+               is scrolled out of frame (interstitials can run taller than a phone). -->
+          <div class="as-mobcta" id="asMobCta" aria-hidden="true">
+            <button type="button" class="btn btn-teal" data-next>Continue</button>
+          </div>
+        </form>
+
+        <!-- Calculating overlay -->
+        <div class="as-calc" id="calcScreen" style="display:none">
+          <div class="as-calc-ring"></div>
+          <h2>Logging your assessment&hellip;</h2>
+          <p id="calcLine">Reading your background</p>
+        </div>
+
+        <p class="qkeys" style="color: rgba(225,242,243,0.55)">Tip: press A, B, C&hellip; to answer, and Enter to continue.</p>
+      </div>
+    </div>
+
+    <figure class="ap-quote">
+      <span class="ap-qmark" aria-hidden="true">&ldquo;</span>
+      <p>I&rsquo;ve worked with trainers, doctors, and specialists for years. No one connected the dots the way Second Prime did.</p>
+      <figcaption class="ap-who">
+        <span class="ap-ava" aria-hidden="true">JM</span>
+        <span class="ap-name"><b>J. M.</b><span>Founder &amp; CEO, Real Estate &middot; 47</span></span>
+      </figcaption>
+    </figure>
+  </main>
+
+  <footer class="apply-footer">
+    <div class="f-logo" role="img" aria-label="Second Prime"></div>
+    <p class="tagline">Health &middot; Performance &middot; Longevity</p>
+    <p class="copy">&copy; 2026 Second Prime. All rights reserved.</p>
+    <p class="copy" style="max-width:52ch;margin:8px auto 0;opacity:0.75">Client averages shown are from retested clients. Individual results vary and are not typical or guaranteed.</p>
+  </footer>
+
+  <script>
+    (function () {
+      var form = document.getElementById('qform');
+      var bar = document.getElementById('qbar');
+      var count = document.getElementById('qcount');
+      var ghost = document.getElementById('qghost');
+      var err = document.getElementById('qerr');
+      var stepEl = function (q) { return form.querySelector('.qstep[data-q="' + q + '"]'); };
+      var idx = 0;
+
+      function normDash(s) { return String(s || '').replace(/[–—-]/g, '-').replace(/\s+/g, ' ').trim(); }
+      function picked(n) { var el = form.querySelector('input[name="' + n + '"]:checked'); return el ? el.value : ''; }
+      function pts(n) { var el = form.querySelector('input[name="' + n + '"]:checked'); return el ? (+el.dataset.pts || 0) : 0; }
+
+      function isOwner() { return picked('role') === 'I own or co-own a business'; }
+
+      // Family history: checked diseases, "None of these" excluded.
+      function familyList() {
+        return Array.prototype.slice.call(form.querySelectorAll('input[name="familyHistory"]:checked'))
+          .map(function (c) { return c.value; })
+          .filter(function (v) { return v !== 'None of these'; });
+      }
+
+      // Below threshold = owner under $500K revenue, or non-owner under $200K income.
+      function belowThreshold() {
+        if (isOwner()) return normDash(picked('businessRevenue')) === '$0 - $500K';
+        if (picked('role')) return normDash(picked('annualIncome')) === '$0 - $149K';
+        return false;
+      }
+
+      /* Full step sequence, interstitials included. The money question swaps on
+         the role answer; the $10K question only appears below threshold. */
+      function sequence() {
+        var money = isOwner() ? 'revenue' : 'income';
+        var seq = ['outcome', 'age', 'role', 'int1',
+                   'energy', 'focus', 'sleep', 'drive', 'int2',
+                   'bodycomp', 'family', 'labs', 'int3',
+                   'trigger', 'tried', 'int5t', money];
+        if (belowThreshold()) seq.push('invest');
+        seq.push('timeline', 'contact');
+        return seq;
+      }
+
+      /* ============ DYNAMIC INTERSTITIALS ============
+         Each interstitial rewrites itself from the answers just given, so the
+         proof always matches what the person said. */
+      var set = function (id, txt) { document.getElementById(id).textContent = txt; };
+      /* Matched proof stat. Only uses the client-average figures already
+         published on the site; nothing here is invented. */
+      var usedStat = '';
+      function setStat(id, num, label) {
+        var el = document.getElementById(id);
+        el.querySelector('b').textContent = num;
+        el.querySelector('span').textContent = label;
+        if (id === 'int2Stat') usedStat = num;
+      }
+
+      function paintInt1() {
+        var role = picked('role');
+        /* Client averages: 26 lbs lost, 64% more energy reported at 3 months. */
+        document.getElementById('int1Stat').innerHTML =
+          'The average client loses <b>26 lbs</b> and reports <b>64% more energy</b> within 3 months.';
+        if (role === 'I own or co-own a business') {
+          set('int1Tag', 'Built for owners');
+          set('int1H', 'You carry the company. Your biology carries you.');
+          set('int1P', 'We’ve helped 500+ founders like you get their energy, drive, and body back by optimizing their biology.');
+        } else if (role === 'Executive or senior leader') {
+          set('int1Tag', 'Built for operators');
+          set('int1H', 'High output has a biological price. We measure it.');
+          set('int1P', 'We’ve helped 500+ executives like you get their energy, drive, and body back by optimizing their biology.');
+        } else {
+          set('int1Tag', 'Built for high performers');
+          set('int1H', 'Output has a biological price. We measure it.');
+          set('int1P', 'We’ve helped 500+ high performers get their energy, drive, and body back by optimizing their biology.');
+        }
+      }
+
+      function paintInt2() {
+        var quote = function (q, w, s, img) {
+          set('int2Q', '“' + q + '”'); set('int2QW', w); set('int2QS', s);
+          var el = document.getElementById('int2QImg');
+          if (img) { el.src = img; el.style.display = ''; } else { el.style.display = 'none'; }
+        };
+        var e = pts('energy') + pts('focus');
+        var sl = pts('sleep');
+        var dr = pts('drive');
+        if (dr >= 3 && dr >= e && dr >= sl) {
+          set('int2Tag', 'The math on what you just said');
+          set('int2H', 'Testosterone falls about 1% a year from your mid-30s.');
+          set('int2P', 'Slow enough to adapt to. Fast enough that a quarter of your drive is gone by 50.');
+          setStat('int2Stat', '+40%', 'average free testosterone increase across client retests');
+          quote('My testosterone doubled. I’m performing at a level I haven’t seen since my 30s.', 'J.M.', 'Founder & CEO, Real Estate · Age 47', null);
+        } else if (e >= 4 || sl >= 3) {
+          set('int2Tag', 'A pattern we test for');
+          set('int2H', sl >= 3 && sl > e ? 'Tired after a full night in bed means the sleep itself is broken.' : 'The 3pm crash has a chemistry.');
+          set('int2P', 'Coffee at 11, 1, and 3. That pattern is usually blood sugar or cortisol. Both measurable.');
+          setStat('int2Stat', '+64%', 'more energy reported by clients within 3 months');
+          quote('The brain fog I thought was just ‘getting older’ is completely gone. I’m present with my kids in a way I wasn’t before.', 'Rob', 'Aerospace Engineering Manager · Age 46', 'assets/cases/rob-head.jpg');
+        } else {
+          set('int2Tag', 'Strong so far');
+          set('int2H', 'You’re holding the line better than most owners we test.');
+          set('int2P', 'Most founders we test feel fine and still carry findings worth acting on.');
+          setStat('int2Stat', '-12 yrs', 'average biological age reduction across client retests');
+          quote('I came in skeptical. I’d done bloodwork a dozen times. Andrew found things in week one nobody had flagged.', 'R.S.', 'Founder, Tech · Age 44', null);
+        }
+      }
+
+      function paintInt3() {
+        var fam = familyList().length;
+        var lab = pts('labs');
+        /* The AHA stat is the boxed number here: it sets up the bars below,
+           which is the whole point of this card. */
+        setStat('int3Stat', '50%', 'of heart attack patients had “normal” cholesterol · American Heart Journal, 2009');
+        if (fam >= 1) {
+          set('int3Tag', 'About your family history');
+          set('int3H', 'Family history is the strongest reason to look early.');
+        } else if (lab >= 3) {
+          set('int3Tag', 'About your last physical');
+          set('int3H', 'A standard physical checks a few dozen markers. We measure 1,000+.');
+        } else {
+          set('int3Tag', 'You test deeper than most');
+          set('int3H', 'The data is only half. The read is the other half.');
+        }
+      }
+
+      /* Interstitial 5: one hole-poke line per thing they've already tried. */
+      var HOLES = {
+        'Regular doctor or concierge medicine': { label: 'Your doctor', line: 'About 40 markers, graded against &ldquo;normal,&rdquo; 8 minutes per visit. Optimizing you was never the assignment.' },
+        'TRT or hormone clinic': { label: 'The TRT clinic', line: 'Ran just enough labs to prescribe, and never chased why your testosterone fell in the first place.' },
+        'Functional medicine practitioner': { label: 'The functional doc', line: 'Ran real labs, handed you a bag of supplements, and hoped. The follow-through was your job.' },
+        'Trainers, nutritionists, or coaches': { label: 'The coaches', line: 'Programmed effort without ever seeing your blood. You can&rsquo;t out-train a hormone or insulin problem.' },
+        'Self-directed (wearables, supplements, research)': { label: 'Doing it yourself', line: 'The wearable put you in the driver&rsquo;s seat. Synthesizing it into a protocol became a second job you don&rsquo;t have time for.' }
+      };
+      function paintInt5t() {
+        var picked = Array.prototype.slice.call(form.querySelectorAll('input[name="alreadyTried"]:checked'))
+          .map(function (c) { return c.value; }).filter(function (v) { return HOLES[v]; }).slice(0, 3);
+        var list = document.getElementById('int5tList');
+        if (!picked.length) {
+          set('int5tTag', 'A head start');
+          set('int5tH', 'You get to skip the expensive detours.');
+          list.innerHTML = '';
+          set('int5tP', 'Most arrive after years of clinics that never connected. The full picture is cheaper up front.');
+          return;
+        }
+        set('int5tTag', 'About what you’ve tried');
+        set('int5tH', picked.length > 1 ? 'Here’s why none of it stuck.' : 'Here’s why it didn’t stick.');
+        list.innerHTML = picked.map(function (v) {
+          return '<div class="as-hole"><b>' + HOLES[v].label + '</b><p>' + HOLES[v].line + '</p></div>';
+        }).join('');
+        set('int5tP', picked.length > 1
+          ? 'Each was one piece. Nobody owned the whole. That’s our job.'
+          : 'It was one piece. Nobody owned the whole. That’s our job.');
+      }
+
+      var INT_PAINTERS = { int1: paintInt1, int2: paintInt2, int3: paintInt3, int5t: paintInt5t };
+
+      // Progress counts questions only; interstitials and contact don't inflate it.
+      function qOnly(seq) { return seq.filter(function (q) { return stepEl(q).dataset.kind === 'q'; }); }
+      function pad(n) { return (n < 10 ? '0' : '') + n; }
+
+      function paint(skipScroll) {
+        var seq = sequence();
+        form.querySelectorAll('.qstep').forEach(function (s) { s.classList.remove('on'); });
+        var cur = seq[idx];
+        if (INT_PAINTERS[cur]) INT_PAINTERS[cur]();
+        stepEl(cur).classList.add('on');
+        var qs = qOnly(seq);
+        var qIdx = 0;
+        for (var i = 0; i <= idx; i++) { if (stepEl(seq[i]).dataset.kind === 'q') qIdx++; }
+        bar.style.width = ((qIdx / qs.length) * 100) + '%';
+        var kind = stepEl(cur).dataset.kind;
+        count.textContent = kind === 'q' ? qIdx + ' of ' + qs.length : (kind === 'contact' ? 'Last step' : '');
+        ghost.textContent = kind === 'q' ? pad(qIdx) : '';
+        err.classList.remove('on');
+        /* Instant anchor (not smooth): when a tall card is followed by a short
+           one the document shrinks, and a smooth scroll races the layout change
+           and can strand the viewport below the card. */
+        if (!skipScroll) {
+          var shell = document.querySelector('.ap-shell');
+          var target = shell.getBoundingClientRect().top + window.scrollY - 96;
+          window.scrollTo({ top: Math.max(0, target), behavior: 'instant' });
+        }
+        var focusable = stepEl(cur).querySelector('input[type="text"], input[type="email"], input[type="tel"]');
+        if (focusable && window.matchMedia('(min-width: 961px)').matches) focusable.focus({ preventScroll: true });
+        syncMobCta();
+      }
+
+      /* Floating mobile Continue: mirrors the active interstitial's button and
+         only appears while that button sits below the fold. */
+      var mobCta = document.getElementById('asMobCta');
+      var mobBtn = mobCta ? mobCta.querySelector('button') : null;
+      function syncMobCta() {
+        if (!mobCta) return;
+        var step = stepEl(sequence()[idx]);
+        var inCard = step.querySelector('[data-next]');
+        if (!window.matchMedia('(max-width: 640px)').matches || step.dataset.kind !== 'int' || !inCard) {
+          mobCta.classList.remove('show');
+          return;
+        }
+        mobBtn.textContent = inCard.textContent;
+        var r = inCard.getBoundingClientRect();
+        mobCta.classList.toggle('show', r.bottom > window.innerHeight - 8);
+      }
+      window.addEventListener('scroll', syncMobCta, { passive: true });
+      window.addEventListener('resize', syncMobCta);
+      function next() { if (idx < sequence().length - 1) { idx++; paint(); } }
+      function back() {
+        // Skip interstitials when going back so nobody re-reads them.
+        var seq = sequence();
+        var i = idx - 1;
+        while (i > 0 && stepEl(seq[i]).dataset.kind === 'int') i--;
+        if (i >= 0) { idx = i; paint(); }
+      }
+      function showErr(msg) { err.textContent = msg; err.classList.add('on'); }
+
+      // "None of these" is exclusive: checking it clears the diseases and vice versa.
+      form.querySelectorAll('input[name="familyHistory"]').forEach(function (c) {
+        c.addEventListener('change', function () {
+          if (!c.checked) return;
+          form.querySelectorAll('input[name="familyHistory"]').forEach(function (o) {
+            if (o === c) return;
+            if (c.value === 'None of these' || o.value === 'None of these') o.checked = false;
+          });
+        });
+      });
+
+      // Switching the role answer clears the money answer that no longer applies.
+      form.querySelectorAll('input[name="role"]').forEach(function (r) {
+        r.addEventListener('change', function () {
+          var stale = r.value === 'I own or co-own a business' ? 'annualIncome' : 'businessRevenue';
+          form.querySelectorAll('input[name="' + stale + '"]').forEach(function (m) { m.checked = false; });
+        });
+      });
+
+      // Radio steps auto-advance after a beat.
+      form.querySelectorAll('input[type="radio"]').forEach(function (r) {
+        r.addEventListener('click', function () { setTimeout(next, 280); });
+      });
+
+      /* First answer fires a neutral mid-funnel pixel event once, so Meta can
+         optimize on assessment starters and retarget the ones who don't finish. */
+      var startedFired = false;
+      form.addEventListener('change', function () {
+        if (startedFired) return;
+        startedFired = true;
+        try { if (window.fbq) fbq('trackCustom', 'intake_started'); } catch (_) {}
+      }, true);
+
+      // Age slider readout + fill.
+      var slider = document.getElementById('ageslider');
+      var ageval = document.getElementById('ageval');
+      function paintAge() {
+        var v = +slider.value;
+        ageval.textContent = v >= 75 ? '75+' : v;
+        slider.style.setProperty('--fill', ((v - 28) / (75 - 28) * 100) + '%');
+      }
+      slider.addEventListener('input', paintAge);
+      paintAge();
+
+      // Keyboard: A/B/C selects on the active step, Enter continues.
+      document.addEventListener('keydown', function (e) {
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        var active = document.activeElement;
+        var typing = active && /^(INPUT|TEXTAREA)$/.test(active.tagName) && active.type !== 'range' && active.type !== 'radio' && active.type !== 'checkbox';
+        var step = stepEl(sequence()[idx]);
+        if (e.key === 'Enter' && !typing) {
+          var nxt = step.querySelector('[data-next], #qsubmit');
+          if (nxt) { e.preventDefault(); nxt.click(); }
+          return;
+        }
+        if (typing) return;
+        var k = e.key.toUpperCase();
+        if (k.length !== 1 || k < 'A' || k > 'Z') return;
+        var opts = step.querySelectorAll('.opt input');
+        var i = k.charCodeAt(0) - 65;
+        if (opts[i]) { e.preventDefault(); opts[i].click(); }
+      });
+
+      // Back + continue buttons, with per-step validation.
+      form.addEventListener('click', function (e) {
+        if (e.target.closest('[data-back]')) { e.preventDefault(); back(); }
+        if (e.target.closest('[data-next]')) {
+          e.preventDefault();
+          if (sequence()[idx] === 'family' && !form.querySelector('input[name="familyHistory"]:checked')) {
+            showErr('Pick at least one, or "None of these."'); return;
+          }
+          next();
+        }
+      });
+
+      /* ============ SCORING ============
+         2 buckets. Performance: energy + focus + sleep + drive (max 18).
+         Risk: body comp + family + testing gap (max 14).
+         Overall = 100 minus scaled deductions, floor ~22. */
+      var PERF_MAX = 18, RISK_MAX = 14;
+      function bucketStatus(share) { return share >= 0.6 ? 'flag' : share >= 0.28 ? 'drift' : 'solid'; }
+      function computeScore() {
+        var perf = pts('energy') + pts('focus') + pts('sleep') + pts('drive');
+        var famCount = familyList().length;
+        var famPts = famCount >= 2 ? 4 : famCount === 1 ? 2 : 0;
+        var risk = pts('bodycomp') + famPts + pts('labs');
+        var score = Math.round(100 - ((perf + risk) / (PERF_MAX + RISK_MAX)) * 78);
+        return {
+          score: score,
+          perf: { pts: perf, pct: Math.round(100 - (perf / PERF_MAX) * 100), status: bucketStatus(perf / PERF_MAX) },
+          risk: { pts: risk, pct: Math.round(100 - (risk / RISK_MAX) * 100), status: bucketStatus(risk / RISK_MAX) }
+        };
+      }
+
+      // Calculating screen: rotate lines, then hand off.
+      var CALC_LINES = ['Reading your background', 'Mapping your performance gaps', 'Mapping your risk factors', 'Prepping your call notes'];
+      function runCalc(done) {
+        form.style.display = 'none';
+        document.querySelector('.qkeys').style.display = 'none';
+        document.querySelector('.ap-progress').style.display = 'none';
+        document.getElementById('qghost').style.display = 'none';
+        var el = document.getElementById('calcScreen');
+        el.style.display = 'block';
+        var shell = document.querySelector('.ap-shell');
+        window.scrollTo({ top: Math.max(0, shell.getBoundingClientRect().top + window.scrollY - 96), behavior: 'instant' });
+        var line = document.getElementById('calcLine');
+        var i = 0;
+        var t = setInterval(function () {
+          i++;
+          if (i >= CALC_LINES.length) { clearInterval(t); done(); return; }
+          line.textContent = CALC_LINES[i];
+        }, 700);
+      }
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var btn = document.getElementById('qsubmit');
+        var get = function (n) { return (form[n] && form[n].value ? String(form[n].value).trim() : ''); };
+        var ageNum = +slider.value;
+
+        var data = {
+          outcome: picked('outcome'),
+          age: ageNum >= 75 ? '75+' : String(ageNum),
+          role: picked('role'),
+          energy: picked('energy'),
+          focus: picked('focus'),
+          sleep: picked('sleep'),
+          drive: picked('drive'),
+          bodycomp: picked('bodycomp'),
+          familyList: familyList(),
+          family: familyList().length ? familyList().join(', ') : 'None reported',
+          labs: picked('labs'),
+          triggerEvent: picked('triggerEvent'),
+          alreadyTried: Array.prototype.slice.call(form.querySelectorAll('input[name="alreadyTried"]:checked')).map(function (c) { return c.value; }),
+          context: get('context'),
+          businessRevenue: picked('businessRevenue'),
+          annualIncome: picked('annualIncome'),
+          investReady: picked('investReady'),
+          timeline: picked('timeline'),
+          firstName: get('firstName'),
+          lastName: get('lastName'),
+          email: get('email'),
+          phone: get('phone')
+        };
+
+        if (!data.firstName || !data.lastName || !data.email || !data.phone) { showErr('Please fill in your name, email, and phone.'); return; }
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email)) { showErr('That email doesn’t look right. Mind checking it?'); return; }
+        var required = ['outcome', 'role', 'energy', 'focus', 'sleep', 'drive', 'bodycomp', 'labs', 'triggerEvent', 'timeline'];
+        for (var i = 0; i < required.length; i++) {
+          if (!data[required[i]]) { showErr('Looks like a question got skipped. Use Back to check your answers.'); return; }
+        }
+        if (!form.querySelector('input[name="familyHistory"]:checked')) { showErr('Looks like a question got skipped. Use Back to check your answers.'); return; }
+        if (isOwner() ? !data.businessRevenue : !data.annualIncome) { showErr('Looks like a question got skipped. Use Back to check your answers.'); return; }
+        if (belowThreshold() && !data.investReady) { showErr('Looks like a question got skipped. Use Back to check your answers.'); return; }
+
+        btn.disabled = true;
+        btn.textContent = 'Logging…';
+
+        var result = computeScore();
+
+        /* Qualification gate. Above threshold books the 15-minute call. Below
+           threshold, the invest answer decides: $10K+ books the same call,
+           $2,500-$10K routes to the 30-minute lower-tier call, no is a pass. */
+        var below =
+          (isOwner() && normDash(data.businessRevenue) === '$0 - $500K') ||
+          (!isOwner() && normDash(data.annualIncome) === '$0 - $149K');
+        var tier = 'core';
+        if (below) {
+          var inv = data.investReady || '';
+          if (/\$10K\+/i.test(inv)) tier = 'core';
+          else if (/2,500|2500/i.test(inv)) tier = 'lower';
+          else tier = 'dq';
+        }
+        var disqualified = tier === 'dq';
+
+        var payload = {
+          data: data,
+          score: result.score,
+          perf: result.perf,
+          risk: result.risk,
+          qualified: !disqualified,
+          tier: tier
+        };
+        try { localStorage.setItem('sp_assessment', JSON.stringify(payload)); } catch (_) {}
+        try { localStorage.setItem('sp_application', JSON.stringify(data)); } catch (_) {}
+
+        /* Send everything to GHL (same inbound webhook as funnel v2).
+           Fires for qualified AND disqualified. The GHL workflow also sends
+           the results email from these fields; see RESULTS-EMAIL.md. */
+        try {
+          var wh = new URLSearchParams({
+            first_name: data.firstName, last_name: data.lastName,
+            email: data.email, phone: data.phone,
+            outcome: data.outcome,
+            age: data.age,
+            trigger_event: data.triggerEvent,
+            symptoms: ['Energy: ' + data.energy, 'Focus: ' + data.focus, 'Sleep: ' + data.sleep, 'Drive: ' + data.drive].join(' | '),
+            already_tried: (data.alreadyTried || []).join(', '),
+            notes: 'Second Prime Score ' + result.score + '. Risk: ' + result.risk.pct + ' (' + result.risk.status + ') | Performance: ' + result.perf.pct + ' (' + result.perf.status + ') | Body: ' + data.bodycomp + ' | Family: ' + data.family + ' | Labs: ' + data.labs + (data.context ? ' | In their words: ' + data.context : ''),
+            business_owner: isOwner() ? 'Yes' : 'No',
+            business_revenue: data.businessRevenue,
+            annual_income: data.annualIncome,
+            investment: data.investReady || 'Skipped (above threshold)',
+            timeline: data.timeline,
+            heard_about: 'Assessment Funnel',
+            qualified: disqualified ? 'No' : (tier === 'lower' ? 'Yes - lower tier' : 'Yes'),
+            application_source: 'Assessment Funnel V1'
+          });
+          fetch('https://services.leadconnectorhq.com/hooks/FlDP3vggPbCWokd7J6xc/webhook-trigger/152fcbfd-cb5a-4bd7-b31e-5f60a2c91073', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: wh.toString(),
+            mode: 'no-cors',
+            keepalive: true
+          }).catch(function () {});
+        } catch (_) {}
+
+        try { if (window.fbq) fbq('track', 'CompleteRegistration'); } catch (_) {}
+
+        /* Routing: qualified goes straight to booking (results are delivered on
+           the call and by email); disqualified gets the full results page. */
+        runCalc(function () {
+          if (disqualified) { window.location.href = 'results.html'; return; }
+          var qs = new URLSearchParams({
+            first_name: data.firstName, last_name: data.lastName,
+            email: data.email, phone: data.phone
+          });
+          if (tier === 'lower') qs.set('tier', 'lower');
+          window.location.href = 'booking.html?' + qs.toString();
+        });
+      });
+
+      paint(true); // first paint: no scroll, so visitors land at the top of the page
+    })();
+  </script>
+</body>
+</html>
