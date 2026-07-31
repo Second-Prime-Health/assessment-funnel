@@ -62,19 +62,40 @@ function resolveTimezone(req, body) {
 }
 
 // Contacts keep a hand-set timezone: we only ever fill an empty one.
-async function existingTimezone({ email, apiKey, locationId }) {
+// Returns { found, id, timezone } — timezone '' means empty, 'unknown' means the lookup
+// itself failed, in which case we leave the field alone rather than risk clobbering.
+async function lookupContact({ email, apiKey, locationId }) {
   try {
     const params = new URLSearchParams({ locationId, email });
     const r = await fetch(
       `https://services.leadconnectorhq.com/contacts/search/duplicate?${params}`,
       { headers: { Authorization: `Bearer ${apiKey}`, Version: '2021-07-28', Accept: 'application/json' } }
     );
-    if (!r.ok) return 'unknown';
+    if (!r.ok) return { found: false, id: null, timezone: 'unknown' };
     const d = await r.json();
-    return d?.contact?.timezone || '';
+    const c = d?.contact;
+    return { found: !!c, id: c?.id || null, timezone: c?.timezone || '' };
   } catch (_) {
-    return 'unknown';
+    return { found: false, id: null, timezone: 'unknown' };
   }
+}
+
+/* Tags go through the dedicated endpoint, which APPENDS. Passing `tags` to
+   /contacts/upsert REPLACES the whole array instead: verified live 2026-07-31, a second
+   submit wiped the first submit's tags. On a returning contact that would also destroy
+   whatever else is on the record (consult-booked, ScoreApp tags, sales tags). */
+async function addTags({ contactId, tags, apiKey }) {
+  const r = await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}/tags`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      Version: '2021-07-28',
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: JSON.stringify({ tags }),
+  });
+  return r.ok;
 }
 
 export default async function handler(req, res) {
@@ -89,11 +110,8 @@ export default async function handler(req, res) {
 
   const tags = tagsFor(req.body);
   const detectedTz = resolveTimezone(req, req.body);
-  const priorTz = detectedTz ? await existingTimezone({ email, apiKey, locationId }) : 'unknown';
-  const tzField = detectedTz && priorTz === '' ? { timezone: detectedTz } : {};
-
-  // Nothing to write and no timezone to set: skip the call entirely.
-  if (!tags.length && !Object.keys(tzField).length) return res.status(200).json({ skipped: true });
+  const prior = await lookupContact({ email, apiKey, locationId });
+  const tzField = detectedTz && prior.timezone === '' ? { timezone: detectedTz } : {};
 
   const parts = String(name || '').trim().split(/\s+/).filter(Boolean);
   const nameFields = parts.length
@@ -101,9 +119,9 @@ export default async function handler(req, res) {
     : {};
 
   try {
-    /* Upsert, not create: the inbound webhook may have already made this contact, and
-       upsert dedupes on email within the location. Tags are additive in GHL, so this
-       cannot remove anything the webhook or a human put there. */
+    /* Upsert WITHOUT tags: it dedupes on email so it is safe to run after the inbound
+       webhook has already created the contact, but its `tags` argument replaces rather
+       than appends, so tags are applied separately below. */
     const r = await fetch('https://services.leadconnectorhq.com/contacts/upsert', {
       method: 'POST',
       headers: {
@@ -118,17 +136,27 @@ export default async function handler(req, res) {
         ...(phone ? { phone } : {}),
         ...nameFields,
         ...tzField,
-        tags,
       }),
     });
     if (!r.ok) {
       const details = await r.json().catch(() => ({}));
-      console.error('lead tag failed', r.status, details);
-      return res.status(r.status).json({ error: 'Tagging failed', details });
+      console.error('lead upsert failed', r.status, details);
+      return res.status(r.status).json({ error: 'Lead sync failed', details });
     }
-    return res.status(200).json({ success: true, tags, timezone: tzField.timezone || null });
+    const upserted = await r.json().catch(() => ({}));
+    const contactId = upserted?.contact?.id || prior.id;
+
+    let tagged = false;
+    if (tags.length && contactId) tagged = await addTags({ contactId, tags, apiKey });
+
+    return res.status(200).json({
+      success: true,
+      tags: tagged ? tags : [],
+      tagged,
+      timezone: tzField.timezone || null,
+    });
   } catch (err) {
     console.error('lead error', err);
-    return res.status(502).json({ error: 'Tagging failed' });
+    return res.status(502).json({ error: 'Lead sync failed' });
   }
 }
