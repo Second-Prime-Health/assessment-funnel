@@ -69,6 +69,32 @@ utm_source=facebook&utm_medium=paid&utm_campaign={{campaign.name}}&utm_term={{ad
 The ids are the join keys to spend; the names are for display. `fbclid` is
 appended by Meta automatically.
 
+## The booking tag contract (calendars are shared)
+
+The 15-minute and 30-minute calendars are shared with other funnels, so
+"appointment booked on this calendar" does NOT mean "booked from this funnel."
+Counting every booking on them would inflate this funnel's numbers with
+ScoreApp bookings and manual bookings.
+
+The discriminator is a one-shot tag:
+
+- `api/book.js` applies **`assessment-funnel-booking`** on the contact upsert,
+  which happens before the appointment is created.
+- The GHL booking workflow triggers on Customer Booked Appointment, **filters
+  to contacts carrying that tag**, fires the `ghl-hook` webhook, and then
+  **removes the tag** as its final action.
+
+Removing it is the part that matters. A tag that sticks around would re-fire
+months later when the same person books through a different funnel, which is
+the exact misattribution this exists to prevent. Treat it as a token that gets
+spent, never as a segment label. For segmentation use `consult-booked`, which
+is permanent.
+
+Known gap: if `/api` is down and the booking page falls back to the embedded
+GHL widget, the widget creates the contact itself and no tag is applied, so
+that booking goes uncounted. A missing booking is the right failure here, since
+the alternative is counting other funnels' bookings as ours.
+
 ## GHL wiring
 
 - Assessment submit posts to the same inbound webhook as before, now with

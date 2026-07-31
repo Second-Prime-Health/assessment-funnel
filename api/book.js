@@ -43,7 +43,15 @@ export default async function handler(req, res) {
         lastName,
         email,
         phone,
-        tags: isLower ? ['consult-booked', 'lower-tier'] : ['consult-booked'],
+        /* `assessment-funnel-booking` is a one-shot flag, not a label. The GHL
+           booking workflow triggers on it, fires the analytics webhook, then
+           removes it as its last action. The calendars are shared with other
+           funnels, so this tag is the only thing that says "this booking came
+           from here." Applied on the upsert, which completes before the
+           appointment is created, so the tag exists when the trigger fires. */
+        tags: isLower
+          ? ['consult-booked', 'lower-tier', 'assessment-funnel-booking']
+          : ['consult-booked', 'assessment-funnel-booking'],
         source: 'Website Calendar Booking',
       }),
     });
