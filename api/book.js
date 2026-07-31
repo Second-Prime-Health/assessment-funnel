@@ -82,20 +82,41 @@ export default async function handler(req, res) {
         email,
         phone,
         ...tzField,
-        /* `assessment-funnel-booking` is a one-shot flag, not a label. The GHL
-           booking workflow triggers on it, fires the analytics webhook, then
-           removes it as its last action. The calendars are shared with other
-           funnels, so this tag is the only thing that says "this booking came
-           from here." Applied on the upsert, which completes before the
-           appointment is created, so the tag exists when the trigger fires. */
-        tags: isLower
-          ? ['consult-booked', 'lower-tier', 'assessment-funnel-booking']
-          : ['consult-booked', 'assessment-funnel-booking'],
         source: 'Website Calendar Booking',
       }),
     });
     const cData = await cRes.json();
     const contactId = cData?.contact?.id;
+
+    /* Tags via the dedicated endpoint, which APPENDS. Passing `tags` to /contacts/upsert
+       REPLACES the whole array: verified live 2026-07-31, it wiped the assess-* band tags
+       applied at assessment submit, and on a returning contact it would also destroy
+       ScoreApp and sales tags.
+
+       `assessment-funnel-booking` is a one-shot flag, not a label. The GHL booking
+       workflow triggers on it, fires the analytics webhook, then removes it as its last
+       action. The calendars are shared with other funnels, so this tag is the only thing
+       that says "this booking came from here." Awaited before the appointment is created
+       so the tag reliably exists when that trigger fires. */
+    if (contactId) {
+      const tags = isLower
+        ? ['consult-booked', 'lower-tier', 'assessment-funnel-booking']
+        : ['consult-booked', 'assessment-funnel-booking'];
+      try {
+        await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}/tags`, {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            Version: '2021-07-28',
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({ tags }),
+        });
+      } catch (err) {
+        console.error('booking tag failed', err);
+      }
+    }
 
     // Create the appointment.
     const aRes = await fetch('https://services.leadconnectorhq.com/calendars/events/appointments', {
