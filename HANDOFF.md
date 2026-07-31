@@ -125,11 +125,16 @@ summary" button to the results page.
 - **GHL calendar:** cap availability at 14 days out (the grid shows 2 weeks by
   default), align the widget copy to "15-minute call," instant SMS
   confirmation + reminder (highest-impact show-rate lever in the research).
-- **Hosting:** static anywhere (booking falls back to the GHL widget) or
-  Vercel with `GHL_API_KEY` for the native calendar (`api/` included). Calendar
-  ids default to the live ones in code; `GHL_CALENDAR_ID` (15-min) and
-  `GHL_CALENDAR_ID_LOWER` (30-min) override them. Preview lives at
-  tests.secondprime.io/assessment-funnel/.
+- **Hosting:** production is **assess.secondprime.io**, served from the
+  `Second-Prime-Health/assessment-funnel` repo on Vercel. Vercel is required,
+  not preferred: `api/slots.js` and `api/book.js` need a serverless runtime,
+  and without them the booking page silently falls back to the embedded GHL
+  widget. Env: `GHL_API_KEY` and `GHL_LOCATION_ID` required; `GHL_CALENDAR_ID`
+  (15-min) and `GHL_CALENDAR_ID_LOWER` (30-min) optional, they default to the
+  live ids in code.
+  The old preview at tests.secondprime.io/assessment-funnel/ is a GitHub Pages
+  copy with no `/api`, so its calendar runs on demo data. Retire it once
+  assess.secondprime.io is up.
 
 ## Tracking (July 30)
 
