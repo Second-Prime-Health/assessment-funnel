@@ -19,6 +19,27 @@ rather than the questionnaire. One exception, deliberate: the Meta custom event
 is still `intake_started`, so campaign history stays intact if one already
 exists. Rename it only before launch, never after.
 
+## Two repos, and who owns what
+
+This funnel and its analytics are built in parallel, often in separate
+sessions. The split is deliberate:
+
+| Repo | Holds |
+| --- | --- |
+| `assessment-funnel` (this one) | The five pages, CSS, assets, the calendar functions in `api/`, and the client-side tracking in `js/` |
+| `funnel-analytics` | The Supabase schema, edge functions, the dashboard UI, and the Meta spend scripts |
+
+The seam is `js/track.js` and `js/experiments.js`. They live here because
+events have to fire from these pages, but they are written against the schema
+in `funnel-analytics`. Changing an event name, a `question_id` or a
+`data-cta` value breaks the dashboard silently. `TRACKING.md` lists the rules
+that protect that contract; read it before editing any page.
+
+Working copy is `~/SecondPrimeSite/assessment-funnel`, a clone of this repo.
+Pull before you edit and commit before you walk away. Do not sync files into
+this folder from anywhere else: an earlier overwrite nearly took out the
+tracking work, and git is the only thing that catches it.
+
 **Flow:** `index.html` (landing + video) → `assessment.html` (14 questions +
 4 dynamic trust interstitials: role, performance, risk, what-you've-tried) → qualified: `booking.html` → `thank-you.html`
 / disqualified: `results.html` soft path. `FLOW.html` is a visual map of every
