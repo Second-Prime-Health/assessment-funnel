@@ -28,7 +28,7 @@
   <script src="js/track.js?v=1"></script>
   <script>
     try {
-      var spTier = new URLSearchParams(location.search).get('tier');
+      var spTier = /(^|[?&])c=30|tier=lower/.test(location.search) ? 'lower' : null;
       if (!spTier) { var spRes = JSON.parse(localStorage.getItem('sp_assessment') || 'null'); spTier = spRes && spRes.tier; }
       spTrack('thankyou_view', { tier: spTier || 'core' });
     } catch (_) {}
@@ -119,7 +119,7 @@
       if (first) document.getElementById('tyHeadline').textContent = first + ', see you on the call.';
 
       // Same page for both paths, one word swapped: 15-minute or 30-minute.
-      var tier = params.get('tier');
+      var tier = (params.get('c') === '30' || params.get('tier') === 'lower') ? 'lower' : '';
       if (!tier) { try { tier = JSON.parse(localStorage.getItem('sp_assessment') || '{}').tier || ''; } catch (_) {} }
       if (tier === 'lower') {
         document.querySelectorAll('.ty-len').forEach(function (el) { el.textContent = '30-minute'; });

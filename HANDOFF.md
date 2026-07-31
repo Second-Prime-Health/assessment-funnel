@@ -71,9 +71,12 @@ the assessment. Copy promises the score plus a Risk and Performance read.
   at $150K+ income qualify automatically (tier `core`). Below that they get the
   invest question:
   - "$10K+" → tier `core` → 15-minute call (custom teal calendar)
-  - "$2,500-$10K" → tier `lower` → `booking.html?tier=lower`, same custom
-    calendar pointed at the 30-minute GHL calendar (`85vCxdmO6uvmsJmx97Rp`)
-    for a one-call close on the lower-tier offer
+  - "$2,500-$10K" → tier `lower` → `booking.html?c=30`, same custom calendar
+    pointed at the 30-minute GHL calendar (`85vCxdmO6uvmsJmx97Rp`) for a
+    one-call close on the lower-tier offer. The marker is `c=30`, never
+    `tier=lower`: it sits in their address bar, and nothing a prospect can read
+    should tell them which tier they were sorted into. `/book30` and the legacy
+    `tier=lower` both still resolve to the same path.
   - "No" → tier `dq` → `results.html` soft path
   The tier is saved in `sp_assessment.tier` and sent to GHL in `qualified`
   (`Yes`, `Yes - lower tier`, or `No`).

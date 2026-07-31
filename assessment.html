@@ -961,7 +961,7 @@
             first_name: data.firstName, last_name: data.lastName,
             email: data.email, phone: data.phone
           });
-          if (tier === 'lower') qs.set('tier', 'lower');
+          if (tier === 'lower') qs.set('c', '30');
           window.location.href = 'booking.html?' + qs.toString();
         });
       });

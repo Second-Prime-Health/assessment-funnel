@@ -26,7 +26,7 @@
   <script src="js/experiments.js?v=1"></script>
   <script src="js/track.js?v=1"></script>
   <script>
-    try { spTrack('booking_view', { tier: new URLSearchParams(location.search).get('tier') === 'lower' ? 'lower' : 'core' }); } catch (_) {}
+    try { spTrack('booking_view', { tier: /(^|[?&])c=30|tier=lower/.test(location.search) || /book30$/.test(location.pathname) ? 'lower' : 'core' }); } catch (_) {}
   </script>
 </head>
 <body class="ap-page">
@@ -204,6 +204,11 @@
 
       // Prefill from the application handoff (query string or saved application).
       var params = new URLSearchParams(window.location.search);
+      /* Three ways in, none of which label the person: `c=30` on the redirect
+         after they qualify, the `/book30` path for links we send, and the
+         legacy `tier=lower` so anything already in the wild keeps working. */
+      var isLower = params.get('c') === '30' || params.get('tier') === 'lower' ||
+                    /book30\/?$/.test(location.pathname);
       var pre = { name: '', email: '', phone: '' };
       try {
         var app = JSON.parse(localStorage.getItem('sp_application') || '{}');
@@ -216,10 +221,10 @@
       if (pre.phone) $('spb-phone').value = pre.phone;
       var finish = $('spb-finish');
       var firstName = params.get('first_name') || '';
-      if (params.get('tier') === 'lower') finish.href = 'thank-you.html?tier=lower';
+      if (isLower) finish.href = 'thank-you.html?c=30';
       if (firstName) {
         finish.href = 'thank-you.html?first_name=' + encodeURIComponent(firstName) +
-          (params.get('tier') === 'lower' ? '&tier=lower' : '');
+          (isLower ? '&c=30' : '');
         var head = document.getElementById('bkHeadline');
         head.innerHTML = firstName.replace(/[<>&"]/g, '') + ', your assessment is in.<br />Pick your time.';
       }
@@ -264,12 +269,11 @@
         }
       } catch (_) {}
 
-      /* Lower-tier path (?tier=lower): same custom calendar, different GHL
+      /* Lower-tier path: same custom calendar, different GHL
          calendar behind it (30 minutes instead of 15). The tier rides along to
          /api/slots and /api/book, which map it to a calendar id server-side.
          Only the widget fallback needs the raw URL. */
       var LOWER_CAL = 'https://link.secondprime.io/widget/booking/85vCxdmO6uvmsJmx97Rp';
-      var isLower = params.get('tier') === 'lower';
       var callMins = isLower ? '30 minutes' : '15 minutes';
       if (isLower) {
         document.getElementById('bookingWidget').src = LOWER_CAL;

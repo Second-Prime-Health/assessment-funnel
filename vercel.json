@@ -1,6 +1,16 @@
 {
   "rewrites": [
-    { "source": "/book", "destination": "/booking.html" },
-    { "source": "/start", "destination": "/assessment.html" }
+    {
+      "source": "/book",
+      "destination": "/booking.html"
+    },
+    {
+      "source": "/book30",
+      "destination": "/booking.html"
+    },
+    {
+      "source": "/start",
+      "destination": "/assessment.html"
+    }
   ]
 }
