@@ -22,6 +22,12 @@
     fbq('track', 'PageView');
   })();
   </script>
+  <!-- First-party tracking (our own database, separate from the pixel). See TRACKING.md. -->
+  <script src="js/experiments.js?v=1"></script>
+  <script src="js/track.js?v=1"></script>
+  <script>
+    try { spTrack('booking_view', { tier: new URLSearchParams(location.search).get('tier') === 'lower' ? 'lower' : 'core' }); } catch (_) {}
+  </script>
 </head>
 <body class="ap-page">
 
@@ -272,6 +278,7 @@
          embedded GHL booking widget so the page always works. */
       function fallbackToWidget() {
         apiDead = true;
+        try { if (window.spTrack) { spTrack('booking_widget_shown', { tier: isLower ? 'lower' : 'core' }); spFlush(); } } catch (_) {}
         stepCal.style.display = 'none';
         stepForm.style.display = 'none';
         var qs = new URLSearchParams();
@@ -398,6 +405,7 @@
       }
 
       function showForm() {
+        try { if (window.spTrack) spTrack('slot_selected', { slot_iso: selectedSlot, tier: isLower ? 'lower' : 'core' }); } catch (_) {}
         var t = new Date(selectedSlot);
         var ds = t.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
         var ts = t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });

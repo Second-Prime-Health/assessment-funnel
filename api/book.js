@@ -75,6 +75,28 @@ export default async function handler(req, res) {
       console.error('booking failed', aRes.status, aData);
       return res.status(aRes.status).json({ error: 'Booking failed', details: aData });
     }
+
+    /* Analytics: record the booking server-side (source 'native'). Dormant
+       until SUPABASE_URL + SUPABASE_SERVICE_KEY are set in the host env; the
+       GHL appointment-created webhook (ghl-hook) counts bookings either way
+       and dedupes on email + slot, so this is belt-and-suspenders. */
+    try {
+      const sbUrl = process.env.SUPABASE_URL;
+      const sbKey = process.env.SUPABASE_SERVICE_KEY;
+      if (sbUrl && sbKey) {
+        await fetch(`${sbUrl}/rest/v1/bookings`, {
+          method: 'POST',
+          headers: { apikey: sbKey, Authorization: `Bearer ${sbKey}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tier: isLower ? 'lower' : 'core',
+            slot_time: slot,
+            source: 'native',
+            contact_email: String(email).toLowerCase(),
+          }),
+        });
+      }
+    } catch (_) { /* analytics must never break a booking */ }
+
     return res.status(200).json({ success: true });
   } catch (err) {
     console.error('book error', err);

@@ -109,6 +109,14 @@ summary" button to the results page.
   `GHL_CALENDAR_ID_LOWER` (30-min) override them. Preview lives at
   tests.secondprime.io/assessment-funnel/.
 
+## Tracking (July 30)
+
+First-party analytics is wired on every page: `js/experiments.js` +
+`js/track.js`, events to our own Supabase database, dashboard in the
+`funnel-analytics` repo. **Read `TRACKING.md` before editing any page**; it
+lists the hooks that must survive edits and the rule that answers never touch
+the pixel. The pixel wiring described above is unchanged.
+
 ## Brand rules baked in (do not deviate)
 
 - Zodiak headlines, Satoshi everything else, loaded locally.

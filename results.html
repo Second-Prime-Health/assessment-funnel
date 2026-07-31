@@ -22,6 +22,15 @@
     fbq('track', 'PageView');
   })();
   </script>
+  <!-- First-party tracking (our own database, separate from the pixel). See TRACKING.md. -->
+  <script src="js/experiments.js?v=1"></script>
+  <script src="js/track.js?v=1"></script>
+  <script>
+    try {
+      var spRes = JSON.parse(localStorage.getItem('sp_assessment') || 'null');
+      spTrack('results_view', { tier: spRes && spRes.tier ? spRes.tier : 'unknown' });
+    } catch (_) {}
+  </script>
 </head>
 <body class="rs-page">
 

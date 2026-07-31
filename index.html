@@ -27,6 +27,9 @@
     fbq('track', 'PageView');
   })();
   </script>
+  <!-- First-party tracking (our own database, separate from the pixel). See TRACKING.md. -->
+  <script src="js/experiments.js?v=1"></script>
+  <script src="js/track.js?v=1"></script>
 </head>
 <body class="as-land">
 
@@ -36,7 +39,7 @@
       <span class="nav-logo" role="img" aria-label="Second Prime"></span>
       <nav class="nav-links"></nav>
       <div class="nav-actions">
-        <a class="btn-cta btn-ghost" href="assessment.html">Start My Assessment</a>
+        <a class="btn-cta btn-ghost" data-cta="nav" href="assessment.html">Start My Assessment</a>
       </div>
     </div>
   </header>
@@ -55,7 +58,7 @@
         </div>
         <script src="https://player.vimeo.com/api/player.js"></script>
 
-        <a class="btn btn-teal btn-lg as-cta" href="assessment.html">Start My Assessment&ensp;&rarr;</a>
+        <a class="btn btn-teal btn-lg as-cta" data-cta="hero" href="assessment.html">Start My Assessment&ensp;&rarr;</a>
         <p class="f-hero-note">Step 1: 14 questions, about 2 minutes.</p>
         <div class="f-hero-stats">
           <div><span class="num">1,000+</span><span class="lbl">Biomarkers We Test</span></div>
@@ -102,7 +105,7 @@
       </div>
       <p class="f-turn reveal">Your doctor grades you against &ldquo;normal.&rdquo; Normal is a curve of sick people. Your assessment gets read the way we read clients: against where a high-output body should run.</p>
       <div class="f-section-cta reveal">
-        <a class="btn btn-dark btn-lg as-cta" href="assessment.html">Start My Assessment&ensp;&rarr;</a>
+        <a class="btn btn-dark btn-lg as-cta" data-cta="mid1" href="assessment.html">Start My Assessment&ensp;&rarr;</a>
       </div>
     </div>
   </section>
@@ -120,7 +123,7 @@
         <div class="as-step"><b>03</b><h3>The full workup</h3><p>If we&rsquo;re a fit: 1,000+ biomarkers, a plan built around your biology, and a team that runs it with you.</p></div>
       </div>
       <div class="f-section-cta reveal">
-        <a class="btn btn-dark btn-lg as-cta" href="assessment.html">Start My Assessment&ensp;&rarr;</a>
+        <a class="btn btn-dark btn-lg as-cta" data-cta="mid2" href="assessment.html">Start My Assessment&ensp;&rarr;</a>
       </div>
     </div>
   </section>
@@ -198,7 +201,7 @@
       <span class="eyebrow">Step 1 Takes 2 Minutes</span>
       <h2>You&rsquo;ve been guessing about<br />the one system you can&rsquo;t delegate.</h2>
       <p class="lead">14 questions map your risk and performance gaps. 15 minutes on the phone gets you our read on where to look first. Both free.</p>
-      <a class="btn btn-teal btn-lg as-cta" href="assessment.html">Start My Assessment&ensp;&rarr;</a>
+      <a class="btn btn-teal btn-lg as-cta" data-cta="final" href="assessment.html">Start My Assessment&ensp;&rarr;</a>
       <p class="note">Free, and your answers stay private. We will never sell or share your data.</p>
     </div>
   </section>
@@ -216,7 +219,7 @@
   <!-- ============ STICKY MOBILE CTA ============ -->
   <div class="f-sticky" id="fSticky">
     <div class="f-sticky-txt"><b>Executive Longevity Assessment</b>14 questions, then a free 15-minute call</div>
-    <a class="btn btn-teal as-cta" href="assessment.html">Start My Assessment</a>
+    <a class="btn btn-teal as-cta" data-cta="sticky" href="assessment.html">Start My Assessment</a>
   </div>
 
   <script>

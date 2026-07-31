@@ -22,6 +22,9 @@
     fbq('track', 'PageView');
   })();
   </script>
+  <!-- First-party tracking (our own database, separate from the pixel). See TRACKING.md. -->
+  <script src="js/experiments.js?v=1"></script>
+  <script src="js/track.js?v=1"></script>
   <style>
     /* Age slider (dark jewel card variant) */
     .age-read { text-align: center; margin: 10px 0 6px; }
@@ -539,6 +542,22 @@
 
       var INT_PAINTERS = { int1: paintInt1, int2: paintInt2, int3: paintInt3, int5t: paintInt5t };
 
+      /* ---- First-party tracking hooks (see TRACKING.md). Answers go only to
+         our own database via track.js, never to the pixel. ---- */
+      var SP_QID = { family: 'familyHistory', trigger: 'triggerEvent', tried: 'alreadyTried', revenue: 'businessRevenue', income: 'annualIncome', invest: 'investReady' };
+      var spShownAt = {};
+      function spStepView(cur, seqIdx) {
+        if (!window.spTrack) return;
+        var el = stepEl(cur), kind = el.dataset.kind;
+        spShownAt[cur] = Date.now();
+        if (kind === 'q' || kind === 'contact') {
+          spTrack('question_view', { question_id: SP_QID[cur] || cur, step_index: seqIdx });
+        } else if (kind === 'int') {
+          var tag = el.querySelector('[id$="Tag"]');
+          spTrack('interstitial_view', { interstitial_id: cur, variant_shown: tag ? tag.textContent : '' });
+        }
+      }
+
       // Progress counts questions only; interstitials and contact don't inflate it.
       function qOnly(seq) { return seq.filter(function (q) { return stepEl(q).dataset.kind === 'q'; }); }
       function pad(n) { return (n < 10 ? '0' : '') + n; }
@@ -549,6 +568,7 @@
         var cur = seq[idx];
         if (INT_PAINTERS[cur]) INT_PAINTERS[cur]();
         stepEl(cur).classList.add('on');
+        spStepView(cur, idx);
         var qs = qOnly(seq);
         var qIdx = 0;
         for (var i = 0; i <= idx; i++) { if (stepEl(seq[i]).dataset.kind === 'q') qIdx++; }
@@ -629,6 +649,34 @@
         if (startedFired) return;
         startedFired = true;
         try { if (window.fbq) fbq('trackCustom', 'intake_started'); } catch (_) {}
+        try {
+          if (window.spTrack) spTrack('assessment_start', {});
+          localStorage.setItem('sp_assess_start', String(Date.now()));
+        } catch (_) {}
+      }, true);
+
+      /* Per-answer capture with time-on-question. Contact fields are excluded
+         (identify at submit carries them); a valid email typed at the contact
+         step is captured early so a last-step abandon is recoverable. */
+      var SP_SKIP = { firstName: 1, lastName: 1, phone: 1 };
+      form.addEventListener('change', function (e) {
+        if (!window.spTrack || !e.target || !e.target.name) return;
+        var n = e.target.name;
+        if (n === 'email') {
+          var em = String(e.target.value || '').trim();
+          if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) spTrack('email_captured', { email: em });
+          return;
+        }
+        if (SP_SKIP[n]) return;
+        var val;
+        if (e.target.type === 'checkbox') {
+          val = Array.prototype.slice.call(form.querySelectorAll('input[name="' + n + '"]:checked')).map(function (c) { return c.value; });
+        } else {
+          val = e.target.value;
+        }
+        var cur = sequence()[idx];
+        var secs = spShownAt[cur] ? Math.round((Date.now() - spShownAt[cur]) / 1000) : null;
+        spTrack('question_answer', { question_id: n, answer: val, seconds_on_question: secs });
       }, true);
 
       // Age slider readout + fill.
@@ -640,6 +688,14 @@
         slider.style.setProperty('--fill', ((v - 28) / (75 - 28) * 100) + '%');
       }
       slider.addEventListener('input', paintAge);
+      slider.addEventListener('change', function () {
+        try {
+          if (window.spTrack) {
+            var secs = spShownAt.age ? Math.round((Date.now() - spShownAt.age) / 1000) : null;
+            spTrack('question_answer', { question_id: 'age', answer: (+slider.value >= 75 ? '75+' : String(slider.value)), seconds_on_question: secs });
+          }
+        } catch (_) {}
+      });
       paintAge();
 
       // Keyboard: A/B/C selects on the active step, Enter continues.
@@ -784,6 +840,20 @@
         try { localStorage.setItem('sp_assessment', JSON.stringify(payload)); } catch (_) {}
         try { localStorage.setItem('sp_application', JSON.stringify(data)); } catch (_) {}
 
+        /* First-party tracking: submit + identity. Individual answers already
+           streamed per question; this stitches the session to a lead. */
+        var spDur = null;
+        try { var spT0 = +localStorage.getItem('sp_assess_start'); if (spT0) spDur = Math.round((Date.now() - spT0) / 1000); } catch (_) {}
+        try {
+          if (window.spTrack) {
+            spTrack('question_answer', { question_id: 'age', answer: data.age });
+            if (data.context) spTrack('question_answer', { question_id: 'context', answer: data.context });
+            spTrack('assessment_submit', { score: result.score, perf_pct: result.perf.pct, perf_status: result.perf.status, risk_pct: result.risk.pct, risk_status: result.risk.status, tier: tier, duration_seconds: spDur });
+            spTrack('identify', { first_name: data.firstName, last_name: data.lastName, email: data.email, phone: data.phone, score: result.score, perf_pct: result.perf.pct, perf_status: result.perf.status, risk_pct: result.risk.pct, risk_status: result.risk.status, tier: tier, duration_seconds: spDur });
+            spFlush();
+          }
+        } catch (_) {}
+
         /* Send everything to GHL (same inbound webhook as funnel v2).
            Fires for qualified AND disqualified. The GHL workflow also sends
            the results email from these fields; see RESULTS-EMAIL.md. */
@@ -806,6 +876,11 @@
             qualified: disqualified ? 'No' : (tier === 'lower' ? 'Yes - lower tier' : 'Yes'),
             application_source: 'Assessment Funnel V1'
           });
+          /* Attribution fields for the CRM record; cross-checks the analytics DB. */
+          try {
+            var sps = window.spSession ? spSession() : {};
+            Object.keys(sps).forEach(function (k) { if (sps[k]) wh.set(k, sps[k]); });
+          } catch (_) {}
           fetch('https://services.leadconnectorhq.com/hooks/FlDP3vggPbCWokd7J6xc/webhook-trigger/152fcbfd-cb5a-4bd7-b31e-5f60a2c91073', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
