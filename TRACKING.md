@@ -45,10 +45,18 @@ attribution is first-touch (`sp_attr`).
 | `slot_selected` | native calendar only | `slot_iso`, `tier` |
 | `booking_created` | server-side, from the GHL webhook | `tier`, `slot_iso` |
 
-Question ids = form field names: `outcome`, `age`, `role`, `energy`, `focus`,
-`sleep`, `drive`, `bodycomp`, `familyHistory`, `labs`, `triggerEvent`,
-`alreadyTried`, `context`, `businessRevenue`, `annualIncome`, `investReady`,
-`timeline`.
+Question ids = form field names: `goals`, `age`, `role`, `energy`, `focus`,
+`sleep`, `drive`, `bodycomp`, `familyHistory`, `labs`, `longevity`,
+`triggerEvent`, `alreadyTried`, `context`, `businessRevenue`, `annualIncome`,
+`investReady`, `timeline`.
+
+`goals`, `familyHistory`, `alreadyTried` and `longevity` are multi-selects, so
+their `answer` arrives as an array. Everything else is a string.
+
+Changed 2026-07-30: `outcome` (single choice) became `goals` (multi-select) and
+`longevity` was added after `labs`. Both are mirrored in
+`funnel-analytics/dash/questions.js`; changing options in one without the other
+silently breaks the leads filter.
 
 ## URL parameter template (give to the ads agency)
 

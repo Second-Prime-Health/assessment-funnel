@@ -129,6 +129,16 @@
 }
 
 /* ---------- Assessment: interstitial cards ---------- */
+/* The 85 answer mirrored back: closes the risk card on what they want,
+   not on what's wrong. Deliberately quiet so the lab bars stay the hero. */
+.as-int-mirror {
+  max-width: 46ch; margin: 20px auto 0; padding-top: 16px;
+  border-top: 1px solid rgba(255,255,255,0.14);
+  font-family: var(--font-serif); font-weight: 400; font-size: 18px;
+  line-height: 1.45; color: var(--sand-light); text-wrap: balance;
+}
+@media (max-width: 640px) { .as-int-mirror { font-size: 16.5px; margin-top: 16px; padding-top: 13px; } }
+
 .as-int { text-align: center; }
 .as-int-tag {
   display: inline-block; font-size: 12px; font-weight: 700; letter-spacing: 0.16em;

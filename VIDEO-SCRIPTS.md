@@ -29,7 +29,7 @@ starting the program.
    biologist, and for 10 years I've run deep diagnostics, over 1,000
    biomarkers, for more than 500 founders and executives."
 4. **What happens here (0:28-0:48).** "Below this video is the same assessment
-   every client of ours starts with. 14 questions, 3 minutes: your
+   every client of ours starts with. 15 questions, 3 minutes: your
    background, your symptoms, your risk factors. Then you book a 15-minute
    call, and here's the difference: we go through your assessment before we ever
    get on. So the call is about you from the first minute. What your answers

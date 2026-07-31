@@ -7,7 +7,7 @@ JS with no build step and no framework. Open `index.html` and it runs.
 
 ## The flow
 
-`index.html` → `assessment.html` (14 questions, 4 dynamic interstitials) →
+`index.html` → `assessment.html` (15 questions, 4 dynamic interstitials) →
 `booking.html` → `thank-you.html`. People who don't qualify land on
 `results.html` instead, a soft path with no booking CTA.
 

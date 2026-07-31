@@ -12,7 +12,7 @@
   <script>document.documentElement.classList.add("js");</script>
   <link rel="stylesheet" href="css/styles.css?v=1" />
   <link rel="stylesheet" href="css/funnel.css?v=11" />
-  <link rel="stylesheet" href="css/assess.css?v=31" />
+  <link rel="stylesheet" href="css/assess.css?v=32" />
   <!-- Meta pixel (Amartinco LLC's Pixel). Neutral event names only, per Meta health-advertiser rules. -->
   <script>
   (function () {
@@ -54,7 +54,7 @@
     <div class="ap-head">
       <span class="eyebrow">Executive Longevity Assessment &middot; Step 1 of 2</span>
       <h1>Let&rsquo;s get your background.</h1>
-      <p class="ap-sub">14 questions, 2-3 minutes. Answer honestly.</p>
+      <p class="ap-sub">15 questions, 2-3 minutes. Answer honestly.</p>
     </div>
 
     <div class="ap-card">
@@ -67,15 +67,22 @@
 
         <form id="qform" novalidate>
 
-          <!-- ============ OPEN: OUTCOME, AGE, SEAT ============ -->
+          <!-- ============ OPEN: GOALS, AGE, SEAT ============ -->
 
-          <section class="qstep on" data-q="outcome" data-kind="q">
-            <h2>What do you want most from the next 10 years?</h2>
-            <p class="qsub">This decides what we dig into first.</p>
-            <label class="opt"><input type="radio" name="outcome" value="Lower my risk (heart disease, diabetes, decline)" /><span class="key">A</span><span class="txt">Lower my risk (heart disease, diabetes, decline)</span></label>
-            <label class="opt"><input type="radio" name="outcome" value="Perform like I used to (energy, focus, body)" /><span class="key">B</span><span class="txt">Perform like I used to (energy, focus, body)</span></label>
-            <label class="opt"><input type="radio" name="outcome" value="More strong years with the people I love" /><span class="key">C</span><span class="txt">More strong years with the people I love</span></label>
-            <label class="opt"><input type="radio" name="outcome" value="All of it" /><span class="key">D</span><span class="txt">All of it</span></label>
+          <section class="qstep on" data-q="goals" data-kind="q" data-require="goals">
+            <h2>What are you trying to achieve?</h2>
+            <p class="qsub">Select all that apply.</p>
+            <label class="opt"><input type="checkbox" name="goals" value="Lose the weight for good" /><span class="key">A</span><span class="txt">Lose the weight for good</span></label>
+            <label class="opt"><input type="checkbox" name="goals" value="More energy through the whole day" /><span class="key">B</span><span class="txt">More energy through the whole day</span></label>
+            <label class="opt"><input type="checkbox" name="goals" value="Sharper focus and mental clarity" /><span class="key">C</span><span class="txt">Sharper focus and mental clarity</span></label>
+            <label class="opt"><input type="checkbox" name="goals" value="Build strength and physical performance" /><span class="key">D</span><span class="txt">Build strength and physical performance</span></label>
+            <label class="opt"><input type="checkbox" name="goals" value="Drive and libido where I want them" /><span class="key">E</span><span class="txt">Drive and libido where I want them</span></label>
+            <label class="opt"><input type="checkbox" name="goals" value="Get ahead of my family history" /><span class="key">F</span><span class="txt">Get ahead of my family history</span></label>
+            <label class="opt"><input type="checkbox" name="goals" value="Get off medication, or never need it" /><span class="key">G</span><span class="txt">Get off medication, or never need it</span></label>
+            <label class="opt"><input type="checkbox" name="goals" value="Feel good and enjoy life as I get older" /><span class="key">H</span><span class="txt">Feel good and enjoy life as I get older</span></label>
+            <div class="qnav qnav-center">
+              <button type="button" class="btn btn-teal qnext" data-next>Continue</button>
+            </div>
           </section>
 
           <section class="qstep" data-q="age" data-kind="q">
@@ -206,6 +213,24 @@
           </section>
 
           <!-- INTERSTITIAL 3: responds to their risk answers -->
+          <section class="qstep" data-q="longevity" data-kind="q" data-require="longevity">
+            <span class="as-sec">Longevity</span>
+            <h2>At 85, what do you still want to be doing?</h2>
+            <p class="qsub">Select all that apply.</p>
+            <label class="opt"><input type="checkbox" name="longevity" value="Playing golf, tennis, or pickleball" /><span class="key">A</span><span class="txt">Playing golf, tennis, or pickleball</span></label>
+            <label class="opt"><input type="checkbox" name="longevity" value="Hiking and traveling without limits" /><span class="key">B</span><span class="txt">Hiking and traveling without limits</span></label>
+            <label class="opt"><input type="checkbox" name="longevity" value="Keeping up with my grandkids" /><span class="key">C</span><span class="txt">Keeping up with my grandkids</span></label>
+            <label class="opt"><input type="checkbox" name="longevity" value="Living on my own, never in a home" /><span class="key">D</span><span class="txt">Living on my own, never in a home</span></label>
+            <label class="opt"><input type="checkbox" name="longevity" value="Sharp enough to hold any conversation" /><span class="key">E</span><span class="txt">Sharp enough to hold any conversation</span></label>
+            <label class="opt"><input type="checkbox" name="longevity" value="Still having sex" /><span class="key">F</span><span class="txt">Still having sex</span></label>
+            <label class="opt"><input type="checkbox" name="longevity" value="Living without a pile of prescriptions" /><span class="key">G</span><span class="txt">Living without a pile of prescriptions</span></label>
+            <label class="opt"><input type="checkbox" name="longevity" value="Still working on what I love" /><span class="key">H</span><span class="txt">Still working on what I love</span></label>
+            <div class="qnav">
+              <button type="button" class="qback" data-back>&larr; Back</button>
+              <button type="button" class="btn btn-teal qnext" data-next>Continue</button>
+            </div>
+          </section>
+
           <section class="qstep as-int" data-q="int3" data-kind="int">
             <span class="as-int-tag" id="int3Tag">Case file</span>
             <h2 class="as-int-h" id="int3H"></h2>
@@ -243,6 +268,7 @@
               </div>
               <p class="as-r-key"><i class="k-out"></i>out of range<i class="k-norm"></i>lab &ldquo;normal&rdquo;<i class="k-opt"></i>optimal<b class="k-you"></b>you</p>
             </div>
+            <p class="as-int-mirror" id="int3Mirror" style="display:none"></p>
             <div class="qnav qnav-center">
               <button type="button" class="btn btn-teal qnext" data-next>Continue</button>
             </div>
@@ -403,6 +429,11 @@
       function isOwner() { return picked('role') === 'I own or co-own a business'; }
 
       // Family history: checked diseases, "None of these" excluded.
+      function checkedList(n) {
+        return Array.prototype.slice.call(form.querySelectorAll('input[name="' + n + '"]:checked'))
+          .map(function (c) { return c.value; });
+      }
+
       function familyList() {
         return Array.prototype.slice.call(form.querySelectorAll('input[name="familyHistory"]:checked'))
           .map(function (c) { return c.value; })
@@ -420,9 +451,9 @@
          the role answer; the $10K question only appears below threshold. */
       function sequence() {
         var money = isOwner() ? 'revenue' : 'income';
-        var seq = ['outcome', 'age', 'role', 'int1',
+        var seq = ['goals', 'age', 'role', 'int1',
                    'energy', 'focus', 'sleep', 'drive', 'int2',
-                   'bodycomp', 'family', 'labs', 'int3',
+                   'bodycomp', 'family', 'labs', 'longevity', 'int3',
                    'trigger', 'tried', 'int5t', money];
         if (belowThreshold()) seq.push('invest');
         seq.push('timeline', 'contact');
@@ -509,6 +540,33 @@
           set('int3Tag', 'You test deeper than most');
           set('int3H', 'The data is only half. The read is the other half.');
         }
+        paintMirror();
+      }
+
+      /* The 85 answer, mirrored back at the end of the risk interstitial.
+         Ranked most emotionally specific first, and deliberately vague about
+         mechanism: we haven't measured anything yet, so naming a marker here
+         would overreach. */
+      var LONG_MIRROR = [
+        ['Living on my own, never in a home', 'Living on your own at 85 gets built decades before you\u2019d need it.'],
+        ['Keeping up with my grandkids', 'Keeping up with your grandkids at 85 comes down to what you build now.'],
+        ['Playing golf, tennis, or pickleball', 'You want to still be on the court at 85. That gets decided a lot earlier than 85.'],
+        ['Hiking and traveling without limits', 'Hiking without pain at 85 is earned in the decades before it.'],
+        ['Sharp enough to hold any conversation', 'Sharp at 85 starts with what your body is doing today.'],
+        ['Living without a pile of prescriptions', 'A life without a pile of prescriptions gets built long before the first one.'],
+        ['Still working on what I love', 'Still building at 85 takes a body that keeps up with the ambition.']
+      ];
+      function paintMirror() {
+        var el = document.getElementById('int3Mirror');
+        var chosen = checkedList('longevity');
+        if (!chosen.length) { el.style.display = 'none'; return; }
+        var line = '';
+        for (var i = 0; i < LONG_MIRROR.length; i++) {
+          if (chosen.indexOf(LONG_MIRROR[i][0]) > -1) { line = LONG_MIRROR[i][1]; break; }
+        }
+        if (!line) line = 'You told us what you want at 85. Whether you get there is being decided right now.';
+        el.innerHTML = line;
+        el.style.display = '';
       }
 
       /* Interstitial 5: one hole-poke line per thing they've already tried. */
@@ -725,6 +783,11 @@
           if (sequence()[idx] === 'family' && !form.querySelector('input[name="familyHistory"]:checked')) {
             showErr('Pick at least one, or "None of these."'); return;
           }
+          /* Multi-selects that carry real signal: don't let them sail past blank. */
+          var reqField = stepEl(sequence()[idx]).dataset.require;
+          if (reqField && !form.querySelector('input[name="' + reqField + '"]:checked')) {
+            showErr('Pick at least one to continue.'); return;
+          }
           next();
         }
       });
@@ -775,7 +838,7 @@
         var ageNum = +slider.value;
 
         var data = {
-          outcome: picked('outcome'),
+          goals: checkedList('goals'),
           age: ageNum >= 75 ? '75+' : String(ageNum),
           role: picked('role'),
           energy: picked('energy'),
@@ -786,6 +849,7 @@
           familyList: familyList(),
           family: familyList().length ? familyList().join(', ') : 'None reported',
           labs: picked('labs'),
+          longevity: checkedList('longevity'),
           triggerEvent: picked('triggerEvent'),
           alreadyTried: Array.prototype.slice.call(form.querySelectorAll('input[name="alreadyTried"]:checked')).map(function (c) { return c.value; }),
           context: get('context'),
@@ -801,7 +865,7 @@
 
         if (!data.firstName || !data.lastName || !data.email || !data.phone) { showErr('Please fill in your name, email, and phone.'); return; }
         if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(data.email)) { showErr('That email doesn’t look right. Mind checking it?'); return; }
-        var required = ['outcome', 'role', 'energy', 'focus', 'sleep', 'drive', 'bodycomp', 'labs', 'triggerEvent', 'timeline'];
+        var required = ['role', 'energy', 'focus', 'sleep', 'drive', 'bodycomp', 'labs', 'triggerEvent', 'timeline'];
         for (var i = 0; i < required.length; i++) {
           if (!data[required[i]]) { showErr('Looks like a question got skipped. Use Back to check your answers.'); return; }
         }
@@ -861,12 +925,13 @@
           var wh = new URLSearchParams({
             first_name: data.firstName, last_name: data.lastName,
             email: data.email, phone: data.phone,
-            outcome: data.outcome,
+            goals: (data.goals || []).join(', '),
+            longevity: (data.longevity || []).join(', '),
             age: data.age,
             trigger_event: data.triggerEvent,
             symptoms: ['Energy: ' + data.energy, 'Focus: ' + data.focus, 'Sleep: ' + data.sleep, 'Drive: ' + data.drive].join(' | '),
             already_tried: (data.alreadyTried || []).join(', '),
-            notes: 'Second Prime Score ' + result.score + '. Risk: ' + result.risk.pct + ' (' + result.risk.status + ') | Performance: ' + result.perf.pct + ' (' + result.perf.status + ') | Body: ' + data.bodycomp + ' | Family: ' + data.family + ' | Labs: ' + data.labs + (data.context ? ' | In their words: ' + data.context : ''),
+            notes: 'Second Prime Score ' + result.score + '. Risk: ' + result.risk.pct + ' (' + result.risk.status + ') | Performance: ' + result.perf.pct + ' (' + result.perf.status + ') | Body: ' + data.bodycomp + ' | Family: ' + data.family + ' | Labs: ' + data.labs + (data.context ? ' | In their words: ' + data.context : '') + ' | Goals: ' + (data.goals || []).join(', ') + ' | At 85 wants: ' + (data.longevity || []).join(', '),
             business_owner: isOwner() ? 'Yes' : 'No',
             business_revenue: data.businessRevenue,
             annual_income: data.annualIncome,

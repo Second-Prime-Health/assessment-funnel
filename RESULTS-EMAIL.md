@@ -12,7 +12,13 @@ score anywhere; the score exists only for internal triage.
 
 The webhook delivers what's needed: risk and performance statuses in `notes`,
 performance answers in `symptoms`, risk answers in `already_tried`, trigger
-in `trigger_event`. Map to custom fields so the merge tags resolve.
+in `trigger_event`, what they're working toward in `goals`, and their "at 85"
+answers in `longevity`. Both new fields are comma-separated lists and both are
+also appended to `notes`. Map to custom fields so the merge tags resolve.
+
+Use `goals` and `longevity` for personalization, never as a claim. "You told
+us you want to be keeping up with your grandkids at 85" is fair. Promising
+that outcome is not.
 
 Two variants. GHL branches on the `qualified` field.
 
@@ -36,6 +42,10 @@ Your assessment is in, and we've been through it. The short version:
   past a standard physical.
 - **Performance: {{performance_status}}.** From your energy, focus, sleep,
   and drive answers.
+
+You told us what you're working toward: {{goals}}. And what you want to still
+be doing at 85: {{longevity}}. Hold onto both, because everything below is in
+service of them.
 
 Here's the thing about an assessment like this. Your answers tell us where to
 look. They can't tell us what's there. Symptoms show up years after the
@@ -87,7 +97,7 @@ Founder and Biologist, Second Prime
 ## Follow-up sequence note
 
 If a qualified contact hasn't booked within 24 hours, send one nudge: subject
-`Your call time is still open, {{contact.first_name}}`, body 2 lines: "Your
-assessment flagged your {{worst_area}}. 15 minutes gets you our read on it:
-{{booking_link}}." Then drop into normal nurture. The `trigger_event` field
+`Your call time is still open, {{contact.first_name}}`, body 2 lines: "You
+said you want to still be {{longevity_first}} at 85. Your assessment flagged
+your {{worst_area}}. 15 minutes gets you our read: {{booking_link}}." Then drop into normal nurture. The `trigger_event` field
 is the best personalization hook for later sends.
