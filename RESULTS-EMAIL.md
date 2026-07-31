@@ -20,6 +20,28 @@ Use `goals` and `longevity` for personalization, never as a claim. "You told
 us you want to be keeping up with your grandkids at 85" is fair. Promising
 that outcome is not.
 
+## `{{booking_link}}` must point at the funnel, not the GHL widget
+
+Set it to the funnel's own booking page, with their details merged in:
+
+```
+https://assess.secondprime.io/booking.html?first_name={{contact.first_name}}&last_name={{contact.last_name}}&email={{contact.email}}&phone={{contact.phone}}
+```
+
+Lower-tier contacts get `&tier=lower` on the end, which swaps in the 30-minute
+calendar and the 30-minute copy. Branch the workflow on `qualified` for that,
+the same branch that already picks the email variant.
+
+This is not cosmetic. Bookings made through the raw GHL widget link are created
+by GoHighLevel itself, so `api/book.js` never runs, the
+`assessment-funnel-booking` tag is never applied, and the booking workflow's
+filter drops it. The booking would happen and the dashboard would never count
+it, which quietly understates the funnel every time follow-up does its job.
+
+The same rule applies to every link that sends this funnel's people to a
+calendar: the 24-hour nudge, any nurture sequence, and Mike texting a link by
+hand. One booking URL for this funnel, everywhere.
+
 Two variants. GHL branches on the `qualified` field.
 
 ---
