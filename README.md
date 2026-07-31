@@ -17,6 +17,7 @@ Open `FLOW.html` in a browser for a visual map of every step and branch.
 
 | File | What's in it |
 |---|---|
+| `DEPLOY.md` | Hosting, DNS and env vars for both subdomains |
 | `HANDOFF.md` | How the funnel works, the positioning rules, what's still unwired |
 | `RESULTS-EMAIL.md` | The GHL follow-up emails, both variants plus the 24-hour nudge |
 | `VIDEO-SCRIPTS.md` | Scripts for the two video slots |
