@@ -36,8 +36,8 @@ happening on the old tests.secondprime.io copy today.
 
 ### Environment variables
 
-Andrew will send these privately. They are not in the repo and must not be
-committed.
+You already have these from the GoHighLevel account. They are not in the repo
+and must not be committed.
 
 | Variable | Required | What it is |
 | --- | --- | --- |
@@ -169,7 +169,8 @@ in this account.
 
 > {{contact.first_name}}, we've got your assessment. Andrew's team reviews it
 > before your call, so it's about you from the first minute. If you haven't
-> picked a time yet, here's the link: [their booking link]
+> picked a time yet, here's the link: [their booking link] Reply STOP to opt
+> out.
 
 **Email, same time.** Subject: `{{contact.first_name}}, we've got your assessment`
 
@@ -196,25 +197,43 @@ On the lower-tier branch change "Fifteen minutes" to "Thirty minutes".
 
 Lower tier: "30 minutes" instead of "15 minutes".
 
-### Before you switch the SMS steps on
+### Already done, do not rebuild
 
-The assessment collects a phone number but doesn't currently tell people they
-may receive a text. Flag that to Andrew before the first automated message
-sends.
-
-### One dependency
-
-Andrew is building a second, separate workflow that reports bookings to the
-analytics dashboard. This workflow's exit goal depends on GoHighLevel knowing
-about the booking, not on that one, so the two can be built in either order.
+Andrew has already built the booking-attribution workflow, the one that reports
+bookings to the analytics dashboard. Leave it alone. If you touch it, keep the
+tag filter and the Remove Tag step intact; both are load-bearing and described
+in `TRACKING.md`.
 
 ---
 
-## 4. After both are up
+## 4. Appointment reminders
 
-Tell Andrew, and he will run an end-to-end test on the live domain: a full pass
-through the assessment, a real calendar booking, and confirmation that the Meta
-pixel fires on the production domain. The pixel is deliberately suppressed on
+Andrew believes the calendar settings are already right, but this needs
+confirming rather than assuming, because it's the single biggest lever on
+whether booked calls actually happen.
+
+On **both** calendars, the 15-minute and the 30-minute:
+
+1. Confirm an SMS confirmation goes out the moment someone books.
+2. Confirm an SMS reminder goes out before the call. If there's no reminder
+   workflow, build one. A reminder the day before and one about an hour out is
+   the standard shape.
+3. Confirm availability is capped at 14 days out. The funnel's calendar shows
+   two weeks by default and the two should match.
+4. Confirm the 15-minute calendar really is 15 minutes and the 30-minute one is
+   30. The funnel states both durations to the person explicitly.
+
+Book a test appointment on each calendar and watch for the messages rather than
+reading the settings screen. Delete the tests afterward.
+
+---
+
+## 5. After everything is up
+
+**Tell Andrew as soon as `assess.secondprime.io` resolves**, before you've
+finished everything else. He runs an end-to-end test on the live domain: a full
+pass through the assessment, a real calendar booking, and confirmation that the
+Meta pixel fires on the production domain. The pixel is deliberately suppressed on
 localhost, `github.io` and `tests.secondprime.io`, so production is the first
 place it can be verified.
 
