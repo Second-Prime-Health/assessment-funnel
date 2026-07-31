@@ -951,6 +951,28 @@
           }).catch(function () {});
         } catch (_) {}
 
+        /* Band tags + timezone, which the inbound webhook cannot carry. Separate call
+           because GHL's workflow builder would need nine hand-built branches to derive
+           the band, and the contact it creates has no timezone, so every reminder would
+           send on the account default. Fire-and-forget: never block the redirect. */
+        try {
+          fetch('/api/lead', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: (data.firstName || '') + ' ' + (data.lastName || ''),
+              email: data.email,
+              phone: data.phone,
+              tier: tier,
+              businessOwner: isOwner() ? 'Yes' : 'No',
+              businessRevenue: data.businessRevenue,
+              annualIncome: data.annualIncome,
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            }),
+            keepalive: true
+          }).catch(function () {});
+        } catch (_) {}
+
         try { if (window.fbq) fbq('track', 'CompleteRegistration'); } catch (_) {}
 
         /* Routing: qualified goes straight to booking (results are delivered on
