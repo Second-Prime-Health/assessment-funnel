@@ -341,7 +341,7 @@
         });
 
         var last = new Date(mon.getFullYear(), mon.getMonth(), mon.getDate() + total - 1);
-        rangeLabel.textContent = MON[mon.getMonth()] + ' ' + mon.getDate() + ' – ' + MON[last.getMonth()] + ' ' + last.getDate();
+        rangeLabel.textContent = MON[mon.getMonth()] + ' ' + mon.getDate() + ' to ' + MON[last.getMonth()] + ' ' + last.getDate();
         moreBtn.style.display = windowWeeks < MAX_WEEKS ? '' : 'none';
 
         if (!firstOpen) {
