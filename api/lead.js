@@ -62,7 +62,7 @@ function resolveTimezone(req, body) {
 }
 
 // Contacts keep a hand-set timezone: we only ever fill an empty one.
-// Returns { found, id, timezone } — timezone '' means empty, 'unknown' means the lookup
+// Returns { found, id, timezone }. timezone '' means empty, 'unknown' means the lookup
 // itself failed, in which case we leave the field alone rather than risk clobbering.
 async function lookupContact({ email, apiKey, locationId }) {
   try {
