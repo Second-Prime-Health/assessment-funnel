@@ -20,27 +20,41 @@ Use `goals` and `longevity` for personalization, never as a claim. "You told
 us you want to be keeping up with your grandkids at 85" is fair. Promising
 that outcome is not.
 
-## `{{booking_link}}` must point at the funnel, not the GHL widget
+## Booking links must point at the funnel, not the GHL widget
 
-Set it to the funnel's own booking page, with their details merged in:
+Two versions of the same link. Both hit the funnel's booking page, which is
+what applies the `assessment-funnel-booking` tag and makes the booking
+countable.
+
+**Email** (long is fine, it hides behind the anchor text):
 
 ```
-https://assess.secondprime.io/booking.html?first_name={{contact.first_name}}&last_name={{contact.last_name}}&email={{contact.email}}&phone={{contact.phone}}
+https://assess.secondprime.io/book?first_name={{contact.first_name}}&last_name={{contact.last_name}}&email={{contact.email}}&phone={{contact.phone}}
 ```
 
-Lower-tier contacts get `&tier=lower` on the end, which swaps in the 30-minute
-calendar and the 30-minute copy. Branch the workflow on `qualified` for that,
-the same branch that already picks the email variant.
+**SMS** (short, no query string, survives carrier filtering):
 
-This is not cosmetic. Bookings made through the raw GHL widget link are created
-by GoHighLevel itself, so `api/book.js` never runs, the
-`assessment-funnel-booking` tag is never applied, and the booking workflow's
-filter drops it. The booking would happen and the dashboard would never count
-it, which quietly understates the funnel every time follow-up does its job.
+```
+https://assess.secondprime.io/book
+```
 
-The same rule applies to every link that sends this funnel's people to a
-calendar: the 24-hour nudge, any nurture sequence, and Mike texting a link by
-hand. One booking URL for this funnel, everywhere.
+Add `&tier=lower` (email) or `?tier=lower` (SMS) for lower-tier contacts, on
+the same branch that picks the email variant.
+
+The prefill parameters are a convenience, not a requirement. With them the
+booking is two taps. Without them they type name, email and phone, and the
+booking is still tagged and still counted, because attribution happens when the
+funnel's code creates the appointment, not from anything in the URL. No UTM
+parameters belong on these links; UTMs are for ad clicks.
+
+Why it has to be the funnel URL: a raw GHL widget link creates the appointment
+inside GoHighLevel, so `api/book.js` never runs, the tag is never applied, and
+the booking workflow's filter drops it. The booking happens and the dashboard
+never counts it, which quietly understates the funnel every time follow-up does
+its job.
+
+Same rule for every link that sends this funnel's people to a calendar: the
+24-hour nudge, any nurture sequence, and Mike texting a link by hand.
 
 Two variants. GHL branches on the `qualified` field.
 

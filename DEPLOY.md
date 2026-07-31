@@ -58,6 +58,9 @@ to `cname.vercel-dns.com`. Let Vercel issue the certificate.
 ### Verify before calling it done
 
 1. `https://assess.secondprime.io/` loads, amber "Start My Assessment" button.
+   Check `/book` and `/start` resolve too; `vercel.json` rewrites them to
+   `booking.html` and `assessment.html` so follow-up texts can carry a short
+   link instead of a long one.
 2. `https://assess.secondprime.io/api/slots?startDate=2026-08-01&endDate=2026-08-20`
    returns JSON with real slots, not a 404 and not an error object.
 3. On `booking.html`, the calendar is the dark teal two-week grid. If you see a
