@@ -500,6 +500,12 @@
 .spb__times-head span { color: var(--sand-light); text-transform: none; letter-spacing: 0; font-size: 13px; }
 .spb__tz { margin-top: 14px; font-size: 12.5px; color: rgba(225,242,243,0.5); }
 .spb__none { grid-column: 1 / -1; text-align: center; color: rgba(225,242,243,0.6); font-size: 14px; padding: 16px 0; }
+.spb__more-times {
+  width: 100%; margin-top: 10px; padding: 12px; border-radius: 10px; cursor: pointer;
+  background: none; border: 1px dashed rgba(255,255,255,0.28); color: rgba(225,242,243,0.8);
+  font-family: var(--font-sans); font-size: 14px;
+}
+.spb__more-times:hover { border-color: var(--teal-bright); color: var(--teal-bright); border-style: solid; }
 
 @media (max-width: 560px) {
   .spb__dow, .spb__strip { gap: 4px; }
@@ -507,5 +513,6 @@
   .spb__d { padding: 8px 0 6px; border-radius: 9px; }
   .spb__d-num { font-size: 17px; }
   .spb__d-mon { font-size: 8.5px; letter-spacing: 0.02em; }
-  .spb__slots { grid-template-columns: repeat(2, 1fr); }
+  .spb__slots { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+  .spb__slot { padding: 11px 6px; font-size: 14.5px; }
 }

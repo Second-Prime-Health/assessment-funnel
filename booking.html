@@ -12,7 +12,7 @@
   <script>document.documentElement.classList.add("js");</script>
   <link rel="stylesheet" href="css/styles.css?v=1" />
   <link rel="stylesheet" href="css/funnel.css?v=11" />
-  <link rel="stylesheet" href="css/assess.css?v=30" />
+  <link rel="stylesheet" href="css/assess.css?v=31" />
   <!-- Meta pixel (Amartinco LLC's Pixel). Neutral event names only, per Meta health-advertiser rules. -->
   <script>
   (function () {
@@ -72,6 +72,7 @@
             <div class="spb__times" id="spb-step-times" style="display:none;">
               <p class="spb__eyebrow spb__times-head">Times on <span id="spb-date-label"></span></p>
               <div class="spb__slots" id="spb-slots"></div>
+              <button type="button" class="spb__more-times" id="spb-more-times" style="display:none"></button>
               <p class="spb__tz" id="spb-tz"></p>
             </div>
           </div>
@@ -171,6 +172,8 @@
       var availableSlots = {};
       var selectedDate = '';
       var selectedSlot = '';
+      var SLOT_CAP = 10;            // times shown before "Show all"
+      var slotsExpanded = false;
       var apiDead = false;
       /* Demo mode: on localhost with no /api deployed, render the custom
          calendar with sample availability so the design can be reviewed.
@@ -197,7 +200,7 @@
       var rangeLabel = $('spb-month'), daysEl = $('spb-days'), loadingEl = $('spb-loading'), moreBtn = $('spb-more');
       var stepCal = $('spb-step-calendar'), stepTimes = $('spb-step-times'), stepForm = $('spb-step-form'), stepDone = $('spb-step-confirmed');
       var slotsEl = $('spb-slots'), dateLabel = $('spb-date-label'), confirmDt = $('spb-confirm-dt'), confirmedDetails = $('spb-confirmed-details');
-      var bookForm = $('spb-form'), bookError = $('spb-error');
+      var bookForm = $('spb-form'), bookError = $('spb-error'), moreTimes = $('spb-more-times');
 
       // Prefill from the application handoff (query string or saved application).
       var params = new URLSearchParams(window.location.search);
@@ -289,6 +292,7 @@
       }
 
       $('spb-back-times').addEventListener('click', function () { stepForm.style.display = 'none'; stepCal.style.display = 'block'; });
+      moreTimes.addEventListener('click', function () { slotsExpanded = true; showTimes(selectedDate); });
       moreBtn.addEventListener('click', function () {
         windowWeeks = MAX_WEEKS;
         moreBtn.style.display = 'none';
@@ -381,6 +385,7 @@
       }
 
       function showTimes(dateStr) {
+        if (dateStr !== selectedDate) slotsExpanded = false;
         selectedDate = dateStr;
         daysEl.querySelectorAll('.spb__d').forEach(function (b) {
           b.classList.toggle('is-sel', b.dataset.date === dateStr);
@@ -388,10 +393,15 @@
         var slots = availableSlots[dateStr] || [];
         var date = new Date(dateStr + 'T12:00:00');
         dateLabel.textContent = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+        /* A wide-open day can return 20+ times, which turns the card into a
+           long scroll on a phone. Show the first batch, let them ask for the
+           rest. Nothing is ever hidden permanently. */
+        var hidden = Math.max(0, slots.length - SLOT_CAP);
+        var shown = slotsExpanded ? slots : slots.slice(0, SLOT_CAP);
         if (!slots.length) {
           slotsEl.innerHTML = '<p class="spb__none">No times left on this day.</p>';
         } else {
-          slotsEl.innerHTML = slots.map(function (slot) {
+          slotsEl.innerHTML = shown.map(function (slot) {
             var t = new Date(slot);
             var label = t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
             return '<button type="button" class="spb__slot" data-slot="' + slot + '">' + label + '</button>';
@@ -400,6 +410,8 @@
         slotsEl.querySelectorAll('.spb__slot').forEach(function (btn) {
           btn.addEventListener('click', function () { selectedSlot = btn.dataset.slot; showForm(); });
         });
+        moreTimes.style.display = hidden && !slotsExpanded ? '' : 'none';
+        moreTimes.textContent = 'Show all ' + slots.length + ' times';
         $('spb-tz').textContent = 'Times shown in ' + userTz.replace(/_/g, ' ') + '. The call is ' + callMins + ', on Zoom.';
         stepTimes.style.display = 'block';
       }
