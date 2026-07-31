@@ -1,4 +1,4 @@
-// POST /api/book  { name, email, phone, slot, tier }
+// POST /api/book  { name, email, phone, slot, tier, timezone? }
 // Upserts the contact, then books the appointment on the GHL calendar.
 // `tier` picks the calendar: core = 15-minute call, lower = 30-minute lower-tier
 // call. Same server-side mapping as /api/slots.
@@ -6,6 +6,38 @@ const CALENDARS = {
   core: process.env.GHL_CALENDAR_ID || 'q2ivh7vI9bOR6uWq5rxb',
   lower: process.env.GHL_CALENDAR_ID_LOWER || '85vCxdmO6uvmsJmx97Rp',
 };
+
+// The booker's IANA timezone: what the page detected, else Vercel's edge geo
+// header. Validated so junk never reaches the CRM. Without this the contact is
+// stored with timezone null and GHL falls back to the account default (Eastern),
+// which sends every reminder at the wrong local time. Same fix as 5257bc5 on
+// secondprime.io; this funnel is a separate codebase and reintroduced it.
+function resolveTimezone(req, body) {
+  const candidate = String(body?.timezone || req.headers['x-vercel-ip-timezone'] || '').trim();
+  if (!candidate) return '';
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone: candidate });
+    return candidate;
+  } catch (_) {
+    return '';
+  }
+}
+
+// Contacts keep a hand-set timezone: we only ever fill an empty one.
+async function existingTimezone({ email, apiKey, locationId }) {
+  try {
+    const params = new URLSearchParams({ locationId, email });
+    const r = await fetch(
+      `https://services.leadconnectorhq.com/contacts/search/duplicate?${params}`,
+      { headers: { Authorization: `Bearer ${apiKey}`, Version: '2021-07-28', Accept: 'application/json' } }
+    );
+    if (!r.ok) return 'unknown';
+    const d = await r.json();
+    return d?.contact?.timezone || '';
+  } catch (_) {
+    return 'unknown';
+  }
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
@@ -28,6 +60,12 @@ export default async function handler(req, res) {
   const lastName = parts.slice(1).join(' ') || '';
 
   try {
+    // Only send a timezone when the contact has none. 'unknown' means the lookup
+    // failed, so we leave the field alone rather than risk clobbering a manual fix.
+    const detectedTz = resolveTimezone(req, req.body);
+    const priorTz = detectedTz ? await existingTimezone({ email, apiKey, locationId }) : 'unknown';
+    const tzField = detectedTz && priorTz === '' ? { timezone: detectedTz } : {};
+
     // Upsert contact (dedupes on email/phone within the location).
     const cRes = await fetch('https://services.leadconnectorhq.com/contacts/upsert', {
       method: 'POST',
@@ -43,6 +81,7 @@ export default async function handler(req, res) {
         lastName,
         email,
         phone,
+        ...tzField,
         /* `assessment-funnel-booking` is a one-shot flag, not a label. The GHL
            booking workflow triggers on it, fires the analytics webhook, then
            removes it as its last action. The calendars are shared with other

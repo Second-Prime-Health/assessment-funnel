@@ -436,7 +436,10 @@
         if (!bookForm.checkValidity()) { bookForm.reportValidity(); return; }
         submitBtn.disabled = true; submitBtn.textContent = 'Booking…';
         bookError.style.display = 'none';
-        var payload = { name: $('spb-name').value.trim(), email: $('spb-email').value.trim(), phone: $('spb-phone').value.trim(), slot: selectedSlot, tier: isLower ? 'lower' : 'core' };
+        /* userTz goes to /api/book as well as /api/slots. Sending it only to
+           slots makes the displayed times right and still stores the contact
+           with no timezone, which is what drives reminder send windows. */
+        var payload = { name: $('spb-name').value.trim(), email: $('spb-email').value.trim(), phone: $('spb-phone').value.trim(), slot: selectedSlot, tier: isLower ? 'lower' : 'core', timezone: userTz };
         if (demoMode) {
           var td = new Date(selectedSlot);
           confirmedDetails.textContent = td.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + ' at ' + td.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) + ' (demo — no real booking made)';
