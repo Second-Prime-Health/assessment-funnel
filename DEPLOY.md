@@ -1,8 +1,8 @@
 # Deployment handoff
 
-Everything needed to put the Executive Longevity Assessment funnel and its
-dashboard on their own subdomains. Two repos, two Vercel projects, two DNS
-records. No build step anywhere.
+Everything needed to launch the Executive Longevity Assessment funnel: two
+Vercel deploys, two DNS records, and one GoHighLevel workflow. No build step
+anywhere.
 
 Written for Reno, July 2026. Questions go to Andrew.
 
@@ -100,7 +100,117 @@ If either is a problem, tell Andrew before it goes live rather than after.
 
 ---
 
-## 3. After both are up
+## 3. The follow-up workflow in GoHighLevel
+
+Qualified people are sent straight to the booking page when they submit, and a
+good number of them won't book on that first visit. This workflow brings them
+back. Without it, every one of those people is a paid click that goes nowhere.
+
+### What it has to do
+
+**Trigger:** the assessment posts to an inbound webhook in GoHighLevel when
+someone submits. A workflow with that trigger already exists and the funnel
+posts to this URL, so build inside it rather than creating a new one:
+
+```
+https://services.leadconnectorhq.com/hooks/FlDP3vggPbCWokd7J6xc/webhook-trigger/152fcbfd-cb5a-4bd7-b31e-5f60a2c91073
+```
+
+If you do end up with a new webhook URL, send it to Andrew. The funnel has to
+be repointed at it or nothing fires.
+
+**Filter:** continue only when `application_source` is `Assessment Funnel V1`
+**and** `qualified` is `Yes` or `Yes - lower tier`. Anyone with `qualified` set
+to `No` gets nothing from this workflow.
+
+**Branch on qualification, because the two tiers book different calls:**
+
+| `qualified` | Booking link |
+| --- | --- |
+| `Yes` | `https://assess.secondprime.io/book` |
+| `Yes - lower tier` | `https://assess.secondprime.io/book30` |
+
+**Sequence:**
+
+1. **Wait 10 minutes**, then check whether they've booked. If they have, they
+   leave. If not, send a text and an email with their booking link.
+2. **Wait 24 hours.** If they still haven't booked, send one more text.
+
+The 10-minute delay matters. Plenty of people book within a minute or two of
+submitting, and a text telling them to book something they just booked makes us
+look like we aren't paying attention.
+
+**Exit goal:** a contact leaves the sequence the moment an appointment is
+booked on either calendar, or the tag `consult-booked` is added. Nobody who has
+booked should ever receive another message from this.
+
+**SMS window:** only send texts between 9am and 6pm in the contact's local
+timezone.
+
+### Two rules that aren't negotiable
+
+**Never use a GoHighLevel calendar widget link in these messages.** Only the
+two URLs in the table. A widget link creates the appointment inside
+GoHighLevel, which means the funnel's own code never runs, the attribution tag
+is never applied, and the booking is never counted. The call happens and the
+dashboard shows nothing.
+
+**Never send a link containing `tier=lower`.** That's why the lower-tier link
+is `/book30`. Nothing a prospect can read should tell them which tier they were
+sorted into.
+
+### Copy to use
+
+Plain text. No emoji, no exclamation marks, no all-caps. The only merge tag is
+first name, because the other webhook fields are not mapped to contact fields
+in this account.
+
+**Text, 10 minutes after submit:**
+
+> {{contact.first_name}}, we've got your assessment. Andrew's team reviews it
+> before your call, so it's about you from the first minute. If you haven't
+> picked a time yet, here's the link: [their booking link]
+
+**Email, same time.** Subject: `{{contact.first_name}}, we've got your assessment`
+
+> {{contact.first_name}},
+>
+> Your assessment is in. Someone on our team reads every answer before your
+> call, so we're not starting from scratch when we get on the phone.
+>
+> Here's what the call is. Fifteen minutes, free, and you walk away knowing
+> what we'd test first and why. If we can't help, we'll tell you that too.
+> There's nothing to sit through at the end.
+>
+> If you haven't picked a time yet: [their booking link]
+>
+> Andrew Martin
+> Founder and Biologist, Second Prime
+
+On the lower-tier branch change "Fifteen minutes" to "Thirty minutes".
+
+**Text, 24 hours later, only if still not booked:**
+
+> {{contact.first_name}}, your call time is still open. 15 minutes and there's
+> nothing to sit through at the end: [their booking link]
+
+Lower tier: "30 minutes" instead of "15 minutes".
+
+### Before you switch the SMS steps on
+
+The assessment collects a phone number but doesn't currently tell people they
+may receive a text. Flag that to Andrew before the first automated message
+sends.
+
+### One dependency
+
+Andrew is building a second, separate workflow that reports bookings to the
+analytics dashboard. This workflow's exit goal depends on GoHighLevel knowing
+about the booking, not on that one, so the two can be built in either order.
+
+---
+
+## 4. After both are up
 
 Tell Andrew, and he will run an end-to-end test on the live domain: a full pass
 through the assessment, a real calendar booking, and confirmation that the Meta
