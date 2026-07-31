@@ -418,8 +418,8 @@
       var stepEl = function (q) { return form.querySelector('.qstep[data-q="' + q + '"]'); };
       var idx = 0;
 
-      /* The en/em dashes in this character class are DATA, not copy. The radio option
-         values are written with en dashes ("$0 – $500K") and the qualification gate below
+      /* The dash characters in this class are DATA, not copy. The radio option values at
+         lines 318-330 write their ranges with en dashes, and the qualification gate below
          compares them against hyphenated literals, so this is what makes the two match.
          Strip these characters to satisfy a dash linter and you silently change who
          qualifies. api/lead.js carries the same class for the band-to-tag mapping; keep
