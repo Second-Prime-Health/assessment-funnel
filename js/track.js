@@ -147,6 +147,21 @@
   // ---- Automatic events ----
   window.spTrack('page_view', { title: document.title });
 
+  /* Human signal: the first physical input (pointer, touch, wheel, key)
+     marks this session as a real person. Meta's ad-review crawlers execute
+     JS and even click links, but they never generate these events, so the
+     dashboard only counts sessions that have one. Fires once per session. */
+  (function () {
+    if (read('sp_human')) return;
+    var evs = ['pointermove', 'touchstart', 'wheel', 'keydown'];
+    function once() {
+      evs.forEach(function (ev) { window.removeEventListener(ev, once, true); });
+      store('sp_human', '1');
+      window.spTrack('human_signal', {});
+    }
+    evs.forEach(function (ev) { window.addEventListener(ev, once, true); });
+  })();
+
   // Any element with data-cta fires a labeled click.
   document.addEventListener('click', function (e) {
     var el = e.target.closest ? e.target.closest('[data-cta]') : null;
