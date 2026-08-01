@@ -6,6 +6,27 @@
    See TRACKING.md for the taxonomy. */
 (function () {
   var ENDPOINT = 'https://abqvlsxosdvdqrkixoqm.supabase.co/functions/v1/track';
+
+  /* Bot gate: Meta's ad-review and link-check systems load this page with
+     JS-executing headless browsers on every campaign publish. Don't record
+     the obvious ones at all. (Subtler ones are caught server-side by the
+     bot flag; see funnel-analytics schema.) */
+  try {
+    var bua = navigator.userAgent || '';
+    var chromeM = (bua.match(/Chrome\/(\d+)/) || [])[1];
+    var firefoxM = (bua.match(/Firefox\/(\d+)/) || [])[1];
+    if (
+      navigator.webdriver ||
+      /bot|crawl|spider|preview|scan|headless|facebookexternalhit|python|curl|wget/i.test(bua) ||
+      (chromeM && +chromeM < 90) ||
+      (firefoxM && +firefoxM < 80)
+    ) {
+      window.spTrack = function () {};
+      window.spFlush = function () {};
+      window.spSession = function () { return {}; };
+      return;
+    }
+  } catch (_) {}
   var ATTR_KEYS = ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term',
                    'fbclid', 'campaign_id', 'adset_id', 'ad_id', 'placement'];
 
