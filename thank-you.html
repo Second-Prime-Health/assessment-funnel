@@ -13,14 +13,25 @@
   <link rel="stylesheet" href="css/styles.css?v=1" />
   <link rel="stylesheet" href="css/funnel.css?v=11" />
   <link rel="stylesheet" href="css/assess.css?v=34" />
-  <!-- Meta pixel (Amartinco LLC's Pixel). Booking completion fires the neutral 'Schedule' event here. -->
+  <!-- Meta pixel (Amartinco LLC's Pixel). Booking completion fires the neutral
+       'Schedule' event, but ONLY when an eid rides along on the URL, and only
+       once per eid. No eid → the CAPI event owns the count (more reliable, no
+       blockers). This kills the refresh double-fire and gives Meta an event ID
+       to match the CAPI event against for real dedupe. See META-DEDUP-FIX.md. -->
   <script>
   (function () {
-    if (/^(localhost|127\.0\.0\.1|tests\.secondprime\.io)$|github\.io$/.test(location.hostname)) return; // no pixel on local/test previews
+    if (/^(localhost|127\.0\.0\.1|tests\.secondprime\.io)$|github\.io$/.test(location.hostname)) return;
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', '500535282073021');
     fbq('track', 'PageView');
-    fbq('track', 'Schedule');
+    try {
+      var eid = new URLSearchParams(location.search).get('eid');
+      var key = eid ? 'sp_sched_' + eid : '';
+      if (eid && !localStorage.getItem(key)) {
+        fbq('track', 'Schedule', {}, { eventID: eid });
+        localStorage.setItem(key, '1');
+      }
+    } catch (_) {}
   })();
   </script>
   <!-- First-party tracking (our own database, separate from the pixel). See TRACKING.md. -->

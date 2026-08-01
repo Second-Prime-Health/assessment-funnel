@@ -42,7 +42,7 @@ async function existingTimezone({ email, apiKey, locationId }) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { name, email, phone, slot, tier } = req.body || {};
+  const { name, email, phone, slot, tier, eventId } = req.body || {};
   if (!name || !email || !phone || !slot) {
     return res.status(400).json({ error: 'name, email, phone, and slot are required' });
   }
@@ -66,6 +66,17 @@ export default async function handler(req, res) {
     const priorTz = detectedTz ? await existingTimezone({ email, apiKey, locationId }) : 'unknown';
     const tzField = detectedTz && priorTz === '' ? { timezone: detectedTz } : {};
 
+    /* Meta event ID for browser/CAPI deduplication. Writes only when
+       META_EVENT_FIELD_ID is set in the host env. That field must exist in
+       GHL first (created by Andrew per META-DEDUP-FIX.md) and the CAPI action
+       pointed at {{contact.sp_meta_event_id}}. Missing env → no write, no
+       harm. Overwriting per booking is intentional; an ID is only useful for
+       the 48h dedupe window of its own event. */
+    const metaFieldId = process.env.META_EVENT_FIELD_ID;
+    const eidField = eventId && metaFieldId
+      ? { customFields: [{ id: metaFieldId, value: String(eventId) }] }
+      : {};
+
     // Upsert contact (dedupes on email/phone within the location).
     const cRes = await fetch('https://services.leadconnectorhq.com/contacts/upsert', {
       method: 'POST',
@@ -82,6 +93,7 @@ export default async function handler(req, res) {
         email,
         phone,
         ...tzField,
+        ...eidField,
         source: 'Website Calendar Booking',
       }),
     });

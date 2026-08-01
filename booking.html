@@ -436,10 +436,18 @@
         if (!bookForm.checkValidity()) { bookForm.reportValidity(); return; }
         submitBtn.disabled = true; submitBtn.textContent = 'Booking…';
         bookError.style.display = 'none';
+        /* One ID used three ways: POST'd to /api/book (→ GHL custom field
+           sp_meta_event_id → CAPI Schedule event), and appended to thank-you.html
+           so the browser fbq('track','Schedule') can carry the matching eventID.
+           Meta dedupes browser + server events only when event_name AND event_id
+           both match. Without it, Schedule is counted twice (the current bug). */
+        var eid = 'sch-' + (window.crypto && crypto.randomUUID
+          ? crypto.randomUUID()
+          : Date.now() + '-' + Math.random().toString(16).slice(2));
         /* userTz goes to /api/book as well as /api/slots. Sending it only to
            slots makes the displayed times right and still stores the contact
            with no timezone, which is what drives reminder send windows. */
-        var payload = { name: $('spb-name').value.trim(), email: $('spb-email').value.trim(), phone: $('spb-phone').value.trim(), slot: selectedSlot, tier: isLower ? 'lower' : 'core', timezone: userTz };
+        var payload = { name: $('spb-name').value.trim(), email: $('spb-email').value.trim(), phone: $('spb-phone').value.trim(), slot: selectedSlot, tier: isLower ? 'lower' : 'core', timezone: userTz, eventId: eid };
         if (demoMode) {
           var td = new Date(selectedSlot);
           confirmedDetails.textContent = td.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + ' at ' + td.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) + ' (demo, no real booking made)';
@@ -453,6 +461,14 @@
           if (res.ok && data.success) {
             var t = new Date(selectedSlot);
             confirmedDetails.textContent = t.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + ' at ' + t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+            /* Append the eid to the finish link so thank-you.html can fire
+               fbq('track','Schedule', {}, {eventID: eid}). No eid → no browser
+               event, and the CAPI event owns the count. */
+            try {
+              var u = new URL(finish.href, location.origin);
+              u.searchParams.set('eid', eid);
+              finish.href = u.pathname + u.search;
+            } catch (_) {}
             stepForm.style.display = 'none';
             stepDone.style.display = 'block';
           } else { throw new Error('book failed'); }

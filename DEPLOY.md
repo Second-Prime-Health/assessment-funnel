@@ -45,6 +45,7 @@ and must not be committed.
 | `GHL_LOCATION_ID` | yes | The `Second-Prime` sub-account location id |
 | `GHL_CALENDAR_ID` | no | 15-minute call calendar, defaults in code |
 | `GHL_CALENDAR_ID_LOWER` | no | 30-minute call calendar, defaults in code |
+| `META_EVENT_FIELD_ID` | no | GHL custom-field id for `sp_meta_event_id`. When set, `/api/book` writes the browser event ID to the contact so the CAPI `Schedule` action can dedupe against the browser pixel. Unset → no write, no harm. Ship with the GHL CAPI action pointed at `{{contact.sp_meta_event_id}}` or nothing dedupes. See `META-DEDUP-FIX.md`. |
 
 Set all of them for Production. Preview deployments hitting the live calendar
 would create real appointments, so either leave Preview unset or point it at a
