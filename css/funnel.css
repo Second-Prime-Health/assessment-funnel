@@ -310,6 +310,9 @@ body.ap-page { background: var(--white); }
    length, turning "Your 30-minute call" into three stacked lines on desktop and
    hiding the duration entirely on mobile. */
 .ap-p > span { display: block; font-size: 12px; color: var(--gray); margin-top: 2px; line-height: 1.4; }
+/* Keep "30-minute" whole; the hyphen is a legal break point and narrow viewports
+   were splitting it as "Your 30-" / "minute call". */
+.ap-p .ty-len { white-space: nowrap; }
 @media (max-width: 600px) { .ap-p > span { display: none; } .ap-process { margin-bottom: 36px; } }
 
 /* The jewel: deep teal glass card */
