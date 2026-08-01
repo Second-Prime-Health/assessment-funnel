@@ -27,9 +27,20 @@
   try { attr = JSON.parse(read('sp_attr') || '{}'); } catch (_) {}
   var qs = new URLSearchParams(location.search);
   var sawNewParams = false;
+  /* Meta sometimes inserts dynamic values pre-encoded, which survives the
+     browser's own decode pass as "SuperExec+%2B+AdvOn". Undo exactly one
+     extra layer, and only when the evidence for it is unambiguous. */
+  function fixEnc(v) {
+    if (!v) return v;
+    if (/%[0-9A-Fa-f]{2}/.test(v)) {
+      try { return decodeURIComponent(v.replace(/\+/g, ' ')); } catch (_) { return v; }
+    }
+    if (v.indexOf('+') > -1 && v.indexOf(' ') === -1) return v.replace(/\+/g, ' ');
+    return v;
+  }
   ATTR_KEYS.forEach(function (k) {
     var v = qs.get(k);
-    if (v && !attr[k]) { attr[k] = v; sawNewParams = true; }
+    if (v && !attr[k]) { attr[k] = fixEnc(v); sawNewParams = true; }
   });
   if (!attr.landing_page) { attr.landing_page = location.pathname; sawNewParams = true; }
   if (!attr.referrer && document.referrer && document.referrer.indexOf(location.host) === -1) {
