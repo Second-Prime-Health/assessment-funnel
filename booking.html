@@ -447,7 +447,15 @@
         /* userTz goes to /api/book as well as /api/slots. Sending it only to
            slots makes the displayed times right and still stores the contact
            with no timezone, which is what drives reminder send windows. */
-        var payload = { name: $('spb-name').value.trim(), email: $('spb-email').value.trim(), phone: $('spb-phone').value.trim(), slot: selectedSlot, tier: isLower ? 'lower' : 'core', timezone: userTz, eventId: eid };
+        /* Meta cookies. fbc = click identifier set by the Pixel from the URL's
+           fbclid; fbp = the Pixel's own first-party cookie. Sending them so
+           /api/book can pass them to CAPI as user_data, which is what Meta uses
+           to match the server event to a browser session for dedupe + attribution. */
+        function readCookie(n) {
+          var m = document.cookie.match('(?:^|; )' + n.replace(/([.$?*|{}()\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)');
+          return m ? decodeURIComponent(m[1]) : '';
+        }
+        var payload = { name: $('spb-name').value.trim(), email: $('spb-email').value.trim(), phone: $('spb-phone').value.trim(), slot: selectedSlot, tier: isLower ? 'lower' : 'core', timezone: userTz, eventId: eid, fbc: readCookie('_fbc'), fbp: readCookie('_fbp'), sourceUrl: location.href };
         if (demoMode) {
           var td = new Date(selectedSlot);
           confirmedDetails.textContent = td.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + ' at ' + td.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }) + ' (demo, no real booking made)';

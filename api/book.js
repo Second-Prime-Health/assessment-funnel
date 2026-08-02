@@ -1,7 +1,8 @@
-// POST /api/book  { name, email, phone, slot, tier, timezone? }
+// POST /api/book  { name, email, phone, slot, tier, timezone?, eventId?, fbc?, fbp?, sourceUrl? }
 // Upserts the contact, then books the appointment on the GHL calendar.
 // `tier` picks the calendar: core = 15-minute call, lower = 30-minute lower-tier
 // call. Same server-side mapping as /api/slots.
+import crypto from 'node:crypto';
 const CALENDARS = {
   core: process.env.GHL_CALENDAR_ID || 'q2ivh7vI9bOR6uWq5rxb',
   lower: process.env.GHL_CALENDAR_ID_LOWER || '85vCxdmO6uvmsJmx97Rp',
@@ -20,6 +21,51 @@ function resolveTimezone(req, body) {
     return candidate;
   } catch (_) {
     return '';
+  }
+}
+
+/* Server-side Meta Conversions API Schedule event. Owns the CAPI count
+   because GHL's native Meta CAPI action mints its own event_id, which will
+   never match the browser fbq('track','Schedule',{},{eventID:eid}) that
+   thank-you.html fires. Same eid on both sides → Meta dedupes within 48h.
+   Dormant until META_PIXEL_ID + META_CAPI_ACCESS_TOKEN are set; missing
+   either → no send, no throw. Test Events use META_TEST_EVENT_CODE.
+   Prerequisite: the 3 GHL "Meta Conversion API" nodes in workflow
+   Appt Reminders | Cellular Assessment must be removed the same day this
+   ships, or Meta gets two CAPI Schedules per booking. */
+const sha256 = (v) => crypto.createHash('sha256').update(String(v).trim().toLowerCase()).digest('hex');
+async function fireMetaSchedule({ email, phone, eventId, fbc, fbp, sourceUrl, ip, ua }) {
+  const pixelId = process.env.META_PIXEL_ID;
+  const token = process.env.META_CAPI_ACCESS_TOKEN;
+  if (!pixelId || !token || !eventId) return;
+  const digitsPhone = String(phone || '').replace(/\D/g, '');
+  const userData = {};
+  if (email) userData.em = [sha256(email)];
+  if (digitsPhone) userData.ph = [sha256(digitsPhone)];
+  if (fbc) userData.fbc = fbc;
+  if (fbp) userData.fbp = fbp;
+  if (ip) userData.client_ip_address = ip;
+  if (ua) userData.client_user_agent = ua;
+  const body = {
+    data: [{
+      event_name: 'Schedule',
+      event_time: Math.floor(Date.now() / 1000),
+      event_id: String(eventId),
+      action_source: 'website',
+      event_source_url: sourceUrl || 'https://assess.secondprime.io/booking.html',
+      user_data: userData,
+    }],
+  };
+  if (process.env.META_TEST_EVENT_CODE) body.test_event_code = process.env.META_TEST_EVENT_CODE;
+  try {
+    const r = await fetch(`https://graph.facebook.com/v19.0/${pixelId}/events?access_token=${encodeURIComponent(token)}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) console.error('meta capi non-2xx', r.status, await r.text().catch(() => ''));
+  } catch (err) {
+    console.error('meta capi failed', err);
   }
 }
 
@@ -42,7 +88,7 @@ async function existingTimezone({ email, apiKey, locationId }) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { name, email, phone, slot, tier, eventId } = req.body || {};
+  const { name, email, phone, slot, tier, eventId, fbc, fbp, sourceUrl } = req.body || {};
   if (!name || !email || !phone || !slot) {
     return res.status(400).json({ error: 'name, email, phone, and slot are required' });
   }
@@ -176,6 +222,18 @@ export default async function handler(req, res) {
         });
       }
     } catch (_) { /* analytics must never break a booking */ }
+
+    // Meta CAPI Schedule with the browser-matching eid. Non-blocking.
+    fireMetaSchedule({
+      email,
+      phone,
+      eventId,
+      fbc,
+      fbp,
+      sourceUrl,
+      ip: String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.headers['x-real-ip'] || '',
+      ua: req.headers['user-agent'] || '',
+    }).catch(() => {});
 
     return res.status(200).json({ success: true });
   } catch (err) {
