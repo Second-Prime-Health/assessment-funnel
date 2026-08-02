@@ -149,6 +149,44 @@ export default async function handler(req, res) {
     let tagged = false;
     if (tags.length && contactId) tagged = await addTags({ contactId, tags, apiKey });
 
+    // Fire quiz.classified to Badmetryx — same instant as the GHL tag write.
+    // Fire-and-forget; MUST not block the response.
+    if (contactId) {
+      const { businessOwner, businessRevenue, annualIncome, tier } = req.body || {};
+      const isOwner = businessOwner === true || String(businessOwner).toLowerCase() === 'yes';
+      const segment = isOwner ? 'owner' : 'non_owner';
+      const classification = { core: 'qualified', lower: 'lower_tier', dq: 'dq' }[tier] || 'unknown';
+      const bandTag = isOwner
+        ? REVENUE_TAGS[normDash(businessRevenue)]
+        : INCOME_TAGS[normDash(annualIncome)];
+
+      fetch('https://t.badmetryx.com/api/track', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Origin: 'https://assess.secondprime.io',
+        },
+        body: JSON.stringify({
+          key: 'bm_pub_083582d88e887db09ea7cf8a0f4f3dfc',
+          event_name: 'quiz.classified',
+          visitor_id: crypto.randomUUID(),
+          session_id: crypto.randomUUID(),
+          client_ts: new Date().toISOString(),
+          url: 'https://assess.secondprime.io/assessment.html',
+          path: '/assessment.html',
+          referrer: '',
+          properties: {
+            account: 'second-prime',
+            quiz_id: 'assessment-v1',
+            classification,
+            segment,
+            band: bandTag || '',
+            lead_id: contactId,
+          },
+        }),
+      }).catch((err) => console.warn('quiz.classified emit failed', err));
+    }
+
     return res.status(200).json({
       success: true,
       tags: tagged ? tags : [],
