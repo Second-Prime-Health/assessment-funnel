@@ -25,6 +25,15 @@
   <!-- First-party tracking (our own database, separate from the pixel). See TRACKING.md. -->
   <script src="js/experiments.js?v=1"></script>
   <script src="js/track.js?v=4"></script>
+  <!-- Badmetryx warehouse tracking. Runs alongside the existing funnel analytics. -->
+  <script
+    src="/badmouth.js?v=1"
+    data-tracking-domain="t.badmetryx.com"
+    data-account="second-prime"
+    data-key="bm_pub_083582d88e887db09ea7cf8a0f4f3dfc"
+    data-track-url="https://t.badmetryx.com/api/track"
+  ></script>
+  <script src="/assessment-events.js?v=2"></script>
   <style>
     /* Age slider (dark jewel card variant) */
     .age-read { text-align: center; margin: 10px 0 6px; }
@@ -606,15 +615,47 @@
          our own database via track.js, never to the pixel. ---- */
       var SP_QID = { family: 'familyHistory', trigger: 'triggerEvent', tried: 'alreadyTried', revenue: 'businessRevenue', income: 'annualIncome', invest: 'investReady' };
       var spShownAt = {};
+      function quizStepNumber(seqIdx) {
+        var seq = sequence(), step = 0;
+        for (var i = 0; i <= seqIdx; i++) {
+          var kind = stepEl(seq[i]).dataset.kind;
+          if (kind === 'q' || kind === 'contact') step++;
+        }
+        return step;
+      }
+      function quizQuestionKey(cur) { return SP_QID[cur] || cur; }
+      function quizAnswerValue(cur) {
+        if (cur === 'age') return +slider.value >= 75 ? '75+' : String(slider.value);
+        var key = quizQuestionKey(cur);
+        var fields = form.querySelectorAll('input[name="' + key + '"]:checked');
+        if (!fields.length) return '';
+        if (fields[0].type === 'checkbox') {
+          return Array.prototype.map.call(fields, function (field) { return field.value; });
+        }
+        return fields[0].value;
+      }
+      function quizStepAnswer(cur, seqIdx) {
+        var el = stepEl(cur);
+        if (!window.quizTrack || el.dataset.kind !== 'q') return;
+        var shownAt = spShownAt[cur] || Date.now();
+        window.quizTrack.stepAnswered(
+          quizStepNumber(seqIdx),
+          quizQuestionKey(cur),
+          quizAnswerValue(cur),
+          Date.now() - shownAt
+        );
+      }
       function spStepView(cur, seqIdx) {
-        if (!window.spTrack) return;
         var el = stepEl(cur), kind = el.dataset.kind;
         spShownAt[cur] = Date.now();
-        if (kind === 'q' || kind === 'contact') {
+        if (window.spTrack && (kind === 'q' || kind === 'contact')) {
           spTrack('question_view', { question_id: SP_QID[cur] || cur, step_index: seqIdx });
-        } else if (kind === 'int') {
+        } else if (window.spTrack && kind === 'int') {
           var tag = el.querySelector('[id$="Tag"]');
           spTrack('interstitial_view', { interstitial_id: cur, variant_shown: tag ? tag.textContent : '' });
+        }
+        if (window.quizTrack && (kind === 'q' || kind === 'contact')) {
+          window.quizTrack.stepViewed(quizStepNumber(seqIdx), quizQuestionKey(cur));
         }
       }
 
@@ -668,7 +709,13 @@
       }
       window.addEventListener('scroll', syncMobCta, { passive: true });
       window.addEventListener('resize', syncMobCta);
-      function next() { if (idx < sequence().length - 1) { idx++; paint(); } }
+      function next() {
+        if (idx < sequence().length - 1) {
+          quizStepAnswer(sequence()[idx], idx);
+          idx++;
+          paint();
+        }
+      }
       function back() {
         // Skip interstitials when going back so nobody re-reads them.
         var seq = sequence();
@@ -755,6 +802,7 @@
             spTrack('question_answer', { question_id: 'age', answer: (+slider.value >= 75 ? '75+' : String(slider.value)), seconds_on_question: secs });
           }
         } catch (_) {}
+
       });
       paintAge();
 
@@ -920,6 +968,23 @@
           }
         } catch (_) {}
 
+        /* Badmetryx quiz completion. Contact values are normalized and hashed
+           with the browser's SubtleCrypto implementation before emission. */
+        try {
+          if (window.quizTrack) {
+            var quizDuration = window.quizTrack.elapsedMs();
+            Promise.all([
+              window.quizTrack.hashEmail(data.email),
+              window.quizTrack.hashPhone(data.phone)
+            ]).then(function (hashes) {
+              window.quizTrack.signup(hashes[0], hashes[1]);
+              window.quizTrack.completed(quizDuration);
+            }).catch(function () {
+              window.quizTrack.completed(quizDuration);
+            });
+          }
+        } catch (_) {}
+
         /* Send everything to GHL (same inbound webhook as funnel v2).
            Fires for qualified AND disqualified. The GHL workflow also sends
            the results email from these fields; see RESULTS-EMAIL.md. */
@@ -994,6 +1059,7 @@
         });
       });
 
+      if (window.quizTrack) window.quizTrack.started();
       paint(true); // first paint: no scroll, so visitors land at the top of the page
     })();
   </script>
