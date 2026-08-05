@@ -471,12 +471,18 @@
             confirmedDetails.textContent = t.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + ' at ' + t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
             /* Append the eid to the finish link so thank-you.html can fire
                fbq('track','Schedule', {}, {eventID: eid}). No eid → no browser
-               event, and the CAPI event owns the count. */
-            try {
-              var u = new URL(finish.href, location.origin);
-              u.searchParams.set('eid', eid);
-              finish.href = u.pathname + u.search;
-            } catch (_) {}
+               event, and the CAPI event owns the count.
+               Lower tier is withheld deliberately: no eid means no browser
+               Schedule, and /api/book skips the CAPI call for the same booking,
+               so Meta hears nothing about a 30-minute call. Withholding the eid
+               is the whole gate. Do not "fix" this by always setting it. */
+            if (!isLower) {
+              try {
+                var u = new URL(finish.href, location.origin);
+                u.searchParams.set('eid', eid);
+                finish.href = u.pathname + u.search;
+              } catch (_) {}
+            }
             stepForm.style.display = 'none';
             stepDone.style.display = 'block';
           } else { throw new Error('book failed'); }

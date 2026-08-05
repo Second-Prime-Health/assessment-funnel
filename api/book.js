@@ -223,17 +223,23 @@ export default async function handler(req, res) {
       }
     } catch (_) { /* analytics must never break a booking */ }
 
-    // Meta CAPI Schedule with the browser-matching eid. Non-blocking.
-    fireMetaSchedule({
-      email,
-      phone,
-      eventId,
-      fbc,
-      fbp,
-      sourceUrl,
-      ip: String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.headers['x-real-ip'] || '',
-      ua: req.headers['user-agent'] || '',
-    }).catch(() => {});
+    /* Meta CAPI Schedule with the browser-matching eid. Non-blocking.
+       Lower-tier (30-minute) bookings report nothing to Meta at all. Those leads
+       convert poorly, so counting them trains the optimizer to go find more of
+       them. booking.html gates the browser pixel the same way by withholding the
+       eid, so a 30-minute booking produces neither a browser nor a server event. */
+    if (!isLower) {
+      fireMetaSchedule({
+        email,
+        phone,
+        eventId,
+        fbc,
+        fbp,
+        sourceUrl,
+        ip: String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.headers['x-real-ip'] || '',
+        ua: req.headers['user-agent'] || '',
+      }).catch(() => {});
+    }
 
     return res.status(200).json({ success: true });
   } catch (err) {

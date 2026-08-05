@@ -25,9 +25,15 @@
     fbq('init', '500535282073021');
     fbq('track', 'PageView');
     try {
-      var eid = new URLSearchParams(location.search).get('eid');
+      var q = new URLSearchParams(location.search);
+      /* Second guard on the lower tier. booking.html already withholds the eid
+         for 30-minute bookings, so this should never be the thing that stops
+         the event. It's here so a stray eid on a `c=30` URL still can't
+         report a low-tier booking to Meta. */
+      var isLower = q.get('c') === '30' || q.get('tier') === 'lower';
+      var eid = q.get('eid');
       var key = eid ? 'sp_sched_' + eid : '';
-      if (eid && !localStorage.getItem(key)) {
+      if (eid && !isLower && !localStorage.getItem(key)) {
         fbq('track', 'Schedule', {}, { eventID: eid });
         localStorage.setItem(key, '1');
       }
