@@ -17,23 +17,29 @@
        'Schedule' event, but ONLY when an eid rides along on the URL, and only
        once per eid. No eid → the CAPI event owns the count (more reliable, no
        blockers). This kills the refresh double-fire and gives Meta an event ID
-       to match the CAPI event against for real dedupe. See META-DEDUP-FIX.md. -->
+       to match the CAPI event against for real dedupe. See META-DEDUP-FIX.md.
+       Lower-tier (30-minute) views load no pixel whatsoever. Do not "simplify"
+       that back into a Schedule-only guard: PageView alone is enough to trip a
+       URL-defined custom conversion, which is the signal we are withholding. -->
   <script>
   (function () {
     if (/^(localhost|127\.0\.0\.1|tests\.secondprime\.io)$|github\.io$/.test(location.hostname)) return;
+    var q = new URLSearchParams(location.search);
+    var isLower = q.get('c') === '30' || q.get('tier') === 'lower';
+    /* Lower tier loads no pixel at all, not merely no Schedule. Suppressing the
+       Schedule call alone is not enough: a custom conversion defined on this
+       page's URL rather than on an event would still count a 30-minute booking
+       off the PageView by itself. Returning before fbq ever loads is the only
+       version of this that holds no matter how Events Manager is configured.
+       This page serves both tiers, so the check has to be conditional. */
+    if (isLower) return;
     !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
     fbq('init', '500535282073021');
     fbq('track', 'PageView');
     try {
-      var q = new URLSearchParams(location.search);
-      /* Second guard on the lower tier. booking.html already withholds the eid
-         for 30-minute bookings, so this should never be the thing that stops
-         the event. It's here so a stray eid on a `c=30` URL still can't
-         report a low-tier booking to Meta. */
-      var isLower = q.get('c') === '30' || q.get('tier') === 'lower';
       var eid = q.get('eid');
       var key = eid ? 'sp_sched_' + eid : '';
-      if (eid && !isLower && !localStorage.getItem(key)) {
+      if (eid && !localStorage.getItem(key)) {
         fbq('track', 'Schedule', {}, { eventID: eid });
         localStorage.setItem(key, '1');
       }
