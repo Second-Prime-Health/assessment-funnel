@@ -104,17 +104,59 @@ var GAP_LINES = {
 
 /* ---------- assembly ---------- */
 
+/* Returns every pattern that fires, after supersession and the M6 fallback arm,
+   ordered worse-bucket-first for rendering. Capping is a separate step
+   (capPatterns) because selection order and render order are different rules:
+   we drop by clinical priority, then display what survives by bucket. */
 function selectPatterns(a, r) {
   var fired = lib.PATTERNS.filter(function (p) {
     try { return p.when(a, r); } catch (_) { return false; }
   });
-  /* M7 supersedes M6 — never render both. (§3 rule 1) */
-  if (fired.some(function (p) { return p.id === 'M7'; })) {
-    fired = fired.filter(function (p) { return p.id !== 'M6'; });
+  function drop(id) { fired = fired.filter(function (p) { return p.id !== id; }); }
+  function fires(id) { return fired.some(function (p) { return p.id === id; }); }
+
+  /* M7 supersedes M6, M5a supersedes M5b — never render either pair. (§3.1) */
+  if (fires('M7')) drop('M6');
+  if (fires('M5a')) drop('M5b');
+
+  /* M6 fallback arm (§2 M6) — required in the same change as M2 rule B.
+     Tightening M2 to rule B raises zero-pattern leads from 2 to 6 on real data;
+     four of those six got a report only because M2 fired on nearly everyone.
+     This arm recovers the three with no deep panel. The rest all have a deep
+     panel in the last 12 months and are correctly low-urgency — they reach the
+     §3.6 zero-pattern fallback by design, not by omission.
+
+     `fallback: true` swaps in copy that does NOT claim their answers hold up:
+     this lead's performance read may be `drift` or `flag`, and a false
+     credibility line is exactly what this cohort notices. */
+  if (!fired.length && lib.has(a.labs, lib.LABS_THIN)) {
+    var m6 = lib.PATTERNS.filter(function (p) { return p.id === 'M6'; })[0];
+    if (m6) {
+      fired = [Object.assign({}, m6, {
+        fallback: true,
+        title: m6.fallbackTitle || m6.title,
+        shortWhy: m6.fallbackShortWhy || m6.shortWhy,
+        means: m6.fallbackMeans || m6.means
+      })];
+    }
   }
+
   /* Worse bucket first, matching results.html:277 (ascending pct = worse first). */
   fired.sort(function (x, y) { return r[x.bucket].pct - r[y.bucket].pct; });
   return fired;
+}
+
+/* Cap the rendered body at 3 (§3.2), dropping by the explicit clinical priority
+   in §3.3 rather than by bucket. Bucket order alone silently dropped M7 — the
+   top-priority pattern in the library — on 2 of 36 real leads, because `risk`
+   sorted behind `perf` for them. Survivors are re-sorted into bucket order so
+   the rendered sequence still matches results.html:277. */
+function capPatterns(fired, r, cap) {
+  if (fired.length <= cap) return fired.slice();
+  return fired.slice()
+    .sort(function (x, y) { return lib.priorityOf(x.id) - lib.priorityOf(y.id); })
+    .slice(0, cap)
+    .sort(function (x, y) { return r[x.bucket].pct - r[y.bucket].pct; });
 }
 
 /* Findings (section 4): single-answer mirrors, capped at 5, worse bucket first. */
@@ -154,8 +196,13 @@ function buildReport(payload) {
     ? { score: payload.score, perf: payload.perf, risk: payload.risk }
     : computeScore(a);
 
-  var patterns = selectPatterns(a, r).slice(0, 3);
+  /* One call, not two: `patterns` must contain the same object identities as
+     `allFired`, because render.js callNotes marks over-cap patterns with
+     `m.patterns.indexOf(p)`. The M6 fallback arm returns a fresh clone, so
+     calling selectPatterns twice would yield two non-identical objects and
+     every pattern would report as "not rendered". */
   var allFired = selectPatterns(a, r);
+  var patterns = capPatterns(allFired, r, 3);
   var findings = selectFindings(a, r);
 
   /* Section 6: merged, deduped marker shortlist, capped at 5. (§8 revision)
@@ -215,7 +262,7 @@ function buildReport(payload) {
   };
 }
 
-module.exports = { buildReport: buildReport, computeScore: computeScore, toList: toList, esc: esc, oxford: oxford, GAP_LINES: GAP_LINES };
+module.exports = { buildReport: buildReport, computeScore: computeScore, toList: toList, esc: esc, oxford: oxford, GAP_LINES: GAP_LINES, selectPatterns: selectPatterns, capPatterns: capPatterns };
 
 /* ---------- CLI ---------- */
 if (require.main === module) {

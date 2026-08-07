@@ -198,6 +198,242 @@ function esc(s) {
   return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+console.log('\npattern library revisions (2026-08-07, ratified in-thread)');
+/* M2 rule B. The old second clause was `a.energy !== 'Strong from morning to
+   evening'` — a negation 29 of 36 real leads passed by default, firing M2 at
+   69%. These tests exist to make a revert fail loudly rather than quietly
+   re-inflate the rate. */
+t('M2 needs a real second signal — drive alone does not fire it', function () {
+  var m = gen.buildReport(lead({ drive: 'A fraction of what they were' }));
+  eq(m.allFired.map(function (p) { return p.id; }).indexOf('M2'), -1,
+     'drive-bad with good energy and good bodycomp must NOT fire M2 (rule B)');
+});
+t('M2 fires on drive + bad energy', function () {
+  ['The 3pm crash runs my calendar', "I'm running on coffee and willpower"].forEach(function (e) {
+    var m = gen.buildReport(lead({ drive: 'Noticeably lower', energy: e }));
+    ok(m.allFired.some(function (p) { return p.id === 'M2'; }), 'M2 should fire for energy=' + e);
+  });
+});
+t('M2 fires on drive + heavy bodycomp even when energy is strong', function () {
+  var m = gen.buildReport(lead({
+    drive: 'Noticeably lower', energy: 'Strong from morning to evening',
+    bodycomp: 'I need to lose 50+ lbs'
+  }));
+  ok(m.allFired.some(function (p) { return p.id === 'M2'; }));
+});
+t('M2 does not fire on the mid energy answer alone (the old negation would have)', function () {
+  /* `Good mornings, fading after lunch` is not `Strong from morning to
+     evening`, so the pre-rule-B clause fired here. Rule B must not. */
+  var m = gen.buildReport(lead({ drive: 'Noticeably lower', energy: 'Good mornings, fading after lunch' }));
+  eq(m.allFired.map(function (p) { return p.id; }).indexOf('M2'), -1,
+     'the double-negative clause has come back');
+});
+
+/* M5 split. The single pattern fired 10x on real leads but only 4 carried
+   dementia history; the other 6 inherited inherited-risk framing and a dementia
+   guardrail that did not describe them. */
+t('M5a fires only with dementia family history', function () {
+  var m = gen.buildReport(lead({
+    focus: 'Foggy. Words go missing, focus drifts, most days',
+    familyList: ["Dementia or Alzheimer's"]
+  }));
+  var ids = m.allFired.map(function (p) { return p.id; });
+  ok(ids.indexOf('M5a') >= 0, 'M5a should fire');
+  eq(ids.indexOf('M5b'), -1, 'M5a supersedes M5b');
+});
+t('M5b fires on fog + broken sleep with no family history', function () {
+  var m = gen.buildReport(lead({
+    focus: 'Foggy. Words go missing, focus drifts, most days',
+    sleep: 'Broken sleep, most nights'
+  }));
+  var ids = m.allFired.map(function (p) { return p.id; });
+  ok(ids.indexOf('M5b') >= 0, 'M5b should fire');
+  eq(ids.indexOf('M5a'), -1, 'no dementia history — M5a must not fire');
+});
+t('M5b copy carries no family-history or ApoE framing', function () {
+  var m5b = lib.PATTERNS.filter(function (p) { return p.id === 'M5b'; })[0];
+  ok(m5b, 'M5b must exist');
+  var copy = [m5b.title, m5b.means, m5b.why, m5b.missed, m5b.efficacy].join(' ');
+  eq(/family|inherited|dementia|alzheimer|ApoE/i.test(copy), false,
+     'M5b must not hand this lead a frame he did not report');
+});
+t('a fog lead with both dementia history and broken sleep gets one finding, not two', function () {
+  var m = gen.buildReport(lead({
+    focus: 'Foggy. Words go missing, focus drifts, most days',
+    sleep: 'Broken sleep, most nights', familyList: ["Dementia or Alzheimer's"]
+  }));
+  var ids = m.allFired.map(function (p) { return p.id; });
+  eq(ids.filter(function (i) { return i === 'M5a' || i === 'M5b'; }).length, 1);
+});
+
+/* M6 fallback arm — shipped in the same change as rule B, because tightening
+   M2 alone left four real leads with an empty report. */
+t('M6 fallback catches a no-deep-panel lead who matched nothing else', function () {
+  /* Drive down plus a mid energy/focus answer: 7 perf points, so `drift` rather
+     than `solid` — the base M6 arm cannot reach him. Under rule B nothing else
+     fires either (energy is not in ENERGY_BAD, bodycomp is fine), so without
+     the fallback arm this lead gets an empty report. */
+  var m = gen.buildReport(lead({
+    energy: 'Good mornings, fading after lunch', focus: 'A step slower than I was',
+    drive: 'Noticeably lower', labs: 'Standard annual physical only'
+  }));
+  eq(m.reads.perf.status, 'drift', 'fixture must not be solid or the base arm covers it');
+  var ids = m.allFired.map(function (p) { return p.id; });
+  eq(ids, ['M6'], 'the fallback arm must recover this lead');
+  ok(m.patterns[0].fallback === true, 'must be flagged as the fallback arm');
+});
+t('the fallback arm drops the "your answers hold up" claim', function () {
+  var m = gen.buildReport(lead({
+    energy: 'Good mornings, fading after lunch', focus: 'A step slower than I was',
+    drive: 'Noticeably lower', labs: 'Standard annual physical only'
+  }));
+  var p = m.patterns[0];
+  eq(p.fallback, true);
+  eq(/answers hold up/i.test(p.title + ' ' + p.means), false,
+     'a drift/flag lead must not be told his answers hold up');
+  ok(/not the same as nothing being there|lagging indicator/i.test(p.means),
+     'fallback copy should lead on the gap');
+  eq(/answers hold up/i.test(render.html(m)), false, 'the false claim reached the page');
+});
+t('the base M6 arm keeps its earned-credibility opening', function () {
+  var m = gen.buildReport(lead({ labs: 'Standard annual physical only' }));
+  var ids = m.allFired.map(function (p) { return p.id; });
+  eq(ids, ['M6']);
+  eq(m.patterns[0].fallback, undefined, 'a genuinely solid lead is not the fallback case');
+  ok(/answers hold up/i.test(m.patterns[0].means));
+});
+t('the fallback never fires for a lead with a recent deep panel', function () {
+  var m = gen.buildReport(lead({ drive: 'Noticeably lower' }));
+  eq(m.allFired.length, 0, 'deep-panel leads correctly reach the zero-pattern fallback');
+});
+t('the fallback never displaces a real pattern', function () {
+  var m = gen.buildReport(lead({
+    sleep: 'Broken sleep, most nights', bodycomp: 'I need to lose 50+ lbs',
+    labs: 'Standard annual physical only'
+  }));
+  ok(m.allFired.some(function (p) { return p.id === 'M3'; }), 'M3 should fire');
+  ok(m.allFired.every(function (p) { return !p.fallback; }), 'fallback must not appear alongside a real match');
+});
+
+/* Drop-priority (§3.3). Before this existed the cap sorted by bucket alone,
+   which dropped M7 — the top-priority pattern — on 2 of 36 real leads. */
+t('the cap drops by clinical priority, not by bucket', function () {
+  var m = gen.buildReport(lead({
+    energy: "I'm running on coffee and willpower",
+    focus: 'Foggy. Words go missing, focus drifts, most days',
+    sleep: 'Broken sleep, most nights', drive: 'A fraction of what they were',
+    bodycomp: 'I need to lose 50+ lbs',
+    familyList: ['Heart disease', 'Type 2 diabetes', "Dementia or Alzheimer's"],
+    labs: "It's been years since any real bloodwork"
+  }));
+  ok(m.allFired.length > 3, 'fixture must exceed the cap');
+  var kept = m.patterns.map(function (p) { return p.id; });
+  eq(kept.length, 3);
+  ok(kept.indexOf('M7') >= 0, 'M7 is top priority and must never be dropped');
+  /* Every kept pattern outranks every dropped one. */
+  var dropped = m.allFired.filter(function (p) { return m.patterns.indexOf(p) < 0; });
+  var worstKept = Math.max.apply(null, m.patterns.map(function (p) { return lib.priorityOf(p.id); }));
+  dropped.forEach(function (p) {
+    ok(lib.priorityOf(p.id) > worstKept, p.id + ' was dropped despite outranking a kept pattern');
+  });
+});
+t('drop-priority covers every pattern id in the library', function () {
+  lib.PATTERNS.forEach(function (p) {
+    ok(lib.DROP_PRIORITY.indexOf(p.id) >= 0, p.id + ' is missing from DROP_PRIORITY');
+  });
+});
+t('rendered patterns still display worse-bucket-first after capping', function () {
+  var m = gen.buildReport(lead({
+    energy: "I'm running on coffee and willpower",
+    focus: 'Foggy. Words go missing, focus drifts, most days',
+    sleep: 'Broken sleep, most nights', drive: 'A fraction of what they were',
+    bodycomp: 'I need to lose 50+ lbs', familyList: ['Heart disease', 'Type 2 diabetes'],
+    labs: "It's been years since any real bloodwork"
+  }));
+  for (var i = 1; i < m.patterns.length; i++) {
+    ok(m.reads[m.patterns[i - 1].bucket].pct <= m.reads[m.patterns[i].bucket].pct,
+       'render order must stay ascending by pct');
+  }
+});
+t('call notes do not mark the fallback pattern as dropped', function () {
+  /* The fallback arm returns a fresh clone rather than the shared library
+     object, so buildReport must call selectPatterns ONCE. Calling it twice
+     yields two non-identical clones, `m.patterns.indexOf(p)` returns -1, and
+     the only pattern this lead has gets labelled "not rendered" in the notes. */
+  var m = gen.buildReport(lead({
+    energy: 'Good mornings, fading after lunch', focus: 'A step slower than I was',
+    drive: 'Noticeably lower', labs: 'Standard annual physical only'
+  }));
+  eq(m.patterns[0].fallback, true, 'fixture must reach the fallback arm');
+  eq(m.allFired[0], m.patterns[0], 'allFired and patterns must share object identity');
+  eq(/not rendered/.test(render.callNotes(m)), false,
+     'the fallback pattern is rendered and must not be marked as dropped');
+});
+t('call notes still mark over-cap patterns as not rendered', function () {
+  /* Guards the object-identity coupling: buildReport must call selectPatterns
+     once, or m.patterns.indexOf(p) fails for every pattern. */
+  var m = gen.buildReport(lead({
+    energy: "I'm running on coffee and willpower",
+    focus: 'Foggy. Words go missing, focus drifts, most days',
+    sleep: 'Broken sleep, most nights', drive: 'A fraction of what they were',
+    bodycomp: 'I need to lose 50+ lbs', familyList: ['Heart disease', 'Type 2 diabetes'],
+    labs: "It's been years since any real bloodwork"
+  }));
+  var n = render.callNotes(m);
+  var notRendered = n.split('\n').filter(function (l) { return /not rendered/.test(l); });
+  eq(notRendered.length, m.allFired.length - m.patterns.length,
+     'exactly the dropped patterns should be marked');
+  m.patterns.forEach(function (p) {
+    var line = n.split('\n').filter(function (l) { return l.indexOf('**' + p.id + '**') >= 0; })[0];
+    ok(line && !/not rendered/.test(line), p.id + ' is rendered but marked as dropped');
+  });
+});
+
+console.log('\nno lead in the live answer space gets an empty report');
+/* The M2/M6 coupling is the reason this exists: rule B without the fallback arm
+   left four real leads with nothing. Rather than pin the live population (which
+   moves), enumerate the answer space and assert that any lead without a recent
+   deep panel always gets at least one pattern. Leads WITH a deep panel are
+   allowed to be empty — that is the §3.6 low-urgency case, by design. */
+t('every no-deep-panel combination yields at least one pattern', function () {
+  var DOMAIN = {
+    energy: ['Strong from morning to evening', 'Good mornings, fading after lunch',
+             'The 3pm crash runs my calendar', "I'm running on coffee and willpower"],
+    focus: ["As sharp as I've ever been", 'A step slower than I was', 'Foggy. Words go missing, focus drifts, most days'],
+    sleep: ['Rested and ready', 'I sleep 7-8 hours and still wake up tired', 'Broken sleep, most nights'],
+    drive: ["Where they've always been", 'Noticeably lower', 'A fraction of what they were'],
+    bodycomp: ['I feel good where I am', 'I need to lose 5 to 25 lbs', 'I need to lose 25 to 50 lbs', 'I need to lose 50+ lbs', 'I need to gain weight'],
+    labs: ['Standard annual physical only', "It's been years since any real bloodwork"],
+    familyList: [['None of these'], ['Heart disease'], ["Dementia or Alzheimer's"], ['Heart disease', 'Stroke']]
+  };
+  var empties = 0, total = 0;
+  DOMAIN.energy.forEach(function (energy) {
+    DOMAIN.focus.forEach(function (focus) {
+      DOMAIN.sleep.forEach(function (sleep) {
+        DOMAIN.drive.forEach(function (drive) {
+          DOMAIN.bodycomp.forEach(function (bodycomp) {
+            DOMAIN.labs.forEach(function (labs) {
+              DOMAIN.familyList.forEach(function (familyList) {
+                total++;
+                var m = gen.buildReport(lead({
+                  energy: energy, focus: focus, sleep: sleep, drive: drive,
+                  bodycomp: bodycomp, labs: labs, familyList: familyList
+                }));
+                if (!m.allFired.length) empties++;
+              });
+            });
+          });
+        });
+      });
+    });
+  });
+  ok(total > 1000, 'should have enumerated the answer space, got ' + total);
+  eq(empties, 0, empties + ' of ' + total + ' no-deep-panel combinations produce an empty report');
+});
+t('deep-panel leads are still allowed to be empty (the low-urgency case)', function () {
+  eq(gen.buildReport(lead()).allFired.length, 0);
+});
+
 console.log('\nlead-facing output must not leak');
 function renderFor(payload) { return render.html(gen.buildReport(payload)); }
 

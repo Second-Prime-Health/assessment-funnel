@@ -72,9 +72,18 @@ var PATTERNS = [
     shortWhy: 'because drive and energy moved together',
     bucket: 'perf',
     title: 'Drive, energy and body composition moving together',
+    /* RULE B (REPORT_CONTENT_LIBRARY.md §2 M2, revised 2026-08-07, ratified by
+       Andrew in-thread). The second clause used to read
+       `a.energy !== 'Strong from morning to evening'` — a negation that 29 of
+       36 real leads passed by default, firing M2 at 69% and collapsing it into
+       "did you say drive is down". Measured at 42% (15/36) with the positive
+       list, against Bumble's 43% projection.
+
+       DO NOT REVERT TO THE `!==` FORM. If M2 ever needs widening, widen
+       ENERGY_BAD or BODY_HEAVY. Never negate this clause. */
     when: function (a) {
       return has(a.drive, DRIVE_BAD) &&
-        (a.energy !== 'Strong from morning to evening' || has(a.bodycomp, BODY_HEAVY));
+        (has(a.energy, ENERGY_BAD) || has(a.bodycomp, BODY_HEAVY));
     },
     quotes: ['drive', 'energy'],
     means: 'Drive down, energy down, and body composition moving the wrong way on the same habits. Those three travel together for a reason \u2014 they share an axis. Drive is usually the first one men notice and the last one they mention.',
@@ -84,13 +93,17 @@ var PATTERNS = [
     efficacy: 'It is also the pattern that maps most directly onto numbers we can pull and track.'
   },
   {
-    id: 'M5',
+    id: 'M5a',
     shortWhy: 'because of the fog, most days',
     bucket: 'perf',
     title: 'Fog most days',
+    /* Split from the original M5 on 2026-08-07 (§2 M5a/M5b). The single pattern
+       fired 10x on real leads but only 4 carried dementia family history; the
+       other 6 came through the broken-sleep arm and inherited inherited-risk
+       framing — and a dementia guardrail — that did not describe them. */
     when: function (a) {
       return a.focus === 'Foggy. Words go missing, focus drifts, most days' &&
-        (anyOf(a.familyList, ["Dementia or Alzheimer's"]) || a.sleep === 'Broken sleep, most nights');
+        anyOf(a.familyList, ["Dementia or Alzheimer's"]);
     },
     quotes: ['focus'],
     means: 'We are not going to pretend a questionnaire can tell you anything about your brain. What we will say is that the drivers of fog that we can measure \u2014 glucose swings, inflammation, thyroid, B12, sleep quality, hormones \u2014 are all measurable now.',
@@ -98,6 +111,26 @@ var PATTERNS = [
     why: 'These are the drivers worth excluding before anyone reaches for a scarier explanation. Every one of them is treatable.',
     missed: 'Homocysteine and a full thyroid panel are not part of a standard physical. Neither is fasting insulin.',
     efficacy: 'Fog with a measurable driver behind it is a solvable problem, and the measuring is one draw.'
+  },
+  {
+    id: 'M5b',
+    shortWhy: 'because the fog sits on top of broken sleep',
+    bucket: 'perf',
+    title: 'Fog, on top of sleep that breaks',
+    /* Fog + broken sleep, with NO family-history framing and no ApoE mention —
+       this lead did not report dementia history and must not be handed the
+       frame (§2 M5b handling note). M5a supersedes M5b; the suppression lives in
+       generate.js selectPatterns alongside the M7-beats-M6 rule. */
+    when: function (a) {
+      return a.focus === 'Foggy. Words go missing, focus drifts, most days' &&
+        a.sleep === 'Broken sleep, most nights';
+    },
+    quotes: ['focus', 'sleep'],
+    means: 'Fog most days, on top of sleep that breaks most nights. Those are not two findings, they\u2019re one: nothing else on this page recovers while sleep is fragmented, and cognition is usually the first place people notice it.',
+    markers: ['Fasting insulin', 'HbA1c', 'hs-CRP', 'Homocysteine', 'B12', 'Ferritin', 'Full thyroid panel', 'Vitamin D'],
+    why: 'These are the measurable drivers of fog, and every one of them is treatable. If the sleep workup has not already been ordered, it belongs here too.',
+    missed: 'A standard physical asks how you slept and checks neither the sleep nor the drivers. Homocysteine, a full thyroid panel and fasting insulin are all outside it.',
+    efficacy: 'This is the most reversible item in the report \u2014 the fog tends to lift when the sleep does.'
   },
   {
     id: 'M4',
@@ -143,6 +176,15 @@ var PATTERNS = [
     when: function (a, r) { return r.perf.status === 'solid' && has(a.labs, LABS_THIN); },
     quotes: ['labs'],
     means: 'Your answers hold up. That\u2019s real, and it\u2019s rarer than you\u2019d think in this group. It also means symptoms aren\u2019t going to be your early warning system \u2014 you don\u2019t have any. The men we test who feel exactly like you do are the ones where we most often find something worth acting on, precisely because nothing was prompting them to look.',
+    /* Fallback-arm copy (§2 M6 copy note). A lead reaching M6 through the
+       no-other-pattern arm may be `drift` or `flag`, so the "your answers hold
+       up" title and opening would both be false for him — and a false
+       credibility line is exactly what this cohort notices. Lead on the labs
+       gap instead. `missed`, `evidence` and `efficacy` are unchanged and carry
+       the section on their own. Applied in generate.js selectPatterns. */
+    fallbackTitle: 'No single thing to chase, and no data either',
+    fallbackShortWhy: 'because nothing in your answers pointed anywhere specific',
+    fallbackMeans: 'Nothing in your answers resolved into one thing to chase. That is not the same as nothing being there \u2014 symptoms are a lagging indicator, and yours have not formed a pattern yet. The men we test who look like this on paper are the ones where we most often find something worth acting on, precisely because nothing was prompting them to look.',
     markers: ['ApoB', 'Lp(a)', 'Fasting insulin', 'HbA1c', 'hs-CRP', 'Full thyroid panel', 'Testosterone panel', 'Vitamin D', 'Ferritin', 'CMP'],
     why: 'Feeling good and testing well are different findings. Only one of them is evidence.',
     missed: 'Nothing in a standard physical is designed to find a problem in someone who feels fine.',
@@ -176,6 +218,24 @@ var PATTERNS = [
   }
 ];
 
+/* Explicit drop-priority for the 3-pattern cap (§3.3), updated for the M5
+   split: M7 > G1 > M3 > M4 > M1 > M5a > M5b > M2 > M6.
+
+   Rationale is Bumble's: M7 and G1 change what Andrew does on the call; M3
+   gates every other result; M4 carries the only once-in-a-lifetime marker
+   (Lp(a)); M2 is the least specific and is the right thing to drop first.
+
+   This exists because the cap was previously silent about which patterns lose.
+   Sorting by bucket alone dropped M7 — the highest-priority pattern in the
+   library — on 2 of 36 real leads, because `risk` happened to sort behind
+   `perf`. Any pattern id absent from this list sorts last. */
+var DROP_PRIORITY = ['M7', 'G1', 'M3', 'M4', 'M1', 'M5a', 'M5b', 'M2', 'M6'];
+
+function priorityOf(id) {
+  var i = DROP_PRIORITY.indexOf(id);
+  return i < 0 ? DROP_PRIORITY.length : i;
+}
+
 /* Escalations that depend on more than one pattern firing. */
 function crossEscalations(a, fired) {
   var out = [];
@@ -189,6 +249,10 @@ function crossEscalations(a, fired) {
 module.exports = {
   PATTERNS: PATTERNS,
   STATUS_LABEL: STATUS_LABEL,
+  DROP_PRIORITY: DROP_PRIORITY,
+  priorityOf: priorityOf,
   crossEscalations: crossEscalations,
+  has: has,
+  LABS_THIN: LABS_THIN,
   _test: { has: has, anyOf: anyOf, countOf: countOf }
 };
