@@ -1,0 +1,23 @@
+{
+  "tier": "core",
+  "data": {
+    "firstName": "Michael",
+    "lastName": "Reeves",
+    "email": "m.reeves@example.com",
+    "phone": "+15125550142",
+    "age": "47",
+    "role": "I own or co-own a business",
+    "energy": "The 3pm crash runs my calendar",
+    "focus": "A step slower than I was",
+    "sleep": "I sleep 7-8 hours and still wake up tired",
+    "drive": "Noticeably lower",
+    "bodycomp": "I need to lose 25 to 50 lbs",
+    "familyList": ["Heart disease", "Type 2 diabetes"],
+    "labs": "Standard annual physical only",
+    "longevity": ["Keeping up with my grandkids", "Hiking and traveling without limits"],
+    "goals": ["Lose the weight for good", "More energy through the whole day", "Get ahead of my family history"],
+    "triggerEvent": "Family health history I don't want to repeat",
+    "alreadyTried": ["Regular doctor or concierge medicine", "Trainers, nutritionists, or coaches"],
+    "context": "I run a construction firm, 60 hours a week. My dad had his first heart attack at 52 and I'm 47."
+  }
+}
