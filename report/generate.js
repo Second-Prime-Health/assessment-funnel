@@ -172,7 +172,13 @@ function selectFindings(a, r) {
   FINDING_FIELDS.forEach(function (f) {
     var ans = f.key === 'familyList' ? familyOf(a).join(', ') : a[f.key];
     if (!ans) return;
+    /* Fail loudly on a missing mirror table rather than dropping the finding.
+       `MIRRORS.familyList` was absent, so this lookup returned undefined and the
+       family-history finding silently vanished for every lead who reported one —
+       24 of 37 in the live population — while scoring still counted it. A
+       missing mirror is a bug in the copy tables, not a reason to say less. */
     var m = MIRRORS[f.key];
+    if (!m) throw new Error('mirrors.js is missing a table for "' + f.key + '"');
     var meaning = m && (f.key === 'familyList' ? MIRRORS.familyMeaning(familyOf(a)) : m[ans]);
     if (!meaning) return;
     var pts = f.key === 'familyList' ? familyPts(familyOf(a)) : (PTS[f.key] ? PTS[f.key][ans] || 0 : 0);

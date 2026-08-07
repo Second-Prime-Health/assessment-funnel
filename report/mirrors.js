@@ -43,12 +43,31 @@ module.exports = {
   },
 
   /* Family history is computed, not looked up: the copy depends on how many
-     lines of history they reported. Mirrors the branch at results.html:288-292. */
+     lines of history they reported. Mirrors the branch at results.html:288-292.
+
+     `familyList` MUST also exist as a key below. selectFindings looks up
+     `MIRRORS[field]` before calling this function, so a missing key made the
+     whole finding vanish silently — see the familyList note there. */
   familyMeaning: function (list) {
     var real = (list || []).filter(function (x) { return x && x !== 'None of these'; });
     if (!real.length) return null;
+    /* SECOND DELIBERATE DEVIATION from results.html:291. The live line ends
+       "...show up in blood about a decade before symptoms." That clause is
+       RETIRED, not sourced: REPORT_CONTENT_LIBRARY.md §6 and
+       REPORT_SHOWUP_RESEARCH.md §7 both establish the measured interval is
+       3-6 years (Whitehall II, PMID 19515410), so "about a decade" overstates
+       it. The two-plus line uses the M4a wording from §2 instead, which is
+       sourced to Sachdeva (PMID 19081406). Do not reintroduce the decade. */
     return real.length >= 2
-      ? 'More than one line of family history is the strongest reason to look early. The findings that change that story show up in blood about a decade before symptoms.'
+      ? 'More than one line of family history is the strongest reason to look early. In 136,905 hospitalizations for coronary artery disease, almost half arrived with LDL under 100 mg/dL \u2014 the number most people are told is fine. The markers that show whether you\u2019re on that path are measurable today.'
       : 'One family diagnosis is reason enough to look early. The markers that show whether you\u2019re on the same path are measurable today.';
-  }
+  },
+
+  /* Presence key only — the copy itself comes from familyMeaning() above.
+     selectFindings gates on `MIRRORS[f.key]` being truthy, so without this the
+     family-history finding never rendered for ANY lead, even though scoring
+     counted it. 24 of 37 live leads reported real family history and none of
+     them saw it in their report. Same silent-drop class as the
+     familyList/familyHistory scoring bug: no throw, just a quieter report. */
+  familyList: true
 };

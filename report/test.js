@@ -434,6 +434,84 @@ t('deep-panel leads are still allowed to be empty (the low-urgency case)', funct
   eq(gen.buildReport(lead()).allFired.length, 0);
 });
 
+console.log('\nfamily-history finding must actually render');
+/* Found generating a report for a real lead: she reported two
+   lines of family history, scoring counted them (6 risk points), and the
+   finding did not appear in her report. `MIRRORS.familyList` did not exist, so
+   the `MIRRORS[f.key]` gate in selectFindings returned undefined and the
+   finding was skipped. No throw — just a quieter report. 24 of 37 live leads
+   reported real family history and none of them ever saw it. */
+t('a lead who reports family history sees it in their findings', function () {
+  var m = gen.buildReport(lead({ familyList: ['Heart disease'] }));
+  ok(m.findings.some(function (f) { return f.field === 'familyList'; }),
+     'family-history finding is missing from the report');
+});
+t('the family-history finding reaches the rendered HTML', function () {
+  /* Assert on the finding's OWN copy, not on the words "family history".
+     The first version of this test matched /Family history|family diagnosis/i
+     and passed even with the bug present, because the M4 pattern copy also says
+     "family history" — a false green over the exact defect it was written for.
+     Mutation-testing the fix is what exposed it. */
+  var m = gen.buildReport(lead({ familyList: ['Heart disease'] }));
+  var f = m.findings.filter(function (x) { return x.field === 'familyList'; })[0];
+  ok(f, 'family-history finding is missing from the report model');
+  var h = render.html(m);
+  ok(h.indexOf(f.meaning) !== -1,
+     'the family-history finding exists in the model but its copy never reached the HTML');
+  ok(/One family diagnosis is reason enough to look early/.test(h),
+     'the single-diagnosis mirror copy should be visible to the lead');
+});
+t('two lines of history get the two-plus copy, one gets the single copy', function () {
+  var two = gen.buildReport(lead({ familyList: ['Heart disease', "Dementia or Alzheimer's"] }));
+  var one = gen.buildReport(lead({ familyList: ['Heart disease'] }));
+  var f2 = two.findings.filter(function (f) { return f.field === 'familyList'; })[0];
+  var f1 = one.findings.filter(function (f) { return f.field === 'familyList'; })[0];
+  ok(f2 && /More than one line/.test(f2.meaning), 'two-plus copy missing');
+  ok(f1 && /One family diagnosis/.test(f1.meaning), 'single-diagnosis copy missing');
+});
+t('"None of these" does not produce a family-history finding', function () {
+  var m = gen.buildReport(lead({ familyList: ['None of these'] }));
+  eq(m.findings.some(function (f) { return f.field === 'familyList'; }), false);
+});
+t('every finding field has a mirror table, and a missing one throws', function () {
+  /* The root cause was a silent skip. Anyone adding a FINDING_FIELDS entry
+     without a mirror table should get an error, not a shorter report. */
+  var MIRRORS = require('./mirrors.js');
+  ['energy', 'focus', 'sleep', 'drive', 'bodycomp', 'familyList', 'labs'].forEach(function (k) {
+    ok(MIRRORS[k], 'mirrors.js has no table for ' + k);
+  });
+  var saved = MIRRORS.labs;
+  delete MIRRORS.labs;
+  var threw = false;
+  try { gen.buildReport(lead({ labs: 'Standard annual physical only' })); }
+  catch (e) { threw = /missing a table/.test(e.message); }
+  MIRRORS.labs = saved;
+  ok(threw, 'a missing mirror table must throw, not silently drop the finding');
+});
+t('the retired "decade before symptoms" claim is not in the family copy', function () {
+  /* REPORT_CONTENT_LIBRARY.md §6 and REPORT_SHOWUP_RESEARCH.md §7: the measured
+     interval is 3-6 years (Whitehall II, PMID 19515410). The clause at
+     results.html:291 is retired, not sourced. Fixing the missing key above
+     would otherwise have shipped it into a new artifact. */
+  var MIRRORS = require('./mirrors.js');
+  [['Heart disease'], ['Heart disease', 'Stroke']].forEach(function (fam) {
+    var copy = MIRRORS.familyMeaning(fam) || '';
+    eq(/decade before symptoms|about a decade/i.test(copy), false,
+       'the retired decade claim is back in the family-history copy');
+  });
+  var h = render.html(gen.buildReport(lead({ familyList: ['Heart disease', 'Stroke'] })));
+  eq(/about a decade/i.test(h), false, 'the retired claim reached the rendered report');
+});
+t('the two-plus family copy keeps the sourced LDL wording', function () {
+  var MIRRORS = require('./mirrors.js');
+  var copy = MIRRORS.familyMeaning(['Heart disease', 'Stroke']);
+  ok(/136,905/.test(copy), 'the Sachdeva figure should be present');
+  ok(/almost half/i.test(copy), '"almost half" — not "half" (§6: the live line overstates it)');
+  eq(/normal.{0,3} cholesterol/i.test(copy), false, 'the unsourced cholesterol claim is back');
+  eq(/on their last labs/i.test(copy), false,
+     'LDL was drawn on admission, not at a prior physical (§6)');
+});
+
 console.log('\nlead-facing output must not leak');
 function renderFor(payload) { return render.html(gen.buildReport(payload)); }
 
