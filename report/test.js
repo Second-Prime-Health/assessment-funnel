@@ -67,6 +67,30 @@ t('familyList accepts the GHL comma-joined string shape', function () {
   var str = gen.computeScore(lead({ familyList: 'Heart disease, Stroke' }).data);
   eq(str.risk.pts, arr.risk.pts);
 });
+/* Supabase stores this answer under its form field name, `familyHistory`
+   (assessment.html:202-208, dash/questions.js:14) — not `familyList`, which is
+   only the localStorage shape. Reading the wrong key doesn't throw: it scores
+   the family-history risk as zero and silently drops the M4 pattern, so a lead
+   with heart disease in the family gets a calmer report than he should.
+   These fixtures clear `familyList` because a real Supabase row has only the
+   `familyHistory` key — leaving the default in would mask the bug. */
+t('familyHistory (the Supabase question_id) scores same as familyList', function () {
+  var want = gen.computeScore(lead({ familyList: ['Heart disease', 'Type 2 diabetes'] }).data).risk.pts;
+  eq(want, 4, 'fixture must carry real family-history risk or this proves nothing');
+  eq(gen.computeScore(lead({ familyList: undefined, familyHistory: ['Heart disease', 'Type 2 diabetes'] }).data).risk.pts, want);
+  eq(gen.computeScore(lead({ familyList: undefined, familyHistory: 'Heart disease, Type 2 diabetes' }).data).risk.pts, want);
+});
+t('familyHistory fires the inherited-risk pattern (M4)', function () {
+  function ids(key) {
+    var d = { familyList: undefined, energy: 'The 3pm crash runs my calendar',
+              bodycomp: 'I need to lose 25 to 50 lbs', labs: 'Standard annual physical only' };
+    d[key] = ['Heart disease', 'Type 2 diabetes'];
+    return gen.buildReport(lead(d)).patterns.map(function (p) { return p.id; });
+  }
+  var viaList = ids('familyList');
+  if (viaList.indexOf('M4') < 0) throw new Error('fixture no longer fires M4; test is not proving anything');
+  eq(ids('familyHistory').join(','), viaList.join(','));
+});
 t('exact value strings match, including the straight apostrophe', function () {
   var r = gen.computeScore(lead({ energy: "I'm running on coffee and willpower" }).data);
   eq(r.perf.pts, 5, 'straight-apostrophe value must score');

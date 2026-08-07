@@ -35,12 +35,22 @@ function esc(s) {
     .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
-/* familyList arrives as an array from localStorage but as a comma-joined
-   string from the GHL webhook (assessment.html:900). Normalize both. */
+/* Family history reaches us under three different names and two shapes:
+   `familyList` (array, localStorage), a comma-joined string from the GHL
+   webhook (assessment.html:900), and `familyHistory` — the actual question_id
+   stored in Supabase `answers`, which is the form field name
+   (assessment.html:202-208, dash/questions.js:14). Normalize all of them. */
 function toList(v) {
   if (!v) return [];
   if (Array.isArray(v)) return v.filter(Boolean);
   return String(v).split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+}
+
+/* Every family-history alias, one place. Callers must use this rather than
+   reaching for a.familyList directly, or a rename upstream silently zeroes
+   the risk score instead of failing loudly. */
+function familyOf(a) {
+  return toList(a.familyList || a.familyHistory || a.family);
 }
 
 function oxford(items) {
@@ -74,7 +84,7 @@ function bucketStatus(share) { return share >= 0.6 ? 'flag' : share >= 0.28 ? 'd
 function computeScore(a) {
   var perf = (PTS.energy[a.energy] || 0) + (PTS.focus[a.focus] || 0) +
              (PTS.sleep[a.sleep] || 0) + (PTS.drive[a.drive] || 0);
-  var risk = (PTS.bodycomp[a.bodycomp] || 0) + familyPts(a.familyList || a.family) +
+  var risk = (PTS.bodycomp[a.bodycomp] || 0) + familyPts(familyOf(a)) +
              (PTS.labs[a.labs] || 0);
   return {
     score: Math.round(100 - ((perf + risk) / (PERF_MAX + RISK_MAX)) * 78),
@@ -118,12 +128,12 @@ var FINDING_FIELDS = [
 function selectFindings(a, r) {
   var out = [];
   FINDING_FIELDS.forEach(function (f) {
-    var ans = f.key === 'familyList' ? toList(a.familyList || a.family).join(', ') : a[f.key];
+    var ans = f.key === 'familyList' ? familyOf(a).join(', ') : a[f.key];
     if (!ans) return;
     var m = MIRRORS[f.key];
-    var meaning = m && (f.key === 'familyList' ? MIRRORS.familyMeaning(toList(a.familyList || a.family)) : m[ans]);
+    var meaning = m && (f.key === 'familyList' ? MIRRORS.familyMeaning(familyOf(a)) : m[ans]);
     if (!meaning) return;
-    var pts = f.key === 'familyList' ? familyPts(a.familyList || a.family) : (PTS[f.key] ? PTS[f.key][ans] || 0 : 0);
+    var pts = f.key === 'familyList' ? familyPts(familyOf(a)) : (PTS[f.key] ? PTS[f.key][ans] || 0 : 0);
     out.push({ field: f.key, bucket: f.bucket, answer: ans, meaning: meaning, pts: pts });
   });
   /* Worst answers first within worst bucket first. */
@@ -138,7 +148,7 @@ function selectFindings(a, r) {
 function buildReport(payload) {
   var a = payload.data || payload;
   a = Object.assign({}, a);
-  a.familyList = toList(a.familyList || a.family);
+  a.familyList = familyOf(a);
 
   var r = (payload.perf && payload.risk)
     ? { score: payload.score, perf: payload.perf, risk: payload.risk }
