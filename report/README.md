@@ -6,8 +6,26 @@ Assessment. Node, no dependencies, no build step.
 ```bash
 node report/generate.js --demo                       # sample lead
 node report/generate.js lead.json --out report/out   # a real one
-node report/test.js                                  # 32 tests
+node report/test.js                                  # 38 tests
 ```
+
+## Pulling a real lead
+
+`report/pull.js` reads live leads through the same door the dashboard uses:
+sign in as a `team` user, call the `dash-query` edge function. No service-role
+key — `team` already has `leads` and `timeline`, which together carry the whole
+report payload (`dash-query/index.ts:8-13`, `schema.sql:414-425`).
+
+```bash
+export SP_DASH_EMAIL=fizz@secondprime.io
+export SP_DASH_PASSWORD=...                          # never in argv
+node report/pull.js --list                           # recent leads + session ids
+node report/pull.js --session <uuid>                 # inspect the payload
+node report/pull.js --session <uuid> --generate      # straight to a report
+```
+
+Credentials come from the environment on purpose: argv is visible in `ps` and
+lands in shell history.
 
 Two files per lead:
 

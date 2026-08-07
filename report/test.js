@@ -267,6 +267,47 @@ t('call notes carry the score, full union and escalations', function () {
   ok(m.fullUnion.length >= m.leadMarkers.length, 'union is at least the shortlist');
 });
 
+console.log('\nsupabase payload shaping');
+/* Mirrors the fn_session_timeline shape (schema.sql:414-425): answer rows keyed
+   by question_id, multi-selects as arrays, lead row alongside. If Supabase ever
+   renames a question_id this is the test that should go red. */
+var pull = require('./pull.js');
+function timelineFixture(over) {
+  return {
+    lead: Object.assign({
+      first_name: 'Michael', last_name: 'Reeves', email: 'm@example.com', phone: '+15125550142',
+      tier: 'core', score: 41, perf_pct: 38, perf_status: 'drift', risk_pct: 22, risk_status: 'flag'
+    }, (over || {}).lead),
+    answers: (over || {}).answers || [
+      { question_id: 'energy', answer: 'The 3pm crash runs my calendar' },
+      { question_id: 'bodycomp', answer: 'I need to lose 25 to 50 lbs' },
+      { question_id: 'familyHistory', answer: ['Heart disease', 'Type 2 diabetes'] },
+      { question_id: 'labs', answer: 'Standard annual physical only' }
+    ]
+  };
+}
+t('timeline rows shape into a payload the generator accepts', function () {
+  var p = pull.toPayload(timelineFixture());
+  eq(p.tier, 'core');
+  eq(p.data.firstName, 'Michael');
+  eq(p.data.familyHistory, ['Heart disease', 'Type 2 diabetes']);
+});
+t('a real timeline payload still fires the family-history pattern', function () {
+  var m = gen.buildReport(pull.toPayload(timelineFixture()));
+  ok(m.patterns.some(function (x) { return x.id === 'M4'; }),
+     'M4 must fire from the Supabase familyHistory key, not just familyList');
+});
+t('stored dashboard score is carried through, not recomputed', function () {
+  var p = pull.toPayload(timelineFixture());
+  eq(p.score, 41);
+  eq(gen.buildReport(p).reads.score, 41, 'report must agree with the dashboard for the same lead');
+});
+t('a lead with no stored score falls back to recomputation', function () {
+  var p = pull.toPayload(timelineFixture({ lead: { score: null, perf_status: null, risk_status: null } }));
+  ok(p.score === undefined, 'no partial score should be forwarded');
+  ok(typeof gen.buildReport(p).reads.score === 'number', 'generator recomputes instead');
+});
+
 console.log('\nrobustness');
 t('a partial payload does not throw', function () {
   var h = render.html(gen.buildReport({ data: { firstName: 'Half' } }));
