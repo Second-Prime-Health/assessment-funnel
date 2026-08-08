@@ -275,6 +275,19 @@
          Only the widget fallback needs the raw URL. */
       var LOWER_CAL = 'https://link.secondprime.io/widget/booking/85vCxdmO6uvmsJmx97Rp';
       var callMins = isLower ? '30 minutes' : '15 minutes';
+      /* CompleteRegistration: a core-qualified lead reached the booking page,
+         contact info already captured at submit. Core only: lower tier is
+         deliberately invisible to Meta (see thank-you.html). Once per browser,
+         so refreshes and follow-up-link returns don't refire. Browser-only
+         event by design; if a CompleteRegistration CAPI node ever gets added
+         in GHL it will double-count against this, same trap as Schedule. */
+      try {
+        if (window.fbq && !isLower && !localStorage.getItem('sp_cr_fired')) {
+          fbq('track', 'CompleteRegistration');
+          localStorage.setItem('sp_cr_fired', '1');
+        }
+      } catch (_) {}
+
       if (isLower) {
         document.getElementById('bookingWidget').src = LOWER_CAL;
         document.querySelector('.ap-sub').innerHTML =

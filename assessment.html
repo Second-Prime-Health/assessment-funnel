@@ -1047,7 +1047,9 @@
           }).catch(function () {});
         } catch (_) {}
 
-        try { if (window.fbq) fbq('track', 'CompleteRegistration'); } catch (_) {}
+        /* CompleteRegistration moved to booking.html (core tier only, once per
+           browser). Firing it here counted lower-tier and disqualified submits
+           as registrations, which is not the lead Meta should optimize toward. */
 
         /* Routing: qualified goes straight to booking (results are delivered on
            the call and by email); disqualified gets the full results page. */

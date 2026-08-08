@@ -3,8 +3,15 @@
 First-party analytics for the assessment funnel. Every page loads
 `js/experiments.js` then `js/track.js`; events flow to our own Supabase
 database (project `abqvlsxosdvdqrkixoqm`), NOT to the Meta pixel. The pixel
-keeps its four neutral events exactly as wired (`PageView`, `intake_started`,
-`CompleteRegistration`, `Schedule`) and never receives answer data. Dashboard
+keeps its four neutral events (`PageView`, `intake_started`,
+`CompleteRegistration`, `Schedule`) and never receives answer data. Where they
+fire: PageView on every page except the lower-tier thank-you view;
+`intake_started` on the first answer; `CompleteRegistration` when a CORE-tier
+lead lands on booking.html (contact info captured, not yet booked; once per
+browser via `sp_cr_fired`); `Schedule` on thank-you.html only with an `eid`.
+Lower tier is deliberately invisible to Meta end to end. CompleteRegistration
+is browser-only: do NOT add a CR node to any GHL CAPI workflow or it
+double-counts, same trap as Schedule. Dashboard
 and server code live in the `funnel-analytics` repo in this org.
 
 ## Rules for anyone editing these pages
