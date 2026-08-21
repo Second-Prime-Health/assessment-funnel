@@ -73,10 +73,13 @@ the assessment. Copy promises the score plus a Risk and Performance read.
   - "$10K+" → tier `core` → 15-minute call (custom teal calendar)
   - "$2,500-$10K" → tier `lower` → `booking.html?c=30`, same custom calendar
     pointed at the lower-tier GHL calendar (`85vCxdmO6uvmsJmx97Rp`) for a
-    one-call close on the lower-tier offer. The marker is `c=30`, never
+    two-step close on the lower-tier offer. The marker is `c=15`, never
     `tier=lower`: it sits in their address bar, and nothing a prospect can read
-    should tell them which tier they were sorted into. `/book30` and the legacy
-    `tier=lower` both still resolve to the same path.
+    should tell them which tier they were sorted into. `/book15`, `/book30`,
+    `c=30` and the legacy `tier=lower` all resolve to the same path. The older
+    forms are permanent, they are in emails already sent. Every one of them has
+    to stay in the isLower test in booking.html, or a lower-tier visitor is read
+    as core and fires the Meta event we deliberately withhold.
   - "No" → tier `dq` → `results.html` soft path
   The tier is saved in `sp_assessment.tier` and sent to GHL in `qualified`
   (`Yes`, `Yes - lower tier`, or `No`).

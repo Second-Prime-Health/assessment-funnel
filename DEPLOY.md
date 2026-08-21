@@ -129,7 +129,7 @@ to `No` gets nothing from this workflow.
 | `qualified` | Booking link |
 | --- | --- |
 | `Yes` | `https://assess.secondprime.io/book` |
-| `Yes - lower tier` | `https://assess.secondprime.io/book30` |
+| `Yes - lower tier` | `https://assess.secondprime.io/book15` |
 
 **Sequence:**
 
@@ -157,8 +157,11 @@ is never applied, and the booking is never counted. The call happens and the
 dashboard shows nothing.
 
 **Never send a link containing `tier=lower`.** That's why the lower-tier link
-is `/book30`. Nothing a prospect can read should tell them which tier they were
-sorted into.
+is a bare call length. Use `/book15` from 2026-08-21 on: both tiers run a 15
+minute first call now, so 15 is both truthful and still tells a prospect
+nothing about which tier they were sorted into. `/book30` and `c=30` keep
+working forever and MUST NOT be removed, because they are in emails already
+sent. Nothing a prospect can read should tell them which tier they landed in.
 
 ### Copy to use
 

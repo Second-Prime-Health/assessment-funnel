@@ -39,10 +39,12 @@ https://assess.secondprime.io/book
 ```
 
 Lower-tier contacts get a different link. **Never send them anything
-containing `tier=lower`.** The lower-tier path is `/book30` for a bare link, or
-`&c=30` appended to the prefilled version. Both read as a call length, which is
-all they should ever read as. Nothing we send should tell someone which tier
-they landed in.
+containing `tier=lower`.** The lower-tier path is `/book15` for a bare link, or
+`&c=15` appended to the prefilled version. Both read as a call length, which is
+all they should ever read as, and since 2026-08-21 both tiers really do run a 15
+minute first call, so the number is true. The older `/book30` and `&c=30` still
+resolve and must never be removed: they are in emails already sent. Nothing we
+send should tell someone which tier they landed in.
 
 The prefill parameters are a convenience, not a requirement. With them the
 booking is two taps. Without them they type name, email and phone, and the
