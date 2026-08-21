@@ -1,6 +1,6 @@
 // POST /api/book  { name, email, phone, slot, tier, timezone?, eventId?, fbc?, fbp?, sourceUrl? }
 // Upserts the contact, then books the appointment on the GHL calendar.
-// `tier` picks the calendar: core = 15-minute call, lower = 30-minute lower-tier
+// `tier` picks the calendar: core = 15-minute call, lower = the lower-tier
 // call. Same server-side mapping as /api/slots.
 import crypto from 'node:crypto';
 const CALENDARS = {
@@ -224,10 +224,10 @@ export default async function handler(req, res) {
     } catch (_) { /* analytics must never break a booking */ }
 
     /* Meta CAPI Schedule with the browser-matching eid. Non-blocking.
-       Lower-tier (30-minute) bookings report nothing to Meta at all. Those leads
+       Lower-tier bookings report nothing to Meta at all. Those leads
        convert poorly, so counting them trains the optimizer to go find more of
        them. booking.html gates the browser pixel the same way by withholding the
-       eid, so a 30-minute booking produces neither a browser nor a server event. */
+       eid, so a lower-tier booking produces neither a browser nor a server event. */
     if (!isLower) {
       fireMetaSchedule({
         email,

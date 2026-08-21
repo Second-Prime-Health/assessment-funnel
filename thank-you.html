@@ -18,7 +18,7 @@
        once per eid. No eid → the CAPI event owns the count (more reliable, no
        blockers). This kills the refresh double-fire and gives Meta an event ID
        to match the CAPI event against for real dedupe. See META-DEDUP-FIX.md.
-       Lower-tier (30-minute) views load no pixel whatsoever. Do not "simplify"
+       Lower-tier views load no pixel whatsoever. Do not "simplify"
        that back into a Schedule-only guard: PageView alone is enough to trip a
        URL-defined custom conversion, which is the signal we are withholding. -->
   <script>
@@ -28,7 +28,7 @@
     var isLower = q.get('c') === '30' || q.get('tier') === 'lower';
     /* Lower tier loads no pixel at all, not merely no Schedule. Suppressing the
        Schedule call alone is not enough: a custom conversion defined on this
-       page's URL rather than on an event would still count a 30-minute booking
+       page's URL rather than on an event would still count a lower-tier booking
        off the PageView by itself. Returning before fbq ever loads is the only
        version of this that holds no matter how Events Manager is configured.
        This page serves both tiers, so the check has to be conditional. */
@@ -141,12 +141,10 @@
       }
       if (first) document.getElementById('tyHeadline').textContent = first + ', see you on the call.';
 
-      // Same page for both paths, one word swapped: 15-minute or 30-minute.
-      var tier = (params.get('c') === '30' || params.get('tier') === 'lower') ? 'lower' : '';
-      if (!tier) { try { tier = JSON.parse(localStorage.getItem('sp_assessment') || '{}').tier || ''; } catch (_) {} }
-      if (tier === 'lower') {
-        document.querySelectorAll('.ty-len').forEach(function (el) { el.textContent = '30-minute'; });
-      }
+      // Both paths run 15 minutes as of 2026-08-21, so call length no longer
+      // varies by tier and .ty-len keeps its markup default. The tier read that
+      // used to swap it is gone; the pixel logic at the top of the page has its
+      // own isLower/spTier reads and is untouched by this.
     })();
   </script>
 </body>

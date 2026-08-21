@@ -44,7 +44,7 @@ and must not be committed.
 | `GHL_API_KEY` | yes | GoHighLevel private integration token |
 | `GHL_LOCATION_ID` | yes | The `Second-Prime` sub-account location id |
 | `GHL_CALENDAR_ID` | no | 15-minute call calendar, defaults in code |
-| `GHL_CALENDAR_ID_LOWER` | no | 30-minute call calendar, defaults in code |
+| `GHL_CALENDAR_ID_LOWER` | no | lower-tier call calendar, defaults in code |
 | `META_EVENT_FIELD_ID` | no | GHL custom-field id for `sp_meta_event_id`. When set, `/api/book` writes the browser event ID to the contact so the CAPI `Schedule` action can dedupe against the browser pixel. Unset → no write, no harm. Ship with the GHL CAPI action pointed at `{{contact.sp_meta_event_id}}` or nothing dedupes. See `META-DEDUP-FIX.md`. |
 
 Set all of them for Production. Preview deployments hitting the live calendar
@@ -189,14 +189,15 @@ in this account.
 > Andrew Martin
 > Founder and Biologist, Second Prime
 
-On the lower-tier branch change "Fifteen minutes" to "Thirty minutes".
+The lower-tier branch reads the same. Both calls are 15 minutes as of
+2026-08-21.
 
 **Text, 24 hours later, only if still not booked:**
 
 > {{contact.first_name}}, your call time is still open. 15 minutes and there's
 > nothing to sit through at the end: [their booking link]
 
-Lower tier: "30 minutes" instead of "15 minutes".
+Lower tier reads the same. Both calls are 15 minutes as of 2026-08-21.
 
 ### Already done, do not rebuild
 
@@ -213,7 +214,7 @@ Andrew believes the calendar settings are already right, but this needs
 confirming rather than assuming, because it's the single biggest lever on
 whether booked calls actually happen.
 
-On **both** calendars, the 15-minute and the 30-minute:
+On **both** calendars, the core one and the lower-tier one:
 
 1. Confirm an SMS confirmation goes out the moment someone books.
 2. Confirm an SMS reminder goes out before the call. If there's no reminder
@@ -221,8 +222,9 @@ On **both** calendars, the 15-minute and the 30-minute:
    the standard shape.
 3. Confirm availability is capped at 14 days out. The funnel's calendar shows
    two weeks by default and the two should match.
-4. Confirm the 15-minute calendar really is 15 minutes and the 30-minute one is
-   30. The funnel states both durations to the person explicitly.
+4. Confirm both calendars really are 15 minutes. Andrew moved the lower-tier
+   path to a two-step close on 2026-08-20 and both now run 15. The funnel
+   states the duration to the person explicitly.
 
 Book a test appointment on each calendar and watch for the messages rather than
 reading the settings screen. Delete the tests afterward.

@@ -1,6 +1,6 @@
 // GET /api/slots?startDate=YYYY-MM-DD&endDate=YYYY-MM-DD&timezone=America/New_York&tier=core|lower
 // Returns GHL calendar free-slots for the given range.
-// Two calendars: `core` is the 15-minute call, `lower` the 30-minute lower-tier
+// Two calendars: `core` is the 15-minute call, `lower` the lower-tier
 // call. The tier maps to an id server-side so the query can't point us at an
 // arbitrary calendar.
 export const CALENDARS = {

@@ -72,7 +72,7 @@ the assessment. Copy promises the score plus a Risk and Performance read.
   invest question:
   - "$10K+" → tier `core` → 15-minute call (custom teal calendar)
   - "$2,500-$10K" → tier `lower` → `booking.html?c=30`, same custom calendar
-    pointed at the 30-minute GHL calendar (`85vCxdmO6uvmsJmx97Rp`) for a
+    pointed at the lower-tier GHL calendar (`85vCxdmO6uvmsJmx97Rp`) for a
     one-call close on the lower-tier offer. The marker is `c=30`, never
     `tier=lower`: it sits in their address bar, and nothing a prospect can read
     should tell them which tier they were sorted into. `/book30` and the legacy
@@ -98,11 +98,12 @@ no month navigation. Days already gone are ghosted, days with no availability
 dimmed, first open day preselected with its times right below (one screen
 instead of three). "More dates" extends to 4 weeks. GHL widget fallback if `/api` isn't there. Both tiers use the
 same UI; `?tier=lower` just sends `tier=lower` to `/api/slots` and `/api/book`,
-which map it to the 30-minute calendar server-side. `?demo=1` previews the
+which map it to the lower-tier calendar server-side. `?demo=1` previews the
 flags strip and fills the calendar with sample availability.
 
 **Thank-you (`thank-you.html`)** — one page for both tiers. `?tier=lower` (or
-the stored tier) swaps "15-minute" for "30-minute"; everything else is
+the stored tier) no longer changes the call length: both tiers run 15
+minutes as of 2026-08-21. Everything else is
 identical. Two prep items only: accept the invite, be somewhere you can take a
 Zoom. Nothing about labs, the call needs no prep. Plus the "see your assessment
 summary" button to the results page.
@@ -133,7 +134,7 @@ summary" button to the results page.
   not preferred: `api/slots.js` and `api/book.js` need a serverless runtime,
   and without them the booking page silently falls back to the embedded GHL
   widget. Env: `GHL_API_KEY` and `GHL_LOCATION_ID` required; `GHL_CALENDAR_ID`
-  (15-min) and `GHL_CALENDAR_ID_LOWER` (30-min) optional, they default to the
+  (core) and `GHL_CALENDAR_ID_LOWER` (lower tier) optional, they default to the
   live ids in code.
   The old preview at tests.secondprime.io/assessment-funnel/ is a GitHub Pages
   copy with no `/api`, so its calendar runs on demo data. Retire it once

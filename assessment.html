@@ -930,7 +930,7 @@
 
         /* Qualification gate. Above threshold books the 15-minute call. Below
            threshold, the invest answer decides: $10K+ books the same call,
-           $5K-$10K routes to the 30-minute lower-tier call, no is a pass. */
+           $5K-$10K routes to the lower-tier call, no is a pass. */
         var below =
           (isOwner() && normDash(data.businessRevenue) === '$0 - $500K') ||
           (!isOwner() && normDash(data.annualIncome) === '$0 - $149K');
@@ -940,7 +940,7 @@
           if (/\$10K\+/i.test(inv)) tier = 'core';
           /* $5K-$10K is the current lower-tier band. The $2,500 forms are kept
              so someone who loaded the page before the floor moved still routes
-             to the 30-minute call instead of silently becoming a soft pass. */
+             to the lower-tier call instead of silently becoming a soft pass. */
           else if (/\$5K|2,500|2500/i.test(inv)) tier = 'lower';
           else tier = 'dq';
         }

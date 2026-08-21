@@ -78,7 +78,7 @@ appended by Meta automatically.
 
 ## The booking tag contract (calendars are shared)
 
-The 15-minute and 30-minute calendars are shared with other funnels, so
+The core and lower-tier calendars are shared with other funnels, so
 "appointment booked on this calendar" does NOT mean "booked from this funnel."
 Counting every booking on them would inflate this funnel's numbers with
 ScoreApp bookings and manual bookings.

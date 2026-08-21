@@ -40,7 +40,7 @@ proxy the GHL calendar API and need three environment variables:
 | `GHL_API_KEY` | GoHighLevel private integration token |
 | `GHL_LOCATION_ID` | The Second-Prime sub-account location id |
 | `GHL_CALENDAR_ID` | 15-minute call calendar (optional, defaults in code) |
-| `GHL_CALENDAR_ID_LOWER` | 30-minute call calendar (optional, defaults in code) |
+| `GHL_CALENDAR_ID_LOWER` | lower-tier call calendar (optional, defaults in code) |
 
 No keys are committed. The two calendar ids that are hardcoded as fallbacks are
 the same public ids in the GHL booking widget URLs.

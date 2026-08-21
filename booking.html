@@ -269,12 +269,15 @@
         }
       } catch (_) {}
 
-      /* Lower-tier path: same custom calendar, different GHL
-         calendar behind it (30 minutes instead of 15). The tier rides along to
-         /api/slots and /api/book, which map it to a calendar id server-side.
-         Only the widget fallback needs the raw URL. */
+      /* Lower-tier path: same custom calendar, different GHL calendar behind
+         it. Both run 15 minutes as of 2026-08-21 (Andrew moved this path to a
+         two-step close), but they stay two separate calendars on purpose: the
+         lower one is deliberately invisible to Meta. Collapsing them into one
+         would start reporting lower-tier bookings as conversions. The tier
+         rides along to /api/slots and /api/book, which map it to a calendar id
+         server-side. Only the widget fallback needs the raw URL. */
       var LOWER_CAL = 'https://link.secondprime.io/widget/booking/85vCxdmO6uvmsJmx97Rp';
-      var callMins = isLower ? '30 minutes' : '15 minutes';
+      var callMins = '15 minutes';
       /* CompleteRegistration: a core-qualified lead reached the booking page,
          contact info already captured at submit. Core only: lower tier is
          deliberately invisible to Meta (see thank-you.html). Once per browser,
@@ -291,7 +294,7 @@
       if (isLower) {
         document.getElementById('bookingWidget').src = LOWER_CAL;
         document.querySelector('.ap-sub').innerHTML =
-          'A free 30-minute call. We review your assessment before we get on, so it\u2019s about you from the first minute.<span id="emailNote"></span>';
+          'A free 15-minute call. We review your assessment before we get on, so it\u2019s about you from the first minute.<span id="emailNote"></span>';
       }
 
       /* If /api/slots isn't deployed (plain static hosting), fall back to the
@@ -487,7 +490,7 @@
                event, and the CAPI event owns the count.
                Lower tier is withheld deliberately: no eid means no browser
                Schedule, and /api/book skips the CAPI call for the same booking,
-               so Meta hears nothing about a 30-minute call. Withholding the eid
+               so Meta hears nothing about a lower-tier call. Withholding the eid
                is the whole gate. Do not "fix" this by always setting it. */
             if (!isLower) {
               try {

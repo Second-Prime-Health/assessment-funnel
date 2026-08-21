@@ -39,7 +39,7 @@ https://assess.secondprime.io/book
 ```
 
 Lower-tier contacts get a different link. **Never send them anything
-containing `tier=lower`.** The 30-minute path is `/book30` for a bare link, or
+containing `tier=lower`.** The lower-tier path is `/book30` for a bare link, or
 `&c=30` appended to the prefilled version. Both read as a call length, which is
 all they should ever read as. Nothing we send should tell someone which tier
 they landed in.
