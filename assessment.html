@@ -349,10 +349,10 @@
           </section>
 
           <section class="qstep" data-q="invest2" data-kind="q">
-            <h2>One more, because it matters.</h2>
-            <p class="qsub">Every program with Andrew and the Second Prime team starts at a $5,000 minimum. A straight answer here protects your time and ours.</p>
-            <label class="opt"><input type="radio" name="investConfirm" value="Yes. If the call shows we're the right fit, I can invest $5,000 in my health" /><span class="key">A</span><span class="txt">Yes. If the call shows we&rsquo;re the right fit, I can invest $5,000 in my health</span></label>
-            <label class="opt"><input type="radio" name="investConfirm" value="No, now isn't the right time for that investment" /><span class="key">B</span><span class="txt">No, now isn&rsquo;t the right time for that investment</span></label>
+            <h2>Working with Andrew and Second Prime is a serious commitment to your health.</h2>
+            <p class="qsub" id="invest2Sub">The minimum investment to get started is $5,000. If the call shows we&rsquo;re the right fit, is that something you&rsquo;d be able to do?</p>
+            <label class="opt"><input type="radio" name="investConfirm" value="Yes. If it's the right fit, I could invest $5,000 to get started" /><span class="key">A</span><span class="txt">Yes. If it&rsquo;s the right fit, I could invest $5,000 to get started</span></label>
+            <label class="opt"><input type="radio" name="investConfirm" value="No, now isn't the right time" /><span class="key">B</span><span class="txt">No, now isn&rsquo;t the right time</span></label>
           </section>
 
           <section class="qstep" data-q="timeline" data-kind="q">
@@ -623,7 +623,26 @@
           : 'It was one piece. Nobody owned the whole. That’s our job.');
       }
 
-      var INT_PAINTERS = { int1: paintInt1, int2: paintInt2, int3: paintInt3, int5t: paintInt5t };
+      /* invest2's sub-line names the thing they told us is broken, so the
+         $5,000 question is about fixing THAT rather than money in the
+         abstract. Priority mirrors the booking-page flags: most severe first. */
+      function paintInvest2() {
+        var thing = '';
+        var body = picked('bodycomp'), en = picked('energy'), sl = picked('sleep'),
+            fo = picked('focus'), dr = picked('drive');
+        if (/lose 50|lose 25/.test(body)) thing = 'the weight, for good';
+        else if (/crash|coffee/.test(en)) thing = 'the 3pm crash';
+        else if (/still wake up tired|Broken/.test(sl)) thing = 'waking up tired every morning';
+        else if (/Foggy/.test(fo)) thing = 'the brain fog';
+        else if (/fraction|lower/i.test(dr)) thing = 'your drive';
+        else if (familyList().length) thing = 'the family history you want to get ahead of';
+        var el = document.getElementById('invest2Sub');
+        el.textContent = thing
+          ? 'The minimum investment to get started is $5,000. If the call shows we\u2019re the right fit, and you believed this would finally fix ' + thing + ', is that something you\u2019d be able to do?'
+          : 'The minimum investment to get started is $5,000. If the call shows we\u2019re the right fit, and you believed it would solve what brought you here, is that something you\u2019d be able to do?';
+      }
+
+      var INT_PAINTERS = { int1: paintInt1, int2: paintInt2, int3: paintInt3, int5t: paintInt5t, invest2: paintInvest2 };
 
       /* ---- First-party tracking hooks (see TRACKING.md). Answers go only to
          our own database via track.js, never to the pixel. ---- */
