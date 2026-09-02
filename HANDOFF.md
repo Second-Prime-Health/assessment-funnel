@@ -92,6 +92,15 @@ person's own answer quoted back, with what it usually means in labs. Direct
 visits with no stored result bounce to the assessment. `?demo=1` / `?demo=dq`
 preview modes.
 
+**No-show countermeasures (Aug 2026).** The call was too easy to book, and the
+no-show rate said so. Three gates now sit in the path: the video moved ABOVE
+the calendar (watch first, book second), a commitment modal between "Confirm
+booking" and the actual booking (their slot and contact details mirrored back,
+an explicit "I'll be there"), and the `investConfirm` question for the cohort
+that was booking and ghosting (non-owner $0-149K in the $5K-$10K band) — an
+explicit yes to the $5,000 minimum, where no is a soft pass. Fewer bookings is
+the point; don't "optimize" these away without looking at show rate.
+
 **Booking (`booking.html`)** — step 2 of 2. Headline: "Your assessment is in.
 Pick your time." Above the calendar: up to 3 plain-language flags computed
 from their answers ("The afternoon energy crash", "Family health history"),

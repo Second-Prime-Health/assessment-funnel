@@ -12,7 +12,7 @@
   <script>document.documentElement.classList.add("js");</script>
   <link rel="stylesheet" href="css/styles.css?v=1" />
   <link rel="stylesheet" href="css/funnel.css?v=11" />
-  <link rel="stylesheet" href="css/assess.css?v=34" />
+  <link rel="stylesheet" href="css/assess.css?v=35" />
   <!-- Meta pixel (Amartinco LLC's Pixel). Neutral event names only, per Meta health-advertiser rules. -->
   <script>
   (function () {
@@ -51,7 +51,7 @@
     <div class="ap-head">
       <span class="eyebrow">Step 2 of 2 &middot; Assessment Received</span>
       <h1 id="bkHeadline">Your assessment is in.<br />Pick your time.</h1>
-      <p class="ap-sub">A free 15-minute call. We review your assessment before we get on, so it&rsquo;s about you from the first minute.<span id="emailNote"></span></p>
+      <p class="ap-sub">A free 15-minute call for people serious about acting on what we find. We review your assessment before we get on, so it&rsquo;s about you from the first minute.<span id="emailNote"></span></p>
     </div>
 
     <div class="bk-teaser" id="bkTeaser" style="display:none">
@@ -60,6 +60,19 @@
         <span id="bkTease" style="display:block; margin-top:8px"></span>
       </div>
     </div>
+
+    <!-- ============ BOOKING VIDEO (Vimeo), above the calendar on purpose:
+         watching it is the first filter. The call is easy to book, so the page
+         has to do the screening the booking step no longer does. ============ -->
+    <div class="bk-vidhead" style="margin-top:6px">
+      <span class="eyebrow">Before You Pick A Time</span>
+      <h2>Watch this first. 60 seconds.</h2>
+      <p>What the call is, how we prep from your assessment, and who it&rsquo;s for. We hold this time for you and do the homework before it, so book when you know you&rsquo;ll be there.</p>
+    </div>
+    <div class="as-video" id="bookingVideo" style="margin-top:0">
+      <div style="padding:56.25% 0 0 0;position:relative;border-radius:16px;overflow:hidden;"><iframe src="https://player.vimeo.com/video/1179952534?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Second Prime"></iframe></div>
+    </div>
+    <script src="https://player.vimeo.com/api/player.js"></script>
 
     <section class="book-wrap">
       <div class="container">
@@ -121,8 +134,6 @@
       </div>
     </section>
 
-    <p class="bk-vidlink"><a href="#bookingVideo">Not sure yet? Watch the 60-second video first &darr;</a></p>
-
     <div class="bk-who">
       <img src="assets/cases/mike-head.jpg" alt="Mike Tulimiero" loading="lazy" />
       <div><b>You&rsquo;ll talk with Mike</b><span>He reads your assessment before the call.</span></div>
@@ -134,16 +145,6 @@
       <div class="ap-p"><b>03</b><div>The plan</div><span>What the process looks like, timeline, how to start</span></div>
     </div>
 
-    <!-- ============ BOOKING VIDEO (Vimeo) ============ -->
-    <div class="bk-vidhead">
-      <span class="eyebrow">60 Seconds, No Pitch</span>
-      <h2>Watch what happens on the call.</h2>
-      <p>How we prep from your assessment, what you walk away with, and why there&rsquo;s nothing to sit through at the end.</p>
-    </div>
-    <div class="as-video" id="bookingVideo" style="margin-top:0">
-      <div style="padding:56.25% 0 0 0;position:relative;border-radius:16px;overflow:hidden;"><iframe src="https://player.vimeo.com/video/1179952534?badge=0&amp;autopause=0&amp;player_id=0&amp;app_id=58479" frameborder="0" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" style="position:absolute;top:0;left:0;width:100%;height:100%;" title="Second Prime"></iframe></div>
-    </div>
-    <script src="https://player.vimeo.com/api/player.js"></script>
 
     <figure class="ap-quote">
       <span class="ap-qmark" aria-hidden="true">&ldquo;</span>
@@ -162,6 +163,26 @@
         <span class="ap-name"><b>Andrew Martin</b><span>Founder &amp; Biologist, Second Prime</span></span>
       </figcaption>
     </figure>
+
+    <!-- Commitment gate: shown between "Confirm booking" and the actual booking.
+         The point is a deliberate yes, with their own details looking back at
+         them, before a human blocks time for them. -->
+    <div class="spb-commit" id="spbCommit" role="dialog" aria-modal="true" aria-labelledby="spbCommitH" style="display:none">
+      <div class="spb-commit__card">
+        <span class="eyebrow">One Last Thing</span>
+        <h3 id="spbCommitH">This books time on a real person&rsquo;s calendar.</h3>
+        <p class="spb-commit__slot" id="spbCommitSlot"></p>
+        <div class="spb-commit__who">
+          <img src="assets/cases/mike-head.jpg" alt="Mike Tulimiero" loading="lazy" />
+          <p>Mike holds this slot for you alone and goes through your whole assessment to prepare for it. When someone books and doesn&rsquo;t show, that work and that time are gone.</p>
+        </div>
+        <div class="spb-commit__info" id="spbCommitInfo"></div>
+        <p class="spb-commit__ask">So before we lock it in: can you commit to being there, on Zoom, ready to talk about your health?</p>
+        <button type="button" class="btn btn-teal spb-commit__yes" id="spbCommitYes">Yes. I&rsquo;ll be there. Book it.</button>
+        <button type="button" class="spb-commit__no" id="spbCommitNo">I&rsquo;m not sure I can make this time</button>
+        <p class="spb-commit__fine">Something come up later? Reschedule from your confirmation email. Just tell us instead of going quiet.</p>
+      </div>
+    </div>
   </main>
 
   <footer class="apply-footer">
@@ -458,10 +479,47 @@
         stepForm.style.display = 'block';
       }
 
+      /* Commitment gate. First valid submit opens the modal instead of
+         booking; the modal's yes re-submits with the flag set. The ask sits
+         AFTER the details form on purpose: their own email and phone looking
+         back at them is what makes "can you commit" land as real. */
+      var spbCommitted = false;
+      var commitEl = $('spbCommit');
+      function showCommit() {
+        var t = new Date(selectedSlot);
+        $('spbCommitSlot').textContent =
+          t.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) +
+          ' at ' + t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+        $('spbCommitInfo').innerHTML =
+          '<b>Your confirmation goes to</b>' +
+          '<span>' + String($('spb-email').value).replace(/[<>&]/g, '') + '</span>' +
+          '<span>' + String($('spb-phone').value).replace(/[<>&]/g, '') + '</span>';
+        commitEl.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+        try { if (window.spTrack) spTrack('commit_shown', { tier: isLower ? 'lower' : 'core' }); } catch (_) {}
+      }
+      function hideCommit() { commitEl.style.display = 'none'; document.body.style.overflow = ''; }
+      $('spbCommitYes').addEventListener('click', function () {
+        spbCommitted = true;
+        hideCommit();
+        try { if (window.spTrack) spTrack('commit_confirmed', { tier: isLower ? 'lower' : 'core' }); } catch (_) {}
+        if (bookForm.requestSubmit) bookForm.requestSubmit(); else bookForm.dispatchEvent(new Event('submit', { cancelable: true }));
+      });
+      $('spbCommitNo').addEventListener('click', function () {
+        hideCommit();
+        spbCommitted = false;
+        try { if (window.spTrack) spTrack('commit_declined', { tier: isLower ? 'lower' : 'core' }); } catch (_) {}
+        /* Back to the calendar so they pick a time they can actually make. */
+        stepForm.style.display = 'none';
+        stepCal.style.display = 'block';
+      });
+
       bookForm.addEventListener('submit', async function (e) {
         e.preventDefault();
         var submitBtn = $('spb-submit');
         if (!bookForm.checkValidity()) { bookForm.reportValidity(); return; }
+        if (!spbCommitted) { showCommit(); return; }
+        spbCommitted = false;
         submitBtn.disabled = true; submitBtn.textContent = 'Booking…';
         bookError.style.display = 'none';
         /* One ID used three ways: POST'd to /api/book (→ GHL custom field

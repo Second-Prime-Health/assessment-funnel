@@ -48,6 +48,9 @@ attribution is first-touch (`sp_attr`).
 | `identify` | same moment | contact fields (server stitches session → lead) |
 | `email_captured` | valid email typed at contact step | `email` |
 | `results_view` / `booking_view` / `thankyou_view` | page loads | `tier` |
+| `commit_shown` | commitment gate opens after Confirm booking | `tier` |
+| `commit_confirmed` | they accept the commitment and the booking proceeds | `tier` |
+| `commit_declined` | they back out to the calendar | `tier` |
 | `booking_widget_shown` | GHL widget fallback renders | `tier` |
 | `slot_selected` | native calendar only | `slot_iso`, `tier` |
 | `booking_created` | server-side, from the GHL webhook | `tier`, `slot_iso` |
@@ -55,7 +58,11 @@ attribution is first-touch (`sp_attr`).
 Question ids = form field names: `goals`, `age`, `role`, `energy`, `focus`,
 `sleep`, `drive`, `bodycomp`, `familyHistory`, `labs`, `longevity`,
 `triggerEvent`, `alreadyTried`, `context`, `businessRevenue`, `annualIncome`,
-`investReady`, `timeline`.
+`investReady`, `investConfirm`, `timeline`.
+
+`investConfirm` (added Aug 2026) shows only to non-owner $0-149K people who picked
+the $5K-$10K band: an explicit yes/no to the $5,000 program minimum. Yes routes
+to the lower-tier call, anything else is a soft pass.
 
 `goals`, `familyHistory`, `alreadyTried` and `longevity` are multi-selects, so
 their `answer` arrives as an array. Everything else is a string.

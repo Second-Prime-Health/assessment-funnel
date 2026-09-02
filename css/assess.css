@@ -526,3 +526,47 @@
   .spb__slots { grid-template-columns: repeat(2, 1fr); gap: 8px; }
   .spb__slot { padding: 11px 6px; font-size: 14.5px; }
 }
+
+/* ---------- Booking: commitment gate ----------
+   Overlay between "Confirm booking" and the actual booking. Dark scrim, light
+   card, their slot and contact details mirrored back before the deliberate yes. */
+.spb-commit {
+  position: fixed; inset: 0; z-index: 200; display: flex;
+  align-items: center; justify-content: center; padding: 18px;
+  background: rgba(16,16,22,0.66); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+}
+.spb-commit__card {
+  width: min(480px, 100%); max-height: 92vh; overflow-y: auto;
+  background: #FDFBF8; border-radius: 16px; padding: 30px 30px 26px;
+  text-align: center; box-shadow: 0 24px 70px rgba(0,0,0,0.35);
+}
+.spb-commit__card .eyebrow { margin-bottom: 10px; }
+.spb-commit__card h3 { font-family: var(--font-serif); font-weight: 400; font-size: 24px; line-height: 1.25; color: var(--near-black); margin-bottom: 14px; text-wrap: balance; }
+.spb-commit__slot { font-family: var(--font-serif); font-size: 20px; color: var(--teal-deep); margin-bottom: 16px; }
+.spb-commit__who {
+  display: flex; gap: 14px; align-items: center; text-align: left;
+  background: #F2EDE4; border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px 16px; margin-bottom: 14px;
+}
+.spb-commit__who img { width: 52px; height: 52px; border-radius: 50%; object-fit: cover; flex: none; }
+.spb-commit__who p { font-size: 14px; line-height: 1.5; color: #4A4A56; margin: 0; }
+.spb-commit__info {
+  border: 1px solid var(--border); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px;
+  font-size: 14.5px; color: #4A4A56;
+}
+.spb-commit__info b { display: block; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal); margin-bottom: 5px; }
+.spb-commit__info span { display: block; overflow-wrap: anywhere; }
+.spb-commit__ask { font-size: 15.5px; line-height: 1.5; color: var(--near-black); font-weight: 600; margin-bottom: 16px; text-wrap: balance; }
+.spb-commit__yes { width: 100%; justify-content: center; padding: 15px 20px; font-size: 16px; }
+.spb-commit__no {
+  display: block; width: 100%; margin-top: 10px; padding: 11px; cursor: pointer;
+  background: none; border: none; font-family: var(--font-sans); font-size: 14px;
+  color: #83838F; text-decoration: underline;
+}
+.spb-commit__no:hover { color: var(--teal-deep); }
+.spb-commit__fine { margin-top: 14px; font-size: 12.5px; line-height: 1.5; color: #9A9AA4; }
+@media (max-width: 480px) {
+  .spb-commit { padding: 12px; }
+  .spb-commit__card { padding: 24px 20px 20px; }
+  .spb-commit__card h3 { font-size: 21px; }
+}

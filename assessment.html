@@ -12,7 +12,7 @@
   <script>document.documentElement.classList.add("js");</script>
   <link rel="stylesheet" href="css/styles.css?v=1" />
   <link rel="stylesheet" href="css/funnel.css?v=11" />
-  <link rel="stylesheet" href="css/assess.css?v=34" />
+  <link rel="stylesheet" href="css/assess.css?v=35" />
   <!-- Meta pixel (Amartinco LLC's Pixel). Neutral event names only, per Meta health-advertiser rules. -->
   <script>
   (function () {
@@ -348,6 +348,13 @@
             <label class="opt"><input type="radio" name="investReady" value="No, I am not in a position to invest in my health" /><span class="key">C</span><span class="txt">No, I am not in a position to invest in my health</span></label>
           </section>
 
+          <section class="qstep" data-q="invest2" data-kind="q">
+            <h2>One more, because it matters.</h2>
+            <p class="qsub">Every program with Andrew and the Second Prime team starts at a $5,000 minimum. A straight answer here protects your time and ours.</p>
+            <label class="opt"><input type="radio" name="investConfirm" value="Yes. If the call shows we're the right fit, I can invest $5,000 in my health" /><span class="key">A</span><span class="txt">Yes. If the call shows we&rsquo;re the right fit, I can invest $5,000 in my health</span></label>
+            <label class="opt"><input type="radio" name="investConfirm" value="No, now isn't the right time for that investment" /><span class="key">B</span><span class="txt">No, now isn&rsquo;t the right time for that investment</span></label>
+          </section>
+
           <section class="qstep" data-q="timeline" data-kind="q">
             <h2>If your results say something worth acting on, when would you want to start?</h2>
             <p class="qsub">Honest answer. It only changes how we follow up.</p>
@@ -452,6 +459,12 @@
       }
 
       // Below threshold = owner under $500K revenue, or non-owner under $200K income.
+      function needsInvestConfirm() {
+        if (isOwner() || !picked('role')) return false;
+        if (normDash(picked('annualIncome')) !== '$0 - $149K') return false;
+        return /\$5K/.test(picked('investReady'));
+      }
+
       function belowThreshold() {
         if (isOwner()) return normDash(picked('businessRevenue')) === '$0 - $500K';
         if (picked('role')) return normDash(picked('annualIncome')) === '$0 - $149K';
@@ -467,6 +480,7 @@
                    'bodycomp', 'family', 'labs', 'longevity', 'int3',
                    'trigger', 'tried', 'int5t', money];
         if (belowThreshold()) seq.push('invest');
+        if (needsInvestConfirm()) seq.push('invest2');
         seq.push('timeline', 'contact');
         return seq;
       }
@@ -906,6 +920,7 @@
           businessRevenue: picked('businessRevenue'),
           annualIncome: picked('annualIncome'),
           investReady: picked('investReady'),
+          investConfirm: picked('investConfirm'),
           timeline: picked('timeline'),
           firstName: get('firstName'),
           lastName: get('lastName'),
@@ -922,6 +937,7 @@
         if (!form.querySelector('input[name="familyHistory"]:checked')) { showErr('Looks like a question got skipped. Use Back to check your answers.'); return; }
         if (isOwner() ? !data.businessRevenue : !data.annualIncome) { showErr('Looks like a question got skipped. Use Back to check your answers.'); return; }
         if (belowThreshold() && !data.investReady) { showErr('Looks like a question got skipped. Use Back to check your answers.'); return; }
+        if (needsInvestConfirm() && !data.investConfirm) { showErr('Looks like a question got skipped. Use Back to check your answers.'); return; }
 
         btn.disabled = true;
         btn.textContent = 'Logging…';
@@ -941,7 +957,15 @@
           /* $5K-$10K is the current lower-tier band. The $2,500 forms are kept
              so someone who loaded the page before the floor moved still routes
              to the lower-tier call instead of silently becoming a soft pass. */
-          else if (/\$5K|2,500|2500/i.test(inv)) tier = 'lower';
+          else if (/\$5K|2,500|2500/i.test(inv)) {
+            /* Non-owner $0-149K in this band has been the no-show cohort, so
+               they get one more gate: an explicit yes to the $5,000 minimum.
+               Anything short of that yes is a soft pass. Owners keep the old
+               routing. */
+            var lowIncome = !isOwner() && normDash(data.annualIncome) === '$0 - $149K';
+            if (lowIncome) tier = /^Yes/.test(data.investConfirm || '') ? 'lower' : 'dq';
+            else tier = 'lower';
+          }
           else tier = 'dq';
         }
         var disqualified = tier === 'dq';
@@ -1006,6 +1030,7 @@
             business_revenue: data.businessRevenue,
             annual_income: data.annualIncome,
             investment: data.investReady || 'Skipped (above threshold)',
+            investment_confirm: data.investConfirm || 'Not asked',
             timeline: data.timeline,
             heard_about: 'Assessment Funnel',
             qualified: disqualified ? 'No' : (tier === 'lower' ? 'Yes - lower tier' : 'Yes'),
