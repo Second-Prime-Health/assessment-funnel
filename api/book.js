@@ -3,6 +3,7 @@
 // `tier` picks the calendar: core = 15-minute call, lower = the lower-tier
 // call. Same server-side mapping as /api/slots.
 import crypto from 'node:crypto';
+import { postToSlack, bookingMessage } from './_slack.js';
 const CALENDARS = {
   core: process.env.GHL_CALENDAR_ID || 'q2ivh7vI9bOR6uWq5rxb',
   lower: process.env.GHL_CALENDAR_ID_LOWER || '85vCxdmO6uvmsJmx97Rp',
@@ -240,6 +241,9 @@ export default async function handler(req, res) {
         ua: req.headers['user-agent'] || '',
       }).catch(() => {});
     }
+
+    // Slack: only once the appointment really exists. Never throws.
+    await postToSlack(bookingMessage({ name, email, phone, slot, tier: isLower ? 'lower' : 'core', timezone: req.body?.timezone }));
 
     return res.status(200).json({ success: true });
   } catch (err) {

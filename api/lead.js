@@ -18,6 +18,8 @@
 // Deliberately fire-and-forget from the page: a failure here must never block or slow
 // the redirect to booking. Worst case the contact lacks tags, which is recoverable.
 
+import { postToSlack, assessmentMessage } from './_slack.js';
+
 // Option values carry en dashes ("$0 – $500K"). assessment.html normalises the same way
 // in normDash() before its qualification gate, so keep these two in step.
 const normDash = (s) => String(s || '').replace(/[–—-]/g, '-').replace(/\s+/g, ' ').trim();
@@ -108,6 +110,10 @@ export default async function handler(req, res) {
   const locationId = process.env.GHL_LOCATION_ID;
   if (!apiKey || !locationId) return res.status(500).json({ error: 'Not configured' });
 
+  // Slack post runs alongside the GHL sync and is awaited in `finally`, so it lands
+  // whether or not GHL succeeds. Serverless can freeze after the response, hence await.
+  const slack = postToSlack(assessmentMessage(req.body));
+
   const tags = tagsFor(req.body);
   const detectedTz = resolveTimezone(req, req.body);
   const prior = await lookupContact({ email, apiKey, locationId });
@@ -196,5 +202,7 @@ export default async function handler(req, res) {
   } catch (err) {
     console.error('lead error', err);
     return res.status(502).json({ error: 'Lead sync failed' });
+  } finally {
+    await slack;
   }
 }

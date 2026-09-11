@@ -1085,7 +1085,33 @@
               businessOwner: isOwner() ? 'Yes' : 'No',
               businessRevenue: data.businessRevenue,
               annualIncome: data.annualIncome,
-              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+              timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+              /* Readable answer list for the Slack notification only. Same
+                 values the GHL webhook above carries. */
+              score: result.score,
+              answers: [
+                ['Goals', (data.goals || []).join(', ')],
+                ['At 85 wants', (data.longevity || []).join(', ')],
+                ['Age', data.age],
+                ['Energy', data.energy],
+                ['Focus', data.focus],
+                ['Sleep', data.sleep],
+                ['Drive', data.drive],
+                ['Body composition', data.bodycomp],
+                ['Family history', data.family],
+                ['Labs', data.labs],
+                ['What made this important now', data.triggerEvent],
+                ['Already tried', (data.alreadyTried || []).join(', ')],
+                ['In their words', data.context],
+                ['Business owner', isOwner() ? 'Yes' : 'No'],
+                ['Business revenue', isOwner() ? data.businessRevenue : ''],
+                ['Annual income', isOwner() ? '' : data.annualIncome],
+                ['Investment readiness', data.investReady],
+                ['Investment confirm', data.investConfirm],
+                ['Timeline', data.timeline],
+                ['Risk', result.risk.pct + ' (' + result.risk.status + ')'],
+                ['Performance', result.perf.pct + ' (' + result.perf.status + ')']
+              ]
             }),
             keepalive: true
           }).catch(function () {});
