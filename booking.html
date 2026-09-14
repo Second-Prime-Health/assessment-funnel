@@ -240,8 +240,18 @@
          these MUST stay in this test, or a lower-tier visitor arriving on the
          alias is read as core, which books the wrong calendar and fires the
          Meta event we deliberately withhold. */
-      var isLower = ['30', '15'].indexOf(params.get('c')) > -1 || params.get('tier') === 'lower' ||
-                    /book(30|15)\/?$/.test(location.pathname);
+      /* 2026-09-14: Andrew dropped the lower-tier calendar. Those links still
+         land here and now book the one 15-minute calendar. */
+      var isLower = false;
+
+      /* Not a fit on the assessment: no calendar. Send them back to their
+         results. /api/book refuses the same people server-side. */
+      var spDq = false;
+      try { spDq = (JSON.parse(localStorage.getItem('sp_assessment') || 'null') || {}).tier === 'dq'; } catch (_) {}
+      if (spDq && !params.get('demo')) {
+        document.querySelectorAll('.bk-vidhead, #bookingVideo, .book-wrap').forEach(function (el) { el.style.display = 'none'; });
+        window.location.replace('results.html');
+      }
       var pre = { name: '', email: '', phone: '' };
       try {
         var app = JSON.parse(localStorage.getItem('sp_application') || '{}');
@@ -318,7 +328,7 @@
          event by design; if a CompleteRegistration CAPI node ever gets added
          in GHL it will double-count against this, same trap as Schedule. */
       try {
-        if (window.fbq && !isLower && !localStorage.getItem('sp_cr_fired')) {
+        if (window.fbq && !isLower && !spDq && !localStorage.getItem('sp_cr_fired')) {
           fbq('track', 'CompleteRegistration');
           localStorage.setItem('sp_cr_fired', '1');
         }
@@ -552,6 +562,14 @@
         try {
           var res = await fetch('/api/book', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
           var data = await res.json();
+          /* Server says not a fit (see /api/book). No retry, no calendar. */
+          if (res.status === 403 && data.error === 'not_a_fit') {
+            stepCal.style.display = 'none';
+            bookForm.style.display = 'none';
+            bookError.textContent = 'Based on your assessment, a call isn’t the right next step for you right now. If your situation changes, the door is open.';
+            bookError.style.display = 'block';
+            return;
+          }
           if (res.ok && data.success) {
             var t = new Date(selectedSlot);
             confirmedDetails.textContent = t.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + ' at ' + t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });

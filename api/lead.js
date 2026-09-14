@@ -155,6 +155,24 @@ export default async function handler(req, res) {
     let tagged = false;
     if (tags.length && contactId) tagged = await addTags({ contactId, tags, apiKey });
 
+    /* A retake replaces the old verdict. Without this, someone who qualifies after
+       an earlier not-a-fit keeps assess-dq, and the other way round, and
+       /api/book's not-a-fit gate reads a stale answer. */
+    const tierTag = TIER_TAGS[req.body?.tier];
+    const staleTiers = Object.values(TIER_TAGS).filter((t) => t !== tierTag);
+    if (tierTag && contactId) {
+      await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}/tags`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${apiKey}`,
+          Version: '2021-07-28',
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({ tags: staleTiers }),
+      }).catch((err) => console.error('stale tier tag removal failed', err));
+    }
+
     // Fire quiz.classified to Badmetryx — same instant as the GHL tag write.
     // Fire-and-forget; MUST not block the response.
     if (contactId) {

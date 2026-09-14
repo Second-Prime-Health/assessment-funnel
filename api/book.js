@@ -1,12 +1,11 @@
-// POST /api/book  { name, email, phone, slot, tier, timezone?, eventId?, fbc?, fbp?, sourceUrl? }
+// POST /api/book  { name, email, phone, slot, timezone?, eventId?, fbc?, fbp?, sourceUrl? }
 // Upserts the contact, then books the appointment on the GHL calendar.
-// `tier` picks the calendar: core = 15-minute call, lower = the lower-tier
-// call. Same server-side mapping as /api/slots.
+// One calendar since 2026-09-14 (Andrew dropped the lower tier). A stale `tier`
+// from an old link is ignored. Same calendar as /api/slots.
 import crypto from 'node:crypto';
 import { postToSlack, bookingMessage } from './_slack.js';
 const CALENDARS = {
   core: process.env.GHL_CALENDAR_ID || 'q2ivh7vI9bOR6uWq5rxb',
-  lower: process.env.GHL_CALENDAR_ID_LOWER || '85vCxdmO6uvmsJmx97Rp',
 };
 
 // The booker's IANA timezone: what the page detected, else Vercel's edge geo
@@ -70,33 +69,41 @@ async function fireMetaSchedule({ email, phone, eventId, fbc, fbp, sourceUrl, ip
   }
 }
 
-// Contacts keep a hand-set timezone: we only ever fill an empty one.
-async function existingTimezone({ email, apiKey, locationId }) {
+// One contact lookup serves two checks: the timezone (contacts keep a hand-set
+// one, we only fill an empty one) and the tags (the not-a-fit gate).
+// timezone 'unknown' means the lookup failed.
+async function lookupContact({ email, apiKey, locationId }) {
   try {
     const params = new URLSearchParams({ locationId, email });
     const r = await fetch(
       `https://services.leadconnectorhq.com/contacts/search/duplicate?${params}`,
       { headers: { Authorization: `Bearer ${apiKey}`, Version: '2021-07-28', Accept: 'application/json' } }
     );
-    if (!r.ok) return 'unknown';
+    if (!r.ok) return { timezone: 'unknown', tags: [] };
     const d = await r.json();
-    return d?.contact?.timezone || '';
+    return { timezone: d?.contact?.timezone || '', tags: d?.contact?.tags || [] };
   } catch (_) {
-    return 'unknown';
+    return { timezone: 'unknown', tags: [] };
   }
 }
+
+/* Not a fit on the assessment = no booking (Andrew, 2026-09-14). booking.html
+   already hides the calendar from them; this closes every other way in (a saved
+   link, another device, a hand-built request). A later qualifying retake adds
+   assess-qualified, which wins. Fails open: if GHL can't be read, the booking
+   goes through rather than blocking a real lead. */
+const isNotAFit = (tags) => tags.includes('assess-dq') && !tags.includes('assess-qualified');
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { name, email, phone, slot, tier, eventId, fbc, fbp, sourceUrl } = req.body || {};
+  const { name, email, phone, slot, eventId, fbc, fbp, sourceUrl } = req.body || {};
   if (!name || !email || !phone || !slot) {
     return res.status(400).json({ error: 'name, email, phone, and slot are required' });
   }
 
-  const isLower = tier === 'lower';
   const apiKey = process.env.GHL_API_KEY;
-  const calendarId = CALENDARS[isLower ? 'lower' : 'core'];
+  const calendarId = CALENDARS.core;
   const locationId = process.env.GHL_LOCATION_ID;
   if (!apiKey || !calendarId || !locationId) {
     return res.status(500).json({ error: 'Booking not configured' });
@@ -107,11 +114,16 @@ export default async function handler(req, res) {
   const lastName = parts.slice(1).join(' ') || '';
 
   try {
+    const prior = await lookupContact({ email, apiKey, locationId });
+    if (isNotAFit(prior.tags)) {
+      console.warn('booking refused: assess-dq', String(email).toLowerCase());
+      return res.status(403).json({ error: 'not_a_fit' });
+    }
+
     // Only send a timezone when the contact has none. 'unknown' means the lookup
     // failed, so we leave the field alone rather than risk clobbering a manual fix.
     const detectedTz = resolveTimezone(req, req.body);
-    const priorTz = detectedTz ? await existingTimezone({ email, apiKey, locationId }) : 'unknown';
-    const tzField = detectedTz && priorTz === '' ? { timezone: detectedTz } : {};
+    const tzField = detectedTz && prior.timezone === '' ? { timezone: detectedTz } : {};
 
     /* Meta event ID for browser/CAPI deduplication. Writes only when
        META_EVENT_FIELD_ID is set in the host env. That field must exist in
@@ -158,9 +170,7 @@ export default async function handler(req, res) {
        that says "this booking came from here." Awaited before the appointment is created
        so the tag reliably exists when that trigger fires. */
     if (contactId) {
-      const tags = isLower
-        ? ['consult-booked', 'lower-tier', 'assessment-funnel-booking']
-        : ['consult-booked', 'assessment-funnel-booking'];
+      const tags = ['consult-booked', 'assessment-funnel-booking'];
       try {
         await fetch(`https://services.leadconnectorhq.com/contacts/${contactId}/tags`, {
           method: 'POST',
@@ -191,7 +201,7 @@ export default async function handler(req, res) {
         locationId,
         contactId,
         startTime: slot,
-        title: `${isLower ? 'Strategy Call' : 'Consult'} - ${name}`,
+        title: `Consult - ${name}`,
         appointmentStatus: 'confirmed',
         toNotify: true,
       }),
@@ -215,7 +225,7 @@ export default async function handler(req, res) {
           method: 'POST',
           headers: { apikey: sbKey, Authorization: `Bearer ${sbKey}`, 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            tier: isLower ? 'lower' : 'core',
+            tier: 'core',
             slot_time: slot,
             source: 'native',
             contact_email: String(email).toLowerCase(),
@@ -224,26 +234,21 @@ export default async function handler(req, res) {
       }
     } catch (_) { /* analytics must never break a booking */ }
 
-    /* Meta CAPI Schedule with the browser-matching eid. Non-blocking.
-       Lower-tier bookings report nothing to Meta at all. Those leads
-       convert poorly, so counting them trains the optimizer to go find more of
-       them. booking.html gates the browser pixel the same way by withholding the
-       eid, so a lower-tier booking produces neither a browser nor a server event. */
-    if (!isLower) {
-      fireMetaSchedule({
-        email,
-        phone,
-        eventId,
-        fbc,
-        fbp,
-        sourceUrl,
-        ip: String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.headers['x-real-ip'] || '',
-        ua: req.headers['user-agent'] || '',
-      }).catch(() => {});
-    }
+    /* Meta CAPI Schedule with the browser-matching eid. Non-blocking. Every
+       booking is qualified now, so every booking reports. */
+    fireMetaSchedule({
+      email,
+      phone,
+      eventId,
+      fbc,
+      fbp,
+      sourceUrl,
+      ip: String(req.headers['x-forwarded-for'] || '').split(',')[0].trim() || req.headers['x-real-ip'] || '',
+      ua: req.headers['user-agent'] || '',
+    }).catch(() => {});
 
     // Slack: only once the appointment really exists. Never throws.
-    await postToSlack(bookingMessage({ name, email, phone, slot, tier: isLower ? 'lower' : 'core', timezone: req.body?.timezone }));
+    await postToSlack(bookingMessage({ name, email, phone, slot, tier: 'core', timezone: req.body?.timezone }));
 
     return res.status(200).json({ success: true });
   } catch (err) {

@@ -341,18 +341,10 @@
           </section>
 
           <section class="qstep" data-q="invest" data-kind="q">
-            <h2>Are you ready to invest in your health and longevity?</h2>
+            <h2>Are you open and able to invest $10,000 in your health?</h2>
             <p class="qsub">We&rsquo;re a premium service. Knowing where you stand tells us if we can help.</p>
-            <label class="opt"><input type="radio" name="investReady" value="Yes, I'm comfortable investing $10K+ in my health this year" /><span class="key">A</span><span class="txt">Yes, I&rsquo;m comfortable investing $10K+ in my health this year</span></label>
-            <label class="opt"><input type="radio" name="investReady" value="Yes, I'm able to invest $5K-$10K in my health this year" /><span class="key">B</span><span class="txt">Yes, I&rsquo;m able to invest $5K&ndash;$10K in my health this year</span></label>
-            <label class="opt"><input type="radio" name="investReady" value="No, I am not in a position to invest in my health" /><span class="key">C</span><span class="txt">No, I am not in a position to invest in my health</span></label>
-          </section>
-
-          <section class="qstep" data-q="invest2" data-kind="q">
-            <h2>Working with Andrew and Second Prime is a serious commitment to your health.</h2>
-            <p class="qsub" id="invest2Sub">The minimum investment to get started is $5,000. If the call shows we&rsquo;re the right fit, is that something you&rsquo;d be able to do?</p>
-            <label class="opt"><input type="radio" name="investConfirm" value="Yes. If it's the right fit, I could invest $5,000 to get started" /><span class="key">A</span><span class="txt">Yes. If it&rsquo;s the right fit, I could invest $5,000 to get started</span></label>
-            <label class="opt"><input type="radio" name="investConfirm" value="No, now isn't the right time" /><span class="key">B</span><span class="txt">No, now isn&rsquo;t the right time</span></label>
+            <label class="opt"><input type="radio" name="investReady" value="Yes, I'm open and able to invest $10,000 in my health" /><span class="key">A</span><span class="txt">Yes, I&rsquo;m open and able to invest $10,000 in my health</span></label>
+            <label class="opt"><input type="radio" name="investReady" value="No, I'm not in a position to invest $10,000 right now" /><span class="key">B</span><span class="txt">No, I&rsquo;m not in a position to invest $10,000 right now</span></label>
           </section>
 
           <section class="qstep" data-q="timeline" data-kind="q">
@@ -459,12 +451,6 @@
       }
 
       // Below threshold = owner under $500K revenue, or non-owner under $200K income.
-      function needsInvestConfirm() {
-        if (isOwner() || !picked('role')) return false;
-        if (normDash(picked('annualIncome')) !== '$0 - $149K') return false;
-        return /\$5K/.test(picked('investReady'));
-      }
-
       function belowThreshold() {
         if (isOwner()) return normDash(picked('businessRevenue')) === '$0 - $500K';
         if (picked('role')) return normDash(picked('annualIncome')) === '$0 - $149K';
@@ -480,7 +466,6 @@
                    'bodycomp', 'family', 'labs', 'longevity', 'int3',
                    'trigger', 'tried', 'int5t', money];
         if (belowThreshold()) seq.push('invest');
-        if (needsInvestConfirm()) seq.push('invest2');
         seq.push('timeline', 'contact');
         return seq;
       }
@@ -623,26 +608,7 @@
           : 'It was one piece. Nobody owned the whole. That’s our job.');
       }
 
-      /* invest2's sub-line names the thing they told us is broken, so the
-         $5,000 question is about fixing THAT rather than money in the
-         abstract. Priority mirrors the booking-page flags: most severe first. */
-      function paintInvest2() {
-        var thing = '';
-        var body = picked('bodycomp'), en = picked('energy'), sl = picked('sleep'),
-            fo = picked('focus'), dr = picked('drive');
-        if (/lose 50|lose 25/.test(body)) thing = 'the weight, for good';
-        else if (/crash|coffee/.test(en)) thing = 'the 3pm crash';
-        else if (/still wake up tired|Broken/.test(sl)) thing = 'waking up tired every morning';
-        else if (/Foggy/.test(fo)) thing = 'the brain fog';
-        else if (/fraction|lower/i.test(dr)) thing = 'your drive';
-        else if (familyList().length) thing = 'the family history you want to get ahead of';
-        var el = document.getElementById('invest2Sub');
-        el.textContent = thing
-          ? 'The minimum investment to get started is $5,000. If the call shows we\u2019re the right fit, and you believed this would finally fix ' + thing + ', is that something you\u2019d be able to do?'
-          : 'The minimum investment to get started is $5,000. If the call shows we\u2019re the right fit, and you believed it would solve what brought you here, is that something you\u2019d be able to do?';
-      }
-
-      var INT_PAINTERS = { int1: paintInt1, int2: paintInt2, int3: paintInt3, int5t: paintInt5t, invest2: paintInvest2 };
+      var INT_PAINTERS = { int1: paintInt1, int2: paintInt2, int3: paintInt3, int5t: paintInt5t };
 
       /* ---- First-party tracking hooks (see TRACKING.md). Answers go only to
          our own database via track.js, never to the pixel. ---- */
@@ -939,7 +905,6 @@
           businessRevenue: picked('businessRevenue'),
           annualIncome: picked('annualIncome'),
           investReady: picked('investReady'),
-          investConfirm: picked('investConfirm'),
           timeline: picked('timeline'),
           firstName: get('firstName'),
           lastName: get('lastName'),
@@ -956,37 +921,20 @@
         if (!form.querySelector('input[name="familyHistory"]:checked')) { showErr('Looks like a question got skipped. Use Back to check your answers.'); return; }
         if (isOwner() ? !data.businessRevenue : !data.annualIncome) { showErr('Looks like a question got skipped. Use Back to check your answers.'); return; }
         if (belowThreshold() && !data.investReady) { showErr('Looks like a question got skipped. Use Back to check your answers.'); return; }
-        if (needsInvestConfirm() && !data.investConfirm) { showErr('Looks like a question got skipped. Use Back to check your answers.'); return; }
 
         btn.disabled = true;
         btn.textContent = 'Logging…';
 
         var result = computeScore();
 
-        /* Qualification gate. Above threshold books the 15-minute call. Below
-           threshold, the invest answer decides: $10K+ books the same call,
-           $5K-$10K routes to the lower-tier call, no is a pass. */
+        /* Qualification gate. One calendar (Andrew, 2026-09-14). Above threshold
+           books the 15-minute call. Below threshold, only a yes to the $10,000
+           question books it; a no finishes on the results page with no booking. */
         var below =
           (isOwner() && normDash(data.businessRevenue) === '$0 - $500K') ||
           (!isOwner() && normDash(data.annualIncome) === '$0 - $149K');
         var tier = 'core';
-        if (below) {
-          var inv = data.investReady || '';
-          if (/\$10K\+/i.test(inv)) tier = 'core';
-          /* $5K-$10K is the current lower-tier band. The $2,500 forms are kept
-             so someone who loaded the page before the floor moved still routes
-             to the lower-tier call instead of silently becoming a soft pass. */
-          else if (/\$5K|2,500|2500/i.test(inv)) {
-            /* Non-owner $0-149K in this band has been the no-show cohort, so
-               they get one more gate: an explicit yes to the $5,000 minimum.
-               Anything short of that yes is a soft pass. Owners keep the old
-               routing. */
-            var lowIncome = !isOwner() && normDash(data.annualIncome) === '$0 - $149K';
-            if (lowIncome) tier = /^Yes/.test(data.investConfirm || '') ? 'lower' : 'dq';
-            else tier = 'lower';
-          }
-          else tier = 'dq';
-        }
+        if (below) tier = /^Yes/.test(data.investReady || '') ? 'core' : 'dq';
         var disqualified = tier === 'dq';
 
         var payload = {
@@ -1049,7 +997,6 @@
             business_revenue: data.businessRevenue,
             annual_income: data.annualIncome,
             investment: data.investReady || 'Skipped (above threshold)',
-            investment_confirm: data.investConfirm || 'Not asked',
             timeline: data.timeline,
             heard_about: 'Assessment Funnel',
             qualified: disqualified ? 'No' : (tier === 'lower' ? 'Yes - lower tier' : 'Yes'),
@@ -1107,7 +1054,6 @@
                 ['Business revenue', isOwner() ? data.businessRevenue : ''],
                 ['Annual income', isOwner() ? '' : data.annualIncome],
                 ['Investment readiness', data.investReady],
-                ['Investment confirm', data.investConfirm],
                 ['Timeline', data.timeline],
                 ['Risk', result.risk.pct + ' (' + result.risk.status + ')'],
                 ['Performance', result.perf.pct + ' (' + result.perf.status + ')']
@@ -1129,7 +1075,6 @@
             first_name: data.firstName, last_name: data.lastName,
             email: data.email, phone: data.phone
           });
-          if (tier === 'lower') qs.set('c', '30');
           window.location.href = 'booking.html?' + qs.toString();
         });
       });
