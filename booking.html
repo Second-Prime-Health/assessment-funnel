@@ -319,7 +319,6 @@
          would start reporting lower-tier bookings as conversions. The tier
          rides along to /api/slots and /api/book, which map it to a calendar id
          server-side. Only the widget fallback needs the raw URL. */
-      var LOWER_CAL = 'https://link.secondprime.io/widget/booking/85vCxdmO6uvmsJmx97Rp';
       var callMins = '15 minutes';
       /* CompleteRegistration: a core-qualified lead reached the booking page,
          contact info already captured at submit. Core only: lower tier is
@@ -333,12 +332,6 @@
           localStorage.setItem('sp_cr_fired', '1');
         }
       } catch (_) {}
-
-      if (isLower) {
-        document.getElementById('bookingWidget').src = LOWER_CAL;
-        document.querySelector('.ap-sub').innerHTML =
-          'A free 15-minute call. We review your assessment before we get on, so it\u2019s about you from the first minute.<span id="emailNote"></span>';
-      }
 
       /* If /api/slots isn't deployed (plain static hosting), fall back to the
          embedded GHL booking widget so the page always works. */
