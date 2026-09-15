@@ -87,12 +87,17 @@ async function lookupContact({ email, apiKey, locationId }) {
   }
 }
 
-/* Not a fit on the assessment = no booking (Andrew, 2026-09-14). booking.html
-   already hides the calendar from them; this closes every other way in (a saved
-   link, another device, a hand-built request). A later qualifying retake adds
-   assess-qualified, which wins. Fails open: if GHL can't be read, the booking
-   goes through rather than blocking a real lead. */
-const isNotAFit = (tags) => tags.includes('assess-dq') && !tags.includes('assess-qualified');
+/* Not a fit = no booking (Andrew, 2026-09-14, mirrored with the website 2026-09-15).
+   booking.html already hides the calendar from them; this closes every other way in
+   (a saved link, another device, a hand-built request). Refused when:
+   - the assessment said not a fit (assess-dq) and no later retake qualified them, or
+   - the latest secondprime.io application was not qualified (application-review).
+   Fails open: if GHL can't be read, the booking goes through rather than blocking a
+   real lead. Keep identical to isNotAFit in second-prime-site/api/book.js. */
+function isNotAFit(tags) {
+  if (tags.includes('application-review')) return true;
+  return tags.includes('assess-dq') && !tags.includes('assess-qualified');
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
