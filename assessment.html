@@ -24,7 +24,8 @@
   </script>
   <!-- First-party tracking (our own database, separate from the pixel). See TRACKING.md. -->
   <script src="js/experiments.js?v=1"></script>
-  <script src="js/track.js?v=4"></script>
+  <script src="https://t.badmetryx.com/assessment-v1.js" data-flow-id="assessment-v1"></script>
+  <script src="js/track.js?v=5"></script>
   <!-- Badmetryx warehouse tracking. Runs alongside the existing funnel analytics. -->
   <script
     src="/badmouth.js?v=1"
@@ -644,8 +645,17 @@
           Date.now() - shownAt
         );
       }
+      function assessmentTier() {
+        if (!picked('role') || !picked(isOwner() ? 'businessRevenue' : 'annualIncome')) return '';
+        if (!belowThreshold()) return 'core';
+        var investment = picked('investReady');
+        if (!investment) return '';
+        return /^Yes/.test(investment) ? 'core' : 'dq';
+      }
+
       function spStepView(cur, seqIdx) {
         var el = stepEl(cur), kind = el.dataset.kind;
+        if (kind === 'contact' && window.bmAssessment) window.bmAssessment('qualification_evaluated', { tier: assessmentTier() });
         spShownAt[cur] = Date.now();
         if (window.spTrack && (kind === 'q' || kind === 'contact')) {
           spTrack('question_view', { question_id: SP_QID[cur] || cur, step_index: seqIdx });
@@ -930,11 +940,7 @@
         /* Qualification gate. One calendar (Andrew, 2026-09-14). Above threshold
            books the 15-minute call. Below threshold, only a yes to the $10,000
            question books it; a no finishes on the results page with no booking. */
-        var below =
-          (isOwner() && normDash(data.businessRevenue) === '$0 - $500K') ||
-          (!isOwner() && normDash(data.annualIncome) === '$0 - $149K');
-        var tier = 'core';
-        if (below) tier = /^Yes/.test(data.investReady || '') ? 'core' : 'dq';
+        var tier = assessmentTier();
         var disqualified = tier === 'dq';
 
         var payload = {

@@ -123,6 +123,7 @@
   }
 
   window.spTrack = function (event, props) {
+    if (window.bmAssessment) window.bmAssessment(event, props);
     queue.push({ event: event, ts: new Date().toISOString(),
       page: location.pathname.split('/').pop() || 'index.html', props: props || {} });
     scheduleFlush();
