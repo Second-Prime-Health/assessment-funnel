@@ -15,6 +15,7 @@
     ]
   };
 
+  window.spExperiment = EXPERIMENT.id;
   var KEY = 'sp_variant';
   var assigned = null;
   try {

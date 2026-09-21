@@ -24,7 +24,8 @@
   </script>
   <!-- First-party tracking (our own database, separate from the pixel). See TRACKING.md. -->
   <script src="js/experiments.js?v=1"></script>
-  <script src="js/track.js?v=4"></script>
+  <script src="https://t.badmetryx.com/assessment-v1.js" data-flow-id="assessment-v1"></script>
+  <script src="js/track.js?v=5"></script>
   <!-- Badmetryx warehouse tracking. Runs alongside the existing funnel analytics. -->
   <script
     src="/badmouth.js?v=1"
@@ -564,6 +565,7 @@
             return;
           }
           if (res.ok && data.success) {
+            if (window.bmAssessment) window.bmAssessment('booking_created', { tier: payload.tier, email: payload.email });
             var t = new Date(selectedSlot);
             confirmedDetails.textContent = t.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' }) + ' at ' + t.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
             /* Append the eid to the finish link so thank-you.html can fire
