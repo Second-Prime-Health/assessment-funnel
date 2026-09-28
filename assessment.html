@@ -451,11 +451,14 @@
           .filter(function (v) { return v !== 'None of these'; });
       }
 
-      // Below threshold = owner under $500K revenue, or non-owner under $200K income.
+      // Below threshold = owner under $500K revenue. Gets the $10K question.
       function belowThreshold() {
-        if (isOwner()) return normDash(picked('businessRevenue')) === '$0 - $500K';
-        if (picked('role')) return normDash(picked('annualIncome')) === '$0 - $149K';
-        return false;
+        return isOwner() && normDash(picked('businessRevenue')) === '$0 - $500K';
+      }
+
+      // Non-owner under $150K income: not a fit, no $10K question, no booking (Andrew, 2026-09-28).
+      function incomeDQ() {
+        return !!picked('role') && !isOwner() && normDash(picked('annualIncome')) === '$0 - $149K';
       }
 
       /* Full step sequence, interstitials included. The money question swaps on
@@ -647,6 +650,7 @@
       }
       function assessmentTier() {
         if (!picked('role') || !picked(isOwner() ? 'businessRevenue' : 'annualIncome')) return '';
+        if (incomeDQ()) return 'dq';
         if (!belowThreshold()) return 'core';
         var investment = picked('investReady');
         if (!investment) return '';
@@ -939,7 +943,8 @@
 
         /* Qualification gate. One calendar (Andrew, 2026-09-14). Above threshold
            books the 15-minute call. Below threshold, only a yes to the $10,000
-           question books it; a no finishes on the results page with no booking. */
+           question books it; a no finishes on the results page with no booking.
+           Non-owners under $150K income never book (Andrew, 2026-09-28). */
         var tier = assessmentTier();
         var disqualified = tier === 'dq';
 
