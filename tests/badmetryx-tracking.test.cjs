@@ -12,16 +12,24 @@ function tier(values) {
     picked: (name) => values[name] || '',
     isOwner: () => values.role === 'I own or co-own a business',
     belowThreshold: () => values.role === 'I own or co-own a business'
-      ? values.businessRevenue === '$0 - $500K' : values.annualIncome === '$0 - $149K',
+      ? values.businessRevenue === '$0 - $500K' : (!secondPrime && values.annualIncome === '$0 - $149K'),
+    incomeDQ: () => secondPrime && !!values.role && values.role !== 'I own or co-own a business'
+      && values.annualIncome === '$0 - $149K',
   });
 }
 test('qualification preserves both branches and never qualifies an incomplete gate', () => {
   assert.equal(tier({}), '');
   assert.equal(tier({ role: 'Employee' }), '');
   assert.equal(tier({ role: 'Employee', annualIncome: '$150K - $249K' }), 'core');
-  assert.equal(tier({ role: 'Employee', annualIncome: '$0 - $149K' }), '');
-  assert.equal(tier({ role: 'Employee', annualIncome: '$0 - $149K', investReady: 'No, not right now' }), 'dq');
-  assert.equal(tier({ role: 'Employee', annualIncome: '$0 - $149K', investReady: secondPrime ? 'Yes' : 'Yes - $10K+' }), 'core');
+  if (secondPrime) {
+    assert.equal(tier({ role: 'Employee', annualIncome: '$0 - $149K' }), 'dq');
+    assert.equal(tier({ role: 'Employee', annualIncome: '$0 - $149K', investReady: 'Yes' }), 'dq');
+    assert.equal(tier({ role: 'I own or co-own a business', businessRevenue: '$0 - $500K', investReady: 'No' }), 'dq');
+  } else {
+    assert.equal(tier({ role: 'Employee', annualIncome: '$0 - $149K' }), '');
+    assert.equal(tier({ role: 'Employee', annualIncome: '$0 - $149K', investReady: 'No, not right now' }), 'dq');
+    assert.equal(tier({ role: 'Employee', annualIncome: '$0 - $149K', investReady: 'Yes - $10K+' }), 'core');
+  }
   assert.equal(tier({ role: 'I own or co-own a business', businessRevenue: '$501K - $1M' }), 'core');
   assert.equal(tier({ role: 'I own or co-own a business', businessRevenue: '$0 - $500K', investReady: secondPrime ? 'Yes' : 'Yes - $10K+' }), 'core');
   if (!secondPrime) assert.equal(tier({ role: 'Employee', annualIncome: '$0 - $149K', investReady: '$2,500 - $10K' }), 'lower');
