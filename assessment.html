@@ -341,6 +341,13 @@
             <label class="opt"><input type="radio" name="annualIncome" value="$300K+" /><span class="key">C</span><span class="txt">$300K+</span></label>
           </section>
 
+          <section class="qstep" data-q="invest" data-kind="q">
+            <h2>Are you open and able to invest $10,000 in your health?</h2>
+            <p class="qsub">We&rsquo;re a premium service. Knowing where you stand tells us if we can help.</p>
+            <label class="opt"><input type="radio" name="investReady" value="Yes, I'm open and able to invest $10,000 in my health" /><span class="key">A</span><span class="txt">Yes, I&rsquo;m open and able to invest $10,000 in my health</span></label>
+            <label class="opt"><input type="radio" name="investReady" value="No, I'm not in a position to invest $10,000 right now" /><span class="key">B</span><span class="txt">No, I&rsquo;m not in a position to invest $10,000 right now</span></label>
+          </section>
+
           <section class="qstep" data-q="timeline" data-kind="q">
             <h2>If your results say something worth acting on, when would you want to start?</h2>
             <p class="qsub">Honest answer. It only changes how we follow up.</p>
@@ -444,22 +451,26 @@
           .filter(function (v) { return v !== 'None of these'; });
       }
 
-      // Not a fit = owner under $500K revenue, or non-owner under $150K income.
-      // No $10K question, no booking (Andrew, 2026-09-28).
+      // Below threshold = owner under $500K revenue. Gets the $10K question.
       function belowThreshold() {
-        if (isOwner()) return normDash(picked('businessRevenue')) === '$0 - $500K';
-        if (picked('role')) return normDash(picked('annualIncome')) === '$0 - $149K';
-        return false;
+        return isOwner() && normDash(picked('businessRevenue')) === '$0 - $500K';
+      }
+
+      // Non-owner under $150K income: not a fit, no $10K question, no booking (Andrew, 2026-09-28).
+      function incomeDQ() {
+        return !!picked('role') && !isOwner() && normDash(picked('annualIncome')) === '$0 - $149K';
       }
 
       /* Full step sequence, interstitials included. The money question swaps on
-         the role answer. */
+         the role answer; the $10K question only appears below threshold. */
       function sequence() {
         var money = isOwner() ? 'revenue' : 'income';
         var seq = ['goals', 'age', 'role', 'int1',
                    'energy', 'focus', 'sleep', 'drive', 'int2',
                    'bodycomp', 'family', 'labs', 'longevity', 'int3',
-                   'trigger', 'tried', 'int5t', money, 'timeline', 'contact'];
+                   'trigger', 'tried', 'int5t', money];
+        if (belowThreshold()) seq.push('invest');
+        seq.push('timeline', 'contact');
         return seq;
       }
 
@@ -605,7 +616,7 @@
 
       /* ---- First-party tracking hooks (see TRACKING.md). Answers go only to
          our own database via track.js, never to the pixel. ---- */
-      var SP_QID = { family: 'familyHistory', trigger: 'triggerEvent', tried: 'alreadyTried', revenue: 'businessRevenue', income: 'annualIncome' };
+      var SP_QID = { family: 'familyHistory', trigger: 'triggerEvent', tried: 'alreadyTried', revenue: 'businessRevenue', income: 'annualIncome', invest: 'investReady' };
       var spShownAt = {};
       function quizStepNumber(seqIdx) {
         var seq = sequence(), step = 0;
@@ -639,7 +650,11 @@
       }
       function assessmentTier() {
         if (!picked('role') || !picked(isOwner() ? 'businessRevenue' : 'annualIncome')) return '';
-        return belowThreshold() ? 'dq' : 'core';
+        if (incomeDQ()) return 'dq';
+        if (!belowThreshold()) return 'core';
+        var investment = picked('investReady');
+        if (!investment) return '';
+        return /^Yes/.test(investment) ? 'core' : 'dq';
       }
 
       function spStepView(cur, seqIdx) {
@@ -903,6 +918,7 @@
           context: get('context'),
           businessRevenue: picked('businessRevenue'),
           annualIncome: picked('annualIncome'),
+          investReady: picked('investReady'),
           timeline: picked('timeline'),
           firstName: get('firstName'),
           lastName: get('lastName'),
@@ -918,6 +934,7 @@
         }
         if (!form.querySelector('input[name="familyHistory"]:checked')) { showErr('Looks like a question got skipped. Use Back to check your answers.'); return; }
         if (isOwner() ? !data.businessRevenue : !data.annualIncome) { showErr('Looks like a question got skipped. Use Back to check your answers.'); return; }
+        if (belowThreshold() && !data.investReady) { showErr('Looks like a question got skipped. Use Back to check your answers.'); return; }
 
         btn.disabled = true;
         btn.textContent = 'Logging…';
@@ -925,8 +942,9 @@
         var result = computeScore();
 
         /* Qualification gate. One calendar (Andrew, 2026-09-14). Above threshold
-           books the 15-minute call. Below threshold finishes on the results page
-           with no booking; the $10,000 question is gone (Andrew, 2026-09-28). */
+           books the 15-minute call. Below threshold, only a yes to the $10,000
+           question books it; a no finishes on the results page with no booking.
+           Non-owners under $150K income never book (Andrew, 2026-09-28). */
         var tier = assessmentTier();
         var disqualified = tier === 'dq';
 
@@ -989,6 +1007,7 @@
             business_owner: isOwner() ? 'Yes' : 'No',
             business_revenue: data.businessRevenue,
             annual_income: data.annualIncome,
+            investment: data.investReady || 'Skipped (above threshold)',
             timeline: data.timeline,
             heard_about: 'Assessment Funnel',
             qualified: disqualified ? 'No' : (tier === 'lower' ? 'Yes - lower tier' : 'Yes'),
@@ -1045,6 +1064,7 @@
                 ['Business owner', isOwner() ? 'Yes' : 'No'],
                 ['Business revenue', isOwner() ? data.businessRevenue : ''],
                 ['Annual income', isOwner() ? '' : data.annualIncome],
+                ['Investment readiness', data.investReady],
                 ['Timeline', data.timeline],
                 ['Risk', result.risk.pct + ' (' + result.risk.status + ')'],
                 ['Performance', result.perf.pct + ' (' + result.perf.status + ')']
